@@ -2,6 +2,7 @@ import { useLayoutEffect, useRef } from 'react'
 import * as THREE from 'three'
 import { COLORS, HALL, LIGHTS, PEWS, STAGE } from '../config'
 import { pillarX, pillarZs } from '../scenes/sanctuaryLayout'
+import { ChurchDoor } from './ChurchDoor'
 
 // 천장 매입등 위치 (자체 발광 원판만, 실제 광원은 아님)
 const downlights: [number, number][] = []
@@ -116,22 +117,8 @@ export function Room() {
         <boxGeometry args={[HALL.width, panelH, 0.04]} />
         <meshStandardMaterial color={COLORS.wallLower} roughness={0.7} />
       </mesh>
-      {[-0.62, 0.62].map((x) => (
-        <group key={x} position={[x, 1.4, HALL.backZ - 0.05]}>
-          <mesh>
-            <boxGeometry args={[1.2, 2.8, 0.08]} />
-            <meshStandardMaterial color={COLORS.door} roughness={0.6} />
-          </mesh>
-          <mesh position={[0, 0.5, -0.05]}>
-            <boxGeometry args={[0.7, 1.0, 0.02]} />
-            <meshStandardMaterial color="#2a2f3a" roughness={0.3} />
-          </mesh>
-          <mesh position={[-Math.sign(x) * 0.48, -0.2, -0.07]}>
-            <boxGeometry args={[0.04, 0.3, 0.04]} />
-            <meshStandardMaterial color="#c9c4ba" metalness={0.6} roughness={0.35} />
-          </mesh>
-        </group>
-      ))}
+      {/* 1층 정문: 웅장한 원목 양문 */}
+      <ChurchDoor position={[0, 0, HALL.backZ - 0.02]} leafWidth={1.5} height={3.4} light />
 
       {/* 측벽 기둥 */}
       {pillarZs.map((z) =>

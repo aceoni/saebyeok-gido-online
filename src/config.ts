@@ -37,7 +37,7 @@ export const BALCONY = {
   rows: 5,
   firstRowZ: 7.7,
   rowSpacing: 1.1,
-  tierHeight: 0.35,
+  tierHeight: 0.5, // 아래에서도 의자가 잘 보이게 단차를 크게
 }
 
 export const PEWS = {
@@ -84,7 +84,7 @@ export const COLORS = {
   drumShell: '#5b1f24', // 드럼 셸 (짙은 와인색 래커)
   cymbal: '#c9a548',
   chairFabric: '#9a9184',
-  door: '#b08a62',
+  door: '#dcb684', // 정문 밝은 원목
 }
 
 export const LIGHTS = {
@@ -96,6 +96,7 @@ export const LIGHTS = {
   wallLamp: { color: '#ffc488', intensity: 1.5, distance: 8, flicker: 0.04, glow: 0.35 }, // 업라이트: 벽 번짐 + 약한 광원
   crossSpot: { color: '#ffe2b8', intensity: 40 }, // 십자가를 아래에서 비추는 은은한 조명 (그림자 없음)
   pianoLamp: { color: '#ffc27a', intensity: 3, distance: 3.5 },
+  entranceLight: { color: '#ffd9a8', intensity: 2.5, distance: 7 }, // 정문 위 은은한 입구 조명
   downlightGlow: 0, // 천장 매입등 자체 발광 (0 = 꺼짐)
 }
 
