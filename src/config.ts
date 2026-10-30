@@ -30,7 +30,7 @@ export const CHOIR = {
 }
 
 export const PEWS = {
-  rows: 11,
+  rows: 14,
   firstZ: -6.2, // 첫 줄 앞에 키보드 자리를 비워 둠
   spacing: 1.1,
   aisleHalf: 1.2, // 중앙 통로 반폭
@@ -38,9 +38,7 @@ export const PEWS = {
   seatHeight: 0.45,
   seatDepth: 0.45,
   backHeight: 0.95, // 등받이 꼭대기 높이
-  // 왼쪽 앞 몇 줄은 그랜드피아노 자리만큼 짧게
-  leftShortRows: 4,
-  leftShortEndX: -4.4, // 피아노 + 관현악 연주자 자리
+  leftSkipRows: 4, // 왼쪽 앞 몇 줄은 비움 (그랜드피아노 + 관현악 연주자 자리)
 }
 
 // 밝은 원목 + 크림색 벽 + 회색 쿠션의 현대적인 예배당 톤

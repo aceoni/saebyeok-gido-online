@@ -16,16 +16,10 @@ export type PewSlot = {
 export const pewSlots: PewSlot[] = Array.from({ length: PEWS.rows }, (_, row) => {
   const z = PEWS.firstZ + row * PEWS.spacing
   const cx = PEWS.aisleHalf + PEWS.length / 2
-  // 왼쪽 앞 몇 줄은 그랜드피아노 자리만큼 짧게 (통로 쪽 끝은 그대로)
-  const shortLen = -PEWS.aisleHalf - PEWS.leftShortEndX
-  const left =
-    row < PEWS.leftShortRows
-      ? { x: -PEWS.aisleHalf - shortLen / 2, length: shortLen }
-      : { x: -cx, length: PEWS.length }
-  return [
-    { id: `L${row}`, x: left.x, z, side: 'left' as const, row, length: left.length },
-    { id: `R${row}`, x: cx, z, side: 'right' as const, row },
-  ]
+  const right = { id: `R${row}`, x: cx, z, side: 'right' as const, row }
+  // 왼쪽 앞 몇 줄은 비움 (그랜드피아노 + 관현악 연주자 자리)
+  if (row < PEWS.leftSkipRows) return [right]
+  return [{ id: `L${row}`, x: -cx, z, side: 'left' as const, row }, right]
 }).flat()
 
 // 성가대석 장의자: 왼쪽 벽을 등지고 중앙(+x)을 바라봄 → rotY = -90°
@@ -46,8 +40,8 @@ export const CONDUCTOR_POS: [number, number, number] = [-6.2, STAGE.height, (CHO
 
 // 그랜드피아노: 성가대석 앞(회중석 쪽), 연주자가 지휘자를 정면으로 바라보도록 회전.
 // (모델 로컬 좌표: 건반 = +z, 꼬리 = -z → 연주자는 -z 를 바라봄)
-export const GRAND_PIANO_POS: [number, number, number] = [-8.6, 0, -4.9]
-export const GRAND_PIANO_SCALE = 1.3
+export const GRAND_PIANO_POS: [number, number, number] = [-8.7, 0, -4.4]
+export const GRAND_PIANO_SCALE = 1.6
 export const GRAND_PIANO_ROT_Y = Math.atan2(
   GRAND_PIANO_POS[0] - CONDUCTOR_POS[0],
   GRAND_PIANO_POS[2] - CONDUCTOR_POS[2],
