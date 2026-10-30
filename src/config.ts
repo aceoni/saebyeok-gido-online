@@ -41,7 +41,7 @@ export const COLORS = {
   cushion: '#8b8f96', // 장의자 회색 쿠션
   stage: '#d4b78e', // 단상 원목 마루
   frontPanel: '#bf9466', // 강대상 뒤 원목 벽
-  cross: '#e2c08f', // 벽 십자가 (패널보다 밝은 원목)
+  cross: '#f0dcb8', // 벽 십자가 (연한 원목)
   piano: '#16161a',
   pianoKeys: '#e8e2d4',
   pulpitAcrylic: '#f4f2ee', // 반투명 흰색 아크릴 강대상
@@ -62,7 +62,6 @@ export const LIGHTS = {
   ambient: { color: '#b4bad6', intensity: 0.26 },
   hemi: { sky: '#cfd3e6', ground: '#5a4a3a', intensity: 0.36 },
   fog: { near: 14, far: 75 },
-  pulpitSpot: { color: '#ffd9a0', intensity: 160, angle: 0.42, penumbra: 0.7, height: 7 },
   screenRect: { color: '#a8b8ff', intensity: 2.5 },
   screenBreath: { period: 14, depth: 0.25 }, // 초, 밝기 변화 폭
   wallLamp: { color: '#ffc488', intensity: 1.5, distance: 8, flicker: 0.04, glow: 0.35 }, // 업라이트: 벽 번짐 + 약한 광원
@@ -72,15 +71,10 @@ export const LIGHTS = {
 }
 
 export const SCREEN = {
-  // 왼쪽 스크린 문구 (몇 분마다 페이드 전환)
-  messages: [
-    '조용히 기도하는 시간입니다.',
-    '주님 앞에 마음을 내려놓습니다.',
-    '평안이 함께하기를',
-    '잠시 멈추어 숨을 고릅니다.',
-    '오늘 하루도 은혜 안에서',
-  ],
-  holdSeconds: 150, // 한 문구 유지 시간
+  // 좌/우 스크린 공통 문구
+  text: '조용히 기도하는 시간입니다.',
+  // 은은한 교회 예배 화면 느낌의 대각선 그라데이션 (보라빛 파랑 → 파랑)
+  background: ['#6668bf', '#4b7fcf', '#5fa0db'],
   fadeSeconds: 4,
   font: '"Gowun Batang", serif',
 }

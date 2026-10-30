@@ -79,8 +79,8 @@ export const SPEAKER_ARRAYS: [number, number, number][] = [
   [8.3, 1, 6],
 ]
 
-// 벽등: 천장:바닥 = 1:4 지점 (천장에서 1/5 아래)
-const LAMP_Y = (HALL.height * 4) / 5
+// 벽등: 천장:바닥 1:4 지점보다 조금 아래
+const LAMP_Y = HALL.height * 0.74
 export const WALL_LAMPS: [number, number, number][] = [-10, -4, 2, 8].flatMap((z) => [
   [-HALL.width / 2 + 0.25, LAMP_Y, z] as [number, number, number],
   [HALL.width / 2 - 0.25, LAMP_Y, z] as [number, number, number],

@@ -12,7 +12,6 @@ const camTarget = (camParam?.slice(3, 6) ?? [0, 3.4, -6]) as [number, number, nu
 export default function App() {
   return (
     <Canvas
-      shadows
       dpr={[1, 1.5]}
       camera={{ position: camPos, fov: 55, near: 0.1, far: 100 }}
       gl={{ antialias: true, toneMapping: THREE.ACESFilmicToneMapping, toneMappingExposure: 1.2 }}

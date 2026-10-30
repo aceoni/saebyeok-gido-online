@@ -5,11 +5,17 @@ import { COLORS, LIGHTS } from '../config'
 
 type Props = { position: [number, number, number]; seed: number }
 
-const GLOW_W = 2.4
-const GLOW_UP = 3.4 // 등 위로 퍼지는 길이
-const GLOW_DOWN = 0.8 // 등 아래로 살짝 새는 길이
+const GLOW_W = 2.6
+const GLOW_UP = 3.6 // 등 위로 퍼지는 길이
+const GLOW_DOWN = 0.25 // 갓 바로 아래 아주 짧은 번짐
+const FAN_HALF_ANGLE = 0.6 // 부채꼴 반각 (rad, 약 34°)
 
-// 벽에 번지는 부채꼴 빛 (모든 벽등이 공유하는 텍스처)
+const smooth = (e0: number, e1: number, x: number) => {
+  const t = Math.min(1, Math.max(0, (x - e0) / (e1 - e0)))
+  return t * t * (3 - 2 * t)
+}
+
+// 벽에 번지는 부채꼴 빛 (모든 벽등이 공유하는 텍스처). 위로만 퍼지고 옆/아래로는 거의 없음.
 let glowTexture: THREE.CanvasTexture | null = null
 function getGlowTexture() {
   if (glowTexture) return glowTexture
@@ -17,28 +23,32 @@ function getGlowTexture() {
   c.width = 128
   c.height = 256
   const ctx = c.getContext('2d')!
-  const lampY = (c.height * GLOW_UP) / (GLOW_UP + GLOW_DOWN)
-  // 위로 길게 퍼지는 타원 그라데이션
-  ctx.save()
-  ctx.translate(c.width / 2, lampY)
-  ctx.scale(0.28, 0.95) // 가로 반경이 캔버스 폭 안에 들어오도록 → 가장자리가 잘리지 않음
-  const up = ctx.createRadialGradient(0, 0, 0, 0, 0, lampY)
-  up.addColorStop(0, 'rgba(255,255,255,0.75)')
-  up.addColorStop(0.3, 'rgba(255,255,255,0.3)')
-  up.addColorStop(1, 'rgba(255,255,255,0)')
-  ctx.fillStyle = up
-  ctx.fillRect(-c.width / 0.28, -lampY / 0.95, (c.width * 2) / 0.28, lampY / 0.95)
-  ctx.restore()
-  // 아래쪽은 짧고 약하게
-  ctx.save()
-  ctx.translate(c.width / 2, lampY)
-  ctx.scale(0.3, 0.9)
-  const down = ctx.createRadialGradient(0, 0, 0, 0, 0, c.height - lampY)
-  down.addColorStop(0, 'rgba(255,255,255,0.35)')
-  down.addColorStop(1, 'rgba(255,255,255,0)')
-  ctx.fillStyle = down
-  ctx.fillRect(-c.width / 0.3, 0, (c.width * 2) / 0.3, c.height - lampY)
-  ctx.restore()
+  const img = ctx.createImageData(c.width, c.height)
+  const pxPerM = c.height / (GLOW_UP + GLOW_DOWN)
+  const lampY = GLOW_UP * pxPerM
+  const cx = c.width / 2
+  const tan = Math.tan(FAN_HALF_ANGLE)
+  for (let py = 0; py < c.height; py++) {
+    for (let px = 0; px < c.width; px++) {
+      const dx = px + 0.5 - cx
+      const up = lampY - (py + 0.5) // 등 위쪽으로의 거리(px)
+      const r = Math.hypot(dx, up)
+      let a = 0
+      if (up > 0) {
+        const halfW = 5 + up * tan
+        const angular = 1 - smooth(0.45, 1, Math.abs(dx) / halfW)
+        const radial = Math.pow(1 - up / lampY, 1.5)
+        a = 0.75 * angular * radial
+      }
+      a += 0.35 * Math.exp(-((r / 9) ** 2)) // 갓 주변 작은 빛무리
+      a *= 1 - smooth(0.7, 1, Math.abs(dx) / cx) // 텍스처 가장자리에서 경계가 보이지 않게
+      a *= 1 - smooth(0.85, 1, up / lampY)
+      const i = (py * c.width + px) * 4
+      img.data[i] = img.data[i + 1] = img.data[i + 2] = 255
+      img.data[i + 3] = Math.round(Math.min(1, a) * 255)
+    }
+  }
+  ctx.putImageData(img, 0, 0)
   glowTexture = new THREE.CanvasTexture(c)
   return glowTexture
 }
