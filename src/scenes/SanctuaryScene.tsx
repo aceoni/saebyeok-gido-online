@@ -9,9 +9,9 @@ import { Piano } from '../models/Piano'
 import { Screen } from '../models/Screen'
 import { CeilingSpeaker, Flag, FlowerStand } from '../models/Decor'
 import { WallLamp } from '../models/WallLamp'
-import { MAIN_SCREEN, PIANO_POS, PULPIT_POS, SIDE_SCREENS, WALL_LAMPS } from './sanctuaryLayout'
+import { PIANO_POS, PIANO_ROT_Y, PULPIT_POS, SCREENS, WALL_LAMPS } from './sanctuaryLayout'
 
-// 정면 스크린 문구를 몇 분마다 바꾼다 (상태 변경은 수 분에 한 번이라 useState 사용)
+// 왼쪽 스크린 문구를 몇 분마다 바꾼다 (상태 변경은 수 분에 한 번이라 useState 사용)
 function useCyclingMessage() {
   const [i, setI] = useState(0)
   useEffect(() => {
@@ -52,7 +52,7 @@ function Lights() {
 
 export function SanctuaryScene() {
   const message = useCyclingMessage()
-  const sideTitle = '새벽기도'
+  const hymnTitle = '새벽기도' // M4에서 현재 재생 중인 찬송 제목으로 교체
 
   return (
     <>
@@ -64,19 +64,17 @@ export function SanctuaryScene() {
       <Stage />
       <Pulpit position={PULPIT_POS} />
       <Pews />
-      <Piano position={PIANO_POS} rotationY={-Math.PI / 2} />
+      <Piano position={PIANO_POS} rotationY={PIANO_ROT_Y} />
 
       <FlowerStand position={[-1.9, STAGE.height, -12.3]} />
       <FlowerStand position={[1.9, STAGE.height, -12.3]} />
-      <Flag position={[-6.9, STAGE.height, -15.4]} variant="christian" />
-      <Flag position={[6.9, STAGE.height, -15.4]} variant="church" />
+      <Flag position={[-8.4, STAGE.height, -15.3]} variant="christian" />
+      <Flag position={[8.4, STAGE.height, -15.3]} variant="church" />
 
-      <group position={[...MAIN_SCREEN.pos]}>
-        <Screen width={MAIN_SCREEN.w} height={MAIN_SCREEN.h} text={message} main />
-      </group>
-      {SIDE_SCREENS.map((s, i) => (
-        <group key={i} position={[...s.pos]} rotation-y={s.rotY}>
-          <Screen width={3.2} height={1.8} text={sideTitle} fontScale={1.4} />
+      {/* 정면 좌: 문구 / 정면 우: 찬송 제목 */}
+      {SCREENS.map((sc, i) => (
+        <group key={i} position={[...sc.pos]}>
+          <Screen width={sc.w} height={sc.h} text={i === 0 ? message : hymnTitle} main />
         </group>
       ))}
 

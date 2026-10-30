@@ -17,8 +17,8 @@ export const STAGE = {
 
 export const PEWS = {
   rows: 11,
-  firstZ: -7.5,
-  spacing: 1.15,
+  firstZ: -5.6, // 첫 줄 앞에 피아노 자리를 비워 둠
+  spacing: 1.1,
   aisleHalf: 1.2, // 중앙 통로 반폭
   length: 6.8,
   seatHeight: 0.45,
@@ -26,46 +26,50 @@ export const PEWS = {
   backHeight: 0.95, // 등받이 꼭대기 높이
 }
 
+// 밝은 원목 + 크림색 벽 + 회색 쿠션의 현대적인 예배당 톤
 export const COLORS = {
-  background: '#06070c',
-  fog: '#0b0d16',
-  floor: '#3a2a20',
-  carpet: '#4a1a1e',
-  wall: '#6b4a33',
-  wallLower: '#4f3524',
-  ceiling: '#2a2420',
-  pillar: '#5a3d2a',
-  wood: '#7a5233',
-  woodDark: '#4a2f1e',
-  stage: '#5c3b26',
-  stageCarpet: '#5a2026',
+  background: '#101218',
+  fog: '#232733',
+  floor: '#b7afa2',
+  carpet: '#8e8a85',
+  wall: '#e6dfd2',
+  wallLower: '#b98d61', // 아래쪽 원목 패널
+  ceiling: '#dcd5c8',
+  pillar: '#d8d0c2',
+  wood: '#c8a072', // 밝은 오크
+  woodDark: '#a87d52',
+  cushion: '#8b8f96', // 장의자 회색 쿠션
+  stage: '#d4b78e', // 단상 원목 마루
+  frontPanel: '#bf9466', // 강대상 뒤 원목 벽
   piano: '#0d0d0f',
   pianoKeys: '#e8e2d4',
-  screenFrame: '#111114',
-  screenGlow: '#1c2740',
+  screenFrame: '#1a1a1d',
   speaker: '#1a1a1c',
-  lampShade: '#f3d9a8',
-  flower: ['#e8d8c0', '#d98c8c', '#f2e6a6'],
-  leaf: '#2f4a2a',
+  lampShade: '#f3e6cc',
+  downlight: '#fff1d6',
+  flower: ['#f2ead8', '#e8b4b4', '#f2e6a6'],
+  leaf: '#4a6a3e',
   flagCross: '#f0ead8',
   flagRed: '#8a2a2a',
   flagBlue: '#2a3a6a',
-  door: '#3f2a1c',
+  flagNavy: '#25335a',
+  door: '#b08a62',
 }
 
 export const LIGHTS = {
-  ambient: { color: '#7d8ab0', intensity: 0.35 },
-  hemi: { sky: '#3a4566', ground: '#2a1c14', intensity: 0.45 },
-  fog: { near: 10, far: 55 },
-  pulpitSpot: { color: '#ffcf8a', intensity: 140, angle: 0.42, penumbra: 0.7, height: 7 },
-  screenRect: { color: '#a8b8ff', intensity: 3 },
+  ambient: { color: '#b4bad6', intensity: 0.22 },
+  hemi: { sky: '#cfd3e6', ground: '#5a4a3a', intensity: 0.3 },
+  fog: { near: 12, far: 60 },
+  pulpitSpot: { color: '#ffd9a0', intensity: 160, angle: 0.42, penumbra: 0.7, height: 7 },
+  screenRect: { color: '#a8b8ff', intensity: 2.5 },
   screenBreath: { period: 14, depth: 0.25 }, // 초, 밝기 변화 폭
-  wallLamp: { color: '#ffb066', intensity: 5, distance: 9, flicker: 0.06 },
+  wallLamp: { color: '#ffc488', intensity: 5, distance: 9, flicker: 0.05 },
   pianoLamp: { color: '#ffc27a', intensity: 4, distance: 4 },
+  downlightGlow: 0.35, // 천장 매입등 자체 발광 세기 (실제 광원 아님)
 }
 
 export const SCREEN = {
-  // 정면 스크린 문구 (몇 분마다 페이드 전환)
+  // 왼쪽 스크린 문구 (몇 분마다 페이드 전환)
   messages: [
     '조용히 기도하는 시간입니다.',
     '주님 앞에 마음을 내려놓습니다.',

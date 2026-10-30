@@ -15,7 +15,7 @@ export default function App() {
       shadows
       dpr={[1, 1.5]}
       camera={{ position: camPos, fov: 55, near: 0.1, far: 80 }}
-      gl={{ antialias: true, toneMapping: THREE.ACESFilmicToneMapping, toneMappingExposure: 1.25 }}
+      gl={{ antialias: true, toneMapping: THREE.ACESFilmicToneMapping, toneMappingExposure: 1.2 }}
     >
       <SanctuaryScene />
       <OrbitControls

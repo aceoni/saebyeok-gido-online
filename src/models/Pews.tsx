@@ -9,14 +9,20 @@ type Part = { size: [number, number, number]; offsets: [number, number, number][
 const L = PEWS.length
 const D = PEWS.seatDepth
 const parts: Part[] = [
-  { size: [L, 0.07, D], offsets: [[0, PEWS.seatHeight, 0]], color: COLORS.wood },
-  { size: [L, 0.5, 0.05], offsets: [[0, PEWS.backHeight - 0.27, D / 2 - 0.02]], rotX: -0.12, color: COLORS.wood },
-  { size: [L, 0.12, 0.04], offsets: [[0, 0.22, -D / 2 + 0.05]], color: COLORS.woodDark },
+  // 회색 쿠션 좌판
+  { size: [L, 0.09, D], offsets: [[0, PEWS.seatHeight, 0]], color: COLORS.cushion },
+  // 회색 쿠션 등받이
+  { size: [L, 0.5, 0.08], offsets: [[0, PEWS.backHeight - 0.25, D / 2 - 0.06]], rotX: -0.08, color: COLORS.cushion },
+  // 등받이 위 원목 손잡이
+  { size: [L, 0.05, 0.1], offsets: [[0, PEWS.backHeight + 0.02, D / 2 - 0.06]], color: COLORS.wood },
+  // 좌판 아래 원목 앞판
+  { size: [L, 0.3, 0.03], offsets: [[0, 0.24, -D / 2 + 0.06]], color: COLORS.wood },
+  // 양쪽 원목 옆판
   {
-    size: [0.07, PEWS.backHeight, D + 0.12],
+    size: [0.07, PEWS.backHeight, D + 0.14],
     offsets: [
-      [-L / 2, PEWS.backHeight / 2, 0.03],
-      [L / 2, PEWS.backHeight / 2, 0.03],
+      [-L / 2, PEWS.backHeight / 2, 0.04],
+      [L / 2, PEWS.backHeight / 2, 0.04],
     ],
     color: COLORS.woodDark,
   },

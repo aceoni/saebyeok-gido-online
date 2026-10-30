@@ -10,7 +10,7 @@ type Props = {
   width: number
   height: number
   text: string
-  /** 정면 스크린: 숨 쉬듯 밝기 변화 + RectAreaLight */
+  /** 숨 쉬듯 밝기 변화 + RectAreaLight */
   main?: boolean
   fontScale?: number
 }
@@ -28,8 +28,14 @@ function drawText(canvas: HTMLCanvasElement, text: string, fontScale: number) {
   ctx.fillStyle = '#f4ead6'
   ctx.textAlign = 'center'
   ctx.textBaseline = 'middle'
-  const size = Math.round(h * 0.11 * fontScale)
+  // 긴 문구는 화면 폭의 85% 안에 들어가도록 글자 크기를 줄인다
+  let size = Math.round(h * 0.12 * fontScale)
   ctx.font = `${size}px ${SCREEN.font}`
+  const textW = ctx.measureText(text).width
+  if (textW > w * 0.85) {
+    size = Math.floor((size * w * 0.85) / textW)
+    ctx.font = `${size}px ${SCREEN.font}`
+  }
   ctx.shadowColor = 'rgba(255, 220, 170, 0.5)'
   ctx.shadowBlur = size * 0.4
   ctx.fillText(text, w / 2, h / 2)

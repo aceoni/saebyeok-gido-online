@@ -38,13 +38,13 @@ export function Piano({ position, rotationY = 0 }: Props) {
         {black}
       </mesh>
       {/* 뚜껑: 직선(낮은음) 쪽 경첩 기준으로 열림 */}
-      <group position={[-0.75, 0.95, 0]} rotation-z={0.55}>
+      <group position={[-0.75, 0.95, 0]} rotation-z={0.32}>
         <mesh geometry={lid} position={[0.75, 0, 0]} castShadow>
           {black}
         </mesh>
       </group>
-      <mesh position={[0.35, 1.15, -1.0]} rotation-z={0.15}>
-        <cylinderGeometry args={[0.012, 0.012, 0.55, 5]} />
+      <mesh position={[0.35, 1.1, -1.0]} rotation-z={0.15}>
+        <cylinderGeometry args={[0.012, 0.012, 0.32, 5]} />
         {black}
       </mesh>
       {/* 건반부 */}

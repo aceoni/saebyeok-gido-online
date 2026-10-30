@@ -17,7 +17,7 @@ export function FlowerStand({ position }: P) {
     <group position={position}>
       <mesh position={[0, 0.45, 0]} castShadow>
         <cylinderGeometry args={[0.12, 0.18, 0.9, 6]} />
-        <meshStandardMaterial color={COLORS.woodDark} roughness={0.7} flatShading />
+        <meshStandardMaterial color={COLORS.wood} roughness={0.7} flatShading />
       </mesh>
       <mesh position={[0, 1.02, 0]} castShadow>
         <cylinderGeometry args={[0.14, 0.09, 0.25, 6]} />
@@ -48,7 +48,7 @@ export function FlowerStand({ position }: P) {
 
 // 깃발: 깃대 + 천(얇은 상자) + 십자가 문양
 export function Flag({ position, variant }: P & { variant: 'christian' | 'church' }) {
-  const field = variant === 'christian' ? COLORS.flagCross : COLORS.flagRed
+  const field = variant === 'christian' ? COLORS.flagCross : COLORS.flagNavy
   const cross = variant === 'christian' ? COLORS.flagRed : COLORS.flagCross
   return (
     <group position={position}>
