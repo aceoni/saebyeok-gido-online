@@ -6,6 +6,7 @@ import { Stage } from '../models/Stage'
 import { Pulpit } from '../models/Pulpit'
 import { Pews } from '../models/Pews'
 import { ChoirLoft } from '../models/ChoirLoft'
+import { Balcony } from '../models/Balcony'
 import { Piano } from '../models/Piano'
 import { GrandPiano } from '../models/GrandPiano'
 import { Screen } from '../models/Screen'
@@ -53,6 +54,7 @@ export function SanctuaryScene() {
       <Pulpit position={PULPIT_POS} />
       <Pews />
       <ChoirLoft />
+      <Balcony />
       <group position={PIANO_POS} scale={INSTRUMENT_SCALE}>
         <Piano position={[0, 0, 0]} />
       </group>

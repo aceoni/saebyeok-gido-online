@@ -29,6 +29,17 @@ export const CHOIR = {
   zTo: -8.4,
 }
 
+// 2층 좌석(발코니): 뒤쪽 위 공간. 단상을 바라보는 계단식 장의자
+export const BALCONY = {
+  floorY: 5.2, // 발코니 바닥 높이
+  slabThickness: 0.45,
+  frontZ: 6.9, // 발코니 앞 가장자리 (난간)
+  rows: 5,
+  firstRowZ: 7.7,
+  rowSpacing: 1.1,
+  tierHeight: 0.35,
+}
+
 export const PEWS = {
   rows: 14,
   firstZ: -6.2, // 첫 줄 앞에 키보드 자리를 비워 둠

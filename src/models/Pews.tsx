@@ -1,7 +1,7 @@
 import { useLayoutEffect, useRef } from 'react'
 import * as THREE from 'three'
 import { COLORS, PEWS } from '../config'
-import { choirSlots, pewSlots, type PewSlot } from '../scenes/sanctuaryLayout'
+import { balconySlots, choirSlots, pewSlots, type PewSlot } from '../scenes/sanctuaryLayout'
 
 // 장의자 부품을 각각 InstancedMesh 로 그린다. 기본은 단상(-z)을 바라보고, 슬롯마다 회전/높이/길이를 줄 수 있다.
 type Part = { size: [number, number, number]; offsets: [number, number, number][]; rotX?: number; color: string }
@@ -28,7 +28,7 @@ const parts: Part[] = [
   },
 ]
 
-const allSlots: PewSlot[] = [...pewSlots, ...choirSlots]
+const allSlots: PewSlot[] = [...pewSlots, ...choirSlots, ...balconySlots]
 
 function PewPart({ part }: { part: Part }) {
   const ref = useRef<THREE.InstancedMesh>(null)

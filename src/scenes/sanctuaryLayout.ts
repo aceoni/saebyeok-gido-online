@@ -1,4 +1,4 @@
-import { CHOIR, HALL, PEWS, STAGE } from '../config'
+import { BALCONY, CHOIR, HALL, PEWS, STAGE } from '../config'
 
 // 공간 배치 정보. 렌더링(모델)과 이동/충돌/상호작용 로직이 같은 값을 공유한다.
 
@@ -24,6 +24,17 @@ export const pewSlots: PewSlot[] = Array.from({ length: PEWS.rows }, (_, row) =>
   ]
 }).flat()
 
+// 2층(발코니) 장의자: 1층과 같은 좌우 배치, 뒤로 갈수록 한 단씩 높아짐
+export const balconySlots: PewSlot[] = Array.from({ length: BALCONY.rows }, (_, row) => {
+  const z = BALCONY.firstRowZ + row * BALCONY.rowSpacing
+  const y = BALCONY.floorY + row * BALCONY.tierHeight
+  const cx = PEWS.aisleHalf + PEWS.length / 2
+  return [
+    { id: `BL${row}`, x: -cx, z, y, side: 'left' as const, row },
+    { id: `BR${row}`, x: cx, z, y, side: 'right' as const, row },
+  ]
+}).flat()
+
 // 성가대석 장의자: 왼쪽 벽을 등지고 중앙(+x)을 바라봄 → rotY = -90°
 export const CHOIR_LENGTH = CHOIR.zTo - CHOIR.zFrom
 export const choirSlots: PewSlot[] = Array.from({ length: CHOIR.rows }, (_, row) => ({
@@ -43,7 +54,7 @@ export const CONDUCTOR_POS: [number, number, number] = [-6.2, STAGE.height, (CHO
 // 그랜드피아노: 성가대석 앞(회중석 쪽), 연주자가 지휘자를 정면으로 바라보도록 회전.
 // (모델 로컬 좌표: 건반 = +z, 꼬리 = -z → 연주자는 -z 를 바라봄)
 export const GRAND_PIANO_POS: [number, number, number] = [-8.7, 0, -4.4]
-export const GRAND_PIANO_SCALE = 1.6
+export const GRAND_PIANO_SCALE = 1.28
 export const GRAND_PIANO_ROT_Y = Math.atan2(
   GRAND_PIANO_POS[0] - CONDUCTOR_POS[0],
   GRAND_PIANO_POS[2] - CONDUCTOR_POS[2],
