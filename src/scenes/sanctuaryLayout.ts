@@ -35,6 +35,32 @@ export const balconySlots: PewSlot[] = Array.from({ length: BALCONY.rows }, (_, 
   ]
 }).flat()
 
+// 발코니 단 경계: 각 줄의 단은 바로 앞줄 등받이 뒤에서 시작 → 앞 다리 공간이 그 줄과 같은 높이
+export const balconyTierEdge = (row: number) => BALCONY.firstRowZ + (row - 1) * BALCONY.rowSpacing + 0.35
+const AISLE_RAMP = 0.5 // 가운데 통로: 단 경계 앞 0.5m 에 반 칸 계단
+/** 발코니 바닥 높이 (가운데 통로는 반 칸씩 계단) */
+export function balconyFloorHeight(x: number, z: number): number {
+  let y = BALCONY.floorY
+  for (let r = 1; r < BALCONY.rows; r++) {
+    const e = balconyTierEdge(r)
+    if (Math.abs(x) < BALCONY.aisleHalf) {
+      if (z >= e) y += BALCONY.tierHeight
+      else if (z >= e - AISLE_RAMP) y += BALCONY.tierHeight / 2
+    } else if (z >= e) y += BALCONY.tierHeight
+  }
+  return y
+}
+export const BALCONY_AISLE_RAMP = AISLE_RAMP
+export const BALCONY_BACK_Y = BALCONY.floorY + (BALCONY.rows - 1) * BALCONY.tierHeight // 맨 뒤 통로 높이
+
+// 1층 ↔ 2층 오가기 (계단 대신 문)
+// 도착 지점은 문에서 조금 앞쪽 가운데 통로 (뒤따르는 카메라가 벽에 붙지 않게)
+const UP_ARRIVE_Z = 11.0
+export const DOOR_LINKS = {
+  down: { pos: [0, 0, 13.1] as [number, number, number], to: [0, balconyFloorHeight(0, UP_ARRIVE_Z), UP_ARRIVE_Z] as [number, number, number] },
+  up: { pos: [0, BALCONY_BACK_Y, 13.5] as [number, number, number], to: [0, 0, 11.2] as [number, number, number] },
+}
+
 // 성가대석 장의자: 왼쪽 벽을 등지고 중앙(+x)을 바라봄 → rotY = -90°
 // 장의자는 정면 벽 쪽 통로만큼 짧게
 const CHOIR_PEW_Z0 = CHOIR.zFrom + CHOIR.frontAisle

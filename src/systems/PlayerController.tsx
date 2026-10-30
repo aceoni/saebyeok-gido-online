@@ -1,11 +1,11 @@
 import { useEffect, useMemo, useRef } from 'react'
 import { useFrame, useThree } from '@react-three/fiber'
 import * as THREE from 'three'
-import { PLAYER } from '../config'
+import { BALCONY, PLAYER } from '../config'
 import { Character } from '../models/Character'
 import { usePlayer } from '../store/player'
 import { cameraState } from './cameraState'
-import { canStep, findPath, groundHeight, nearestWalkable } from './navGrid'
+import { NAV } from './navGrid'
 
 const KEYMAP: Record<string, 'f' | 'b' | 'l' | 'r'> = {
   KeyW: 'f',
@@ -38,7 +38,7 @@ function hasNoPickAncestor(o: THREE.Object3D | null) {
 
 // 개발 모드에서만: 콘솔/자동 테스트에서 이동을 시험할 수 있게 노출
 if (import.meta.env.DEV) {
-  Object.assign(window, { __player: usePlayer, __nav: { findPath, nearestWalkable, groundHeight } })
+  Object.assign(window, { __player: usePlayer, __nav: NAV })
 }
 
 /** 키보드(WASD/방향키) + 바닥 클릭 이동, 충돌/높이 처리, 캐릭터·목적지 표시 */
@@ -86,11 +86,14 @@ export function PlayerController({ clickToMove = true }: { clickToMove?: boolean
       const ndc = new THREE.Vector2(((e.clientX - rect.left) / rect.width) * 2 - 1, -((e.clientY - rect.top) / rect.height) * 2 + 1)
       raycaster.setFromCamera(ndc, camera)
       const hit = raycaster.intersectObjects(scene.children, true).find((h) => !hasNoPickAncestor(h.object))
-      if (!hit || hit.point.y > 2.5) return // 벽 위쪽, 발코니 등은 무시
-      const goal = nearestWalkable(hit.point.x, hit.point.z)
+      const { level, position, pose } = usePlayer.getState()
+      if (pose === 'sitting' || pose === 'praying') return
+      // 지금 있는 층의 바닥만: 1층은 낮은 곳, 2층은 발코니 바닥 위
+      if (!hit || (level === 1 ? hit.point.y > 2.5 : hit.point.y < BALCONY.floorY - 0.1)) return
+      const nav = NAV[level]
+      const goal = nav.nearestWalkable(hit.point.x, hit.point.z)
       if (!goal) return
-      const { position } = usePlayer.getState()
-      const path = findPath(position[0], position[2], goal[0], goal[1])
+      const path = nav.findPath(position[0], position[2], goal[0], goal[1])
       if (path?.length) usePlayer.getState().setPath(path)
     }
     el.addEventListener('pointerdown', onDown)
@@ -104,6 +107,12 @@ export function PlayerController({ clickToMove = true }: { clickToMove?: boolean
   useFrame((_, rawDt) => {
     const dt = Math.min(rawDt, 0.1)
     const s = usePlayer.getState()
+    // 앉아 있거나 기도 중에는 움직이지 않음
+    if (s.pose === 'sitting' || s.pose === 'praying') {
+      if (marker.current) marker.current.visible = false
+      return
+    }
+    const nav = NAV[s.level]
     let [x, y, z] = s.position
     let path = s.path
     let vx = 0
@@ -142,14 +151,14 @@ export function PlayerController({ clickToMove = true }: { clickToMove?: boolean
     if (vx || vz) {
       const nx = x + vx * dt
       const nz = z + vz * dt
-      if (canStep(x, z, nx, nz)) {
+      if (nav.canStep(x, z, nx, nz)) {
         x = nx
         z = nz
         moved = true
-      } else if (vx && canStep(x, z, nx, z)) {
+      } else if (vx && nav.canStep(x, z, nx, z)) {
         x = nx
         moved = true
-      } else if (vz && canStep(x, z, x, nz)) {
+      } else if (vz && nav.canStep(x, z, x, nz)) {
         z = nz
         moved = true
       } else {
@@ -158,7 +167,7 @@ export function PlayerController({ clickToMove = true }: { clickToMove?: boolean
     }
 
     // 높이: 단상/성가대 단을 부드럽게 오르내림
-    const gy = groundHeight(x, z)
+    const gy = nav.height(x, z)
     y += (gy - y) * Math.min(1, dt * 12)
 
     let rotY = s.rotY
@@ -175,7 +184,7 @@ export function PlayerController({ clickToMove = true }: { clickToMove?: boolean
     if (marker.current) {
       const last = path[path.length - 1]
       marker.current.visible = !!last
-      if (last) marker.current.position.set(last[0], groundHeight(last[0], last[1]) + 0.02, last[1])
+      if (last) marker.current.position.set(last[0], nav.height(last[0], last[1]) + 0.02, last[1])
     }
   })
 

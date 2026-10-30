@@ -5,6 +5,8 @@ import { SanctuaryScene } from './scenes/SanctuaryScene'
 import { PlayerController } from './systems/PlayerController'
 import { CameraRig } from './systems/CameraRig'
 import { Hud } from './ui/Hud'
+import { InteractionSystem } from './systems/InteractionSystem'
+import { SeatControls } from './ui/SeatControls'
 
 // 개발용: ?cam=x,y,z,tx,ty,tz 로 자유 시점 (OrbitControls: 좌클릭 이동, 우클릭 회전)
 const camParam = new URLSearchParams(location.search).get('cam')?.split(',').map(Number)
@@ -20,6 +22,7 @@ export default function App() {
       >
         <SanctuaryScene />
         <PlayerController clickToMove={!devCam} />
+        <InteractionSystem />
         {devCam ? (
           <OrbitControls
             target={camParam!.slice(3, 6) as [number, number, number]}
@@ -34,6 +37,7 @@ export default function App() {
         )}
       </Canvas>
       {!devCam && <Hud />}
+      <SeatControls />
     </>
   )
 }

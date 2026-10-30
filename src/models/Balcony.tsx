@@ -1,6 +1,7 @@
 import { BALCONY, COLORS, HALL } from '../config'
 import { ChurchDoor } from './ChurchDoor'
 import { DigitalClock } from './DigitalClock'
+import { BALCONY_AISLE_RAMP, BALCONY_BACK_Y, balconyTierEdge } from '../scenes/sanctuaryLayout'
 
 const PARAPET_H = 0.42 // 난간 아래 막힌 부분 높이
 const RAIL_H = 1.0 // 손잡이 높이
@@ -15,7 +16,7 @@ export function Balcony() {
   const top = BALCONY.floorY
   const slabY = top - BALCONY.slabThickness / 2
   const stageMat = <meshStandardMaterial color={COLORS.stage} roughness={0.6} />
-  const aisleY = top + (BALCONY.rows - 1) * BALCONY.tierHeight // 맨 뒤 통로 바닥 높이
+  const aisleY = BALCONY_BACK_Y // 맨 뒤 통로 바닥 높이
   return (
     <group>
       {/* 바닥판 (아랫면은 천장색) */}
@@ -33,15 +34,27 @@ export function Balcony() {
         <boxGeometry args={[W, BALCONY.slabThickness + 0.04, 0.06]} />
         <meshStandardMaterial color={COLORS.wood} roughness={0.6} />
       </mesh>
-      {/* 계단식 단 */}
+      {/* 계단식 단 (각 줄 앞 다리 공간부터 그 줄 높이) */}
       {Array.from({ length: BALCONY.rows - 1 }, (_, i) => {
         const row = i + 1
-        const z0 = BALCONY.firstRowZ + row * BALCONY.rowSpacing - BALCONY.rowSpacing / 2
+        const z0 = balconyTierEdge(row)
         const d = HALL.backZ - z0
         const h = row * BALCONY.tierHeight
         return (
           <mesh key={row} position={[0, top + h / 2, z0 + d / 2]} receiveShadow>
             <boxGeometry args={[W, h, d]} />
+            {stageMat}
+          </mesh>
+        )
+      })}
+      {/* 가운데 통로 반 칸 계단 */}
+      {Array.from({ length: BALCONY.rows - 1 }, (_, i) => {
+        const row = i + 1
+        const z1 = balconyTierEdge(row)
+        const h = (row - 0.5) * BALCONY.tierHeight
+        return (
+          <mesh key={row} position={[0, top + h / 2, z1 - BALCONY_AISLE_RAMP / 2]} receiveShadow>
+            <boxGeometry args={[BALCONY.aisleHalf * 2, h, BALCONY_AISLE_RAMP]} />
             {stageMat}
           </mesh>
         )

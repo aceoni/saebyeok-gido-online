@@ -36,16 +36,17 @@ export const BALCONY = {
   floorY: 5.2, // 발코니 바닥 높이
   slabThickness: 0.45,
   frontZ: 6.9, // 발코니 앞 가장자리 (난간)
-  rows: 5,
-  firstRowZ: 7.7,
-  rowSpacing: 1.1,
+  rows: 4,
+  firstRowZ: 8.0,
+  rowSpacing: 1.3, // 줄 사이로 지나다닐 수 있게
+  aisleHalf: 1.2, // 가운데 통로 반폭 (단마다 반 칸씩 계단)
   tierHeight: 0.5, // 아래에서도 의자가 잘 보이게 단차를 크게
 }
 
 export const PEWS = {
   rows: 14,
   firstZ: -6.2, // 첫 줄 앞에 키보드 자리를 비워 둠
-  spacing: 1.1,
+  spacing: 1.3, // 줄 사이로 지나다닐 수 있게
   aisleHalf: 1.2, // 중앙 통로 반폭
   length: 7.6,
   seatHeight: 0.45,
@@ -141,7 +142,7 @@ export const PLAYER = {
   spawnRotY: Math.PI, // 단상(-z)을 바라봄
   walkSpeed: 3.4, // m/s
   turnSpeed: 10, // 방향 전환 부드러움
-  radius: 0.25, // 충돌 반경
+  radius: 0.18, // 충돌 반경 (SD 캐릭터)
   maxStep: 0.36, // 한 번에 오를 수 있는 높이 (단상 계단, 성가대 단)
 }
 
@@ -156,4 +157,14 @@ export const CAMERA = {
   lookHeight: 1.5, // 바라보는 높이 (SD 캐릭터 머리 위쪽 → 캐릭터는 화면 아래, 정면은 위로 보임)
   follow: 6, // 따라가는 부드러움 (클수록 빠름)
   rotateSpeed: 0.005, // 우클릭 드래그 회전 감도
+}
+
+// 앉기·기도
+export const SEAT = {
+  reach: 0.95, // 이 거리 안이면 "앉기" 말풍선
+  edgeMargin: 0.35, // 장의자 끝에서 이만큼 안쪽까지만 앉음
+  hipLift: 0.095, // 앉았을 때 캐릭터 기준점 높이 (좌판 위)
+  standOffset: 0.5, // 일어날 때 좌판 앞쪽으로 나서는 거리
+  eyeHeight: 1.05, // 기도 중 1인칭 눈높이 (앉은 기준점 위)
+  prayLookDown: 0.09, // 1인칭에서 살짝 내려다보는 정도 (앞자리 등받이와 단상이 함께 보이게)
 }

@@ -63,20 +63,36 @@ export function Character() {
     if (!root.current) return
     root.current.position.set(...s.position)
     root.current.rotation.y = s.rotY
-    // 걷기: 짧은 팔다리를 빠르게 흔들고, 통통 튀듯 위아래로 + 머리는 살짝 좌우로
+    // 기도 중에는 1인칭 시점이라 캐릭터를 숨김
+    root.current.visible = s.pose !== 'praying'
+
     const walking = s.pose === 'walking'
+    const seated = s.pose === 'sitting' || s.pose === 'praying'
+    const k = Math.min(1, dt * 8) // 자세 전환 부드러움
     amp.current += ((walking ? 0.6 : 0) - amp.current) * Math.min(1, dt * 10)
     phase.current += dt * (walking ? 12 : 1.5)
     const sw = Math.sin(phase.current) * amp.current
-    legL.current!.rotation.x = sw
-    legR.current!.rotation.x = -sw
-    armL.current!.rotation.x = -sw * 0.9
-    armR.current!.rotation.x = sw * 0.9
+
+    // 다리: 걷기 흔들림 / 앉으면 앞으로 90°
+    const legBase = seated ? -1.45 : 0
+    legL.current!.rotation.x += (legBase + sw - legL.current!.rotation.x) * k
+    legR.current!.rotation.x += (legBase - sw - legR.current!.rotation.x) * k
+    // 팔: 걷기 흔들림 / 앉으면 무릎 위 / 기도하면 가슴 앞에서 모음
+    const praying = s.pose === 'praying'
+    const armX = praying ? -1.15 : seated ? -0.45 : 0
+    const armZ = praying ? 0.42 : 0
+    armL.current!.rotation.x += (armX - sw * 0.9 - armL.current!.rotation.x) * k
+    armR.current!.rotation.x += (armX + sw * 0.9 - armR.current!.rotation.x) * k
+    // (왼팔은 +z 회전, 오른팔은 -z 회전이 몸 안쪽)
+    armL.current!.rotation.z += (armZ - armL.current!.rotation.z) * k
+    armR.current!.rotation.z += (-armZ - armR.current!.rotation.z) * k
+
     body.current!.position.y = Math.abs(Math.sin(phase.current)) * amp.current * 0.07
-    // 서 있을 때는 아주 느린 숨쉬기
+    // 머리: 걸을 때 살짝 좌우, 기도할 때 숙임, 서 있을 때 아주 느린 숨쉬기
     const breathe = walking ? 0 : Math.sin(phase.current) * 0.006
     head.current!.position.y = HEAD_Y + breathe
     head.current!.rotation.z = Math.sin(phase.current) * amp.current * 0.06
+    head.current!.rotation.x += ((praying ? 0.42 : 0) - head.current!.rotation.x) * Math.min(1, dt * 3)
   })
 
   return (
