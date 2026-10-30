@@ -9,23 +9,36 @@ for (let z = HALL.frontZ + 2; z < HALL.backZ - 1; z += 3) {
   for (const x of [-9, -6, -3, 0, 3, 6, 9]) downlights.push([x, z])
 }
 
-function Downlights() {
+// 매입등: 밝은 테두리 링 + 안쪽 우묵한 등. 꺼져 있어도 조명 형태가 보이게.
+function DownlightPart({ radius, height, y, color, emissive = 0 }: { radius: number; height: number; y: number; color: string; emissive?: number }) {
   const ref = useRef<THREE.InstancedMesh>(null)
   useLayoutEffect(() => {
     const m = new THREE.Matrix4()
-    downlights.forEach(([x, z], i) => ref.current!.setMatrixAt(i, m.makeTranslation(x, HALL.height - 0.01, z)))
+    downlights.forEach(([x, z], i) => ref.current!.setMatrixAt(i, m.makeTranslation(x, y, z)))
     ref.current!.instanceMatrix.needsUpdate = true
     ref.current!.computeBoundingSphere()
-  }, [])
+  }, [y])
   return (
     <instancedMesh ref={ref} args={[undefined, undefined, downlights.length]}>
-      <cylinderGeometry args={[0.12, 0.12, 0.02, 10]} />
-      <meshStandardMaterial
-        color={COLORS.downlight}
-        emissive={COLORS.downlight}
-        emissiveIntensity={LIGHTS.downlightGlow}
-      />
+      <cylinderGeometry args={[radius, radius, height, 16]} />
+      <meshStandardMaterial color={color} emissive={color} emissiveIntensity={emissive} roughness={0.5} metalness={0.2} />
     </instancedMesh>
+  )
+}
+
+function Downlights() {
+  const top = HALL.height
+  return (
+    <group>
+      <DownlightPart radius={0.17} height={0.03} y={top - 0.015} color={COLORS.downlightTrim} />
+      <DownlightPart
+        radius={0.11}
+        height={0.02}
+        y={top - 0.025}
+        color={LIGHTS.downlightGlow > 0 ? COLORS.downlight : COLORS.downlightInner}
+        emissive={LIGHTS.downlightGlow}
+      />
+    </group>
   )
 }
 

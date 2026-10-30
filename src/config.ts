@@ -66,6 +66,8 @@ export const COLORS = {
   speaker: '#1a1a1c',
   lampShade: '#f3e6cc',
   downlight: '#fff1d6',
+  downlightTrim: '#d9d5cc', // 매입등 테두리
+  downlightInner: '#4a4a50', // 꺼진 매입등 안쪽
   flower: ['#f2ead8', '#e8b4b4', '#f2e6a6'],
   leaf: '#4a6a3e',
   drumShell: '#5b1f24', // 드럼 셸 (짙은 와인색 래커)
@@ -83,7 +85,7 @@ export const LIGHTS = {
   wallLamp: { color: '#ffc488', intensity: 1.5, distance: 8, flicker: 0.04, glow: 0.35 }, // 업라이트: 벽 번짐 + 약한 광원
   crossSpot: { color: '#ffe2b8', intensity: 40 }, // 십자가를 아래에서 비추는 은은한 조명 (그림자 없음)
   pianoLamp: { color: '#ffc27a', intensity: 3, distance: 3.5 },
-  downlightGlow: 0.35, // 천장 매입등 자체 발광 세기 (실제 광원 아님)
+  downlightGlow: 0, // 천장 매입등 자체 발광 (0 = 꺼짐)
 }
 
 export const SCREEN = {

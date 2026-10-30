@@ -81,18 +81,27 @@ export const STAGE_CHAIRS: [number, number, number][] = [
 
 // 관현악 연주자 자리: 그랜드피아노 오른쪽(회중석에서 볼 때). 모두 지휘자를 바라봄.
 // 두 사람이 보면대 하나를 함께 보는 배치.
-const facing = (x: number, z: number) => Math.atan2(CONDUCTOR_POS[0] - x, CONDUCTOR_POS[2] - z)
-// 피아노 앞(회중석에서 볼 때 오른쪽)에 앞뒤로 한 줄. 의자마다 보면대 하나, 모두 지휘자 쪽으로 비스듬히.
+// 피아노 앞(회중석에서 볼 때 오른쪽)에 앞뒤로 한 줄. 왼쪽 벽을 등지고 중앙(+x)을 보되,
+// 지휘자를 볼 수 있게 앞쪽(-z)으로 살짝 틀어 앉음. 두 명이 보면대 하나를 함께 씀.
 const ORCHESTRA_X = -5.6
-const orchestraZs = [-7.4, -6.3, -5.2, -4.1]
-export const ORCHESTRA_CHAIRS = orchestraZs.map((z) => ({
+const ORCHESTRA_TURN = 0.4 // 중앙 방향에서 앞쪽으로 튼 각도 (rad, 약 23°)
+const ORCHESTRA_ROT_Y = Math.PI / 2 + ORCHESTRA_TURN // 로컬 +z(의자 앞) → 중앙에서 살짝 앞쪽
+const orchestraPairs = [
+  [-7.6, -6.85],
+  [-5.5, -4.75],
+]
+export const ORCHESTRA_CHAIRS = orchestraPairs.flat().map((z) => ({
   pos: [ORCHESTRA_X, 0, z] as [number, number, number],
-  rotY: facing(ORCHESTRA_X, z),
+  rotY: ORCHESTRA_ROT_Y,
 }))
-// 보면대: 의자에서 지휘자 방향으로 0.55m 앞, 악보 면이 연주자를 향함
-export const ORCHESTRA_STANDS = ORCHESTRA_CHAIRS.map(({ pos, rotY }) => ({
-  pos: [pos[0] + Math.sin(rotY) * 0.55, 0, pos[2] + Math.cos(rotY) * 0.55] as [number, number, number],
-  rotY: rotY + Math.PI,
+// 보면대: 두 의자 가운데 앞 0.6m, 악보 면이 연주자를 향함
+export const ORCHESTRA_STANDS = orchestraPairs.map(([z0, z1]) => ({
+  pos: [
+    ORCHESTRA_X + Math.sin(ORCHESTRA_ROT_Y) * 0.6,
+    0,
+    (z0 + z1) / 2 + Math.cos(ORCHESTRA_ROT_Y) * 0.6,
+  ] as [number, number, number],
+  rotY: ORCHESTRA_ROT_Y + Math.PI,
 }))
 
 // 키보드 오른쪽: 기타/베이스 거치대 + 연주자 스툴
