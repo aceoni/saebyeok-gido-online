@@ -110,6 +110,14 @@ export const SCREEN = {
   font: '"Gowun Batang", serif',
 }
 
+// 2층 난간 앞 디지털 시계 (설교자용)
+export const CLOCK = {
+  width: 1.2,
+  digitColor: '#ff2a1a',
+  offColor: '#2a0806', // 꺼진 세그먼트
+  glow: 0.9, // 숫자 자체 발광 (은은하게)
+}
+
 export const PULPIT = {
   motto: 'SOLI DEO GLORIA',
   glow: 0.13, // 아크릴 안쪽 아주 약한 발광 (조명 받은 듯 튀지 않게)

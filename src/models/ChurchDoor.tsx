@@ -1,4 +1,5 @@
 import { COLORS, LIGHTS } from '../config'
+import { ExitSign } from './ExitSign'
 
 type Props = {
   position: [number, number, number] // 문 아래 가운데 (바닥 높이)
@@ -75,13 +76,8 @@ export function ChurchDoor({ position, leafWidth = 1.5, height = 3.4, exitSign =
           decay={2}
         />
       )}
-      {/* 비상구 표시등 (은은한 초록) */}
-      {exitSign && (
-        <mesh position={[0, height + frameW + 0.22, -0.05]}>
-          <boxGeometry args={[0.5, 0.18, 0.06]} />
-          <meshStandardMaterial color="#2f8a4e" emissive="#2fae5c" emissiveIntensity={0.6} />
-        </mesh>
-      )}
+      {/* 피난구 유도등 */}
+      {exitSign && <ExitSign position={[0, height + frameW + 0.24, -0.06]} width={Math.min(0.62, totalW * 0.4)} />}
     </group>
   )
 }

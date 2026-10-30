@@ -23,6 +23,9 @@ export default function App() {
         maxDistance={26}
         maxPolarAngle={Math.PI * 0.55}
         enableDamping
+        // 좌클릭: 화면과 평행하게 이동, 우클릭: 회전, 휠: 확대/축소
+        mouseButtons={{ LEFT: THREE.MOUSE.PAN, MIDDLE: THREE.MOUSE.DOLLY, RIGHT: THREE.MOUSE.ROTATE }}
+        screenSpacePanning
       />
     </Canvas>
   )

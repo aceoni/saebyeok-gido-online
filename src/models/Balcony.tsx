@@ -1,11 +1,12 @@
 import { BALCONY, COLORS, HALL } from '../config'
 import { ChurchDoor } from './ChurchDoor'
+import { DigitalClock } from './DigitalClock'
 
 const PARAPET_H = 0.42 // 난간 아래 막힌 부분 높이
 const RAIL_H = 1.0 // 손잡이 높이
 const railPostXs = Array.from({ length: 17 }, (_, i) => -HALL.width / 2 + 0.2 + (i * (HALL.width - 0.4)) / 16)
 
-// 2층 좌석(발코니): 뒤쪽 벽에서 앞으로 나온 바닥판 + 계단식 단 + 앞쪽 난간 + 양옆 받침 기둥 + 뒤쪽 출입문.
+// 2층 좌석(발코니): 뒤쪽 벽에서 앞으로 나온 바닥판 + 계단식 단 + 앞쪽 난간 + 양옆 받침 기둥 + 뒤쪽 출입문 + 앞면 디지털 시계.
 // 장의자 자체는 Pews 에서 함께 그린다.
 export function Balcony() {
   const W = HALL.width
@@ -64,15 +65,10 @@ export function Balcony() {
         <cylinderGeometry args={[0.035, 0.035, W, 8]} />
         <meshStandardMaterial color={COLORS.wood} roughness={0.5} />
       </mesh>
-      {/* 2층 출입문: 맨 뒤 통로 벽, 좌우 하나씩 */}
-      {[-1, 1].map((s) => (
-        <ChurchDoor
-          key={s}
-          position={[s * 5, aisleY, HALL.backZ - 0.02]}
-          leafWidth={0.9}
-          height={2.4}
-        />
-      ))}
+      {/* 2층 출입문: 맨 뒤 통로 벽 가운데 (1층 정문 바로 위 중앙 통로 끝) */}
+      <ChurchDoor position={[0, aisleY, HALL.backZ - 0.02]} leafWidth={1.0} height={2.5} />
+      {/* 설교자가 보는 디지털 시계: 발코니 앞면 가운데, 단상(-z)을 향함 */}
+      <DigitalClock position={[0, slabY, BALCONY.frontZ - 0.06]} rotationY={Math.PI} />
       {/* 양옆 받침 기둥 (측면 통로 쪽, 1층 장의자와 겹치지 않게) */}
       {[-1, 1].map((s) => (
         <mesh key={s} position={[s * 10.1, (top - BALCONY.slabThickness) / 2, BALCONY.frontZ + 0.35]} castShadow>
