@@ -41,6 +41,7 @@ export const COLORS = {
   cushion: '#8b8f96', // 장의자 회색 쿠션
   stage: '#d4b78e', // 단상 원목 마루
   frontPanel: '#bf9466', // 강대상 뒤 원목 벽
+  cross: '#e2c08f', // 벽 십자가 (패널보다 밝은 원목)
   piano: '#16161a',
   pianoKeys: '#e8e2d4',
   pulpitAcrylic: '#f4f2ee', // 반투명 흰색 아크릴 강대상
@@ -64,7 +65,8 @@ export const LIGHTS = {
   pulpitSpot: { color: '#ffd9a0', intensity: 160, angle: 0.42, penumbra: 0.7, height: 7 },
   screenRect: { color: '#a8b8ff', intensity: 2.5 },
   screenBreath: { period: 14, depth: 0.25 }, // 초, 밝기 변화 폭
-  wallLamp: { color: '#ffc488', intensity: 22, distance: 20, flicker: 0.05 },
+  wallLamp: { color: '#ffc488', intensity: 1.5, distance: 8, flicker: 0.04, glow: 0.35 }, // 업라이트: 벽 번짐 + 약한 광원
+  crossSpot: { color: '#ffe2b8', intensity: 40 }, // 십자가를 아래에서 비추는 은은한 조명 (그림자 없음)
   pianoLamp: { color: '#ffc27a', intensity: 3, distance: 3.5 },
   downlightGlow: 0.35, // 천장 매입등 자체 발광 세기 (실제 광원 아님)
 }

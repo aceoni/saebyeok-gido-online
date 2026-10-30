@@ -7,12 +7,12 @@ import { Pulpit } from '../models/Pulpit'
 import { Pews } from '../models/Pews'
 import { Piano } from '../models/Piano'
 import { Screen } from '../models/Screen'
-import { FlowerStand, SpeakerArray } from '../models/Decor'
+import { FlowerStand, SpeakerArray, WoodenCross } from '../models/Decor'
 import { MonitorWedge, StageChair } from '../models/StageFurniture'
 import { DrumKit } from '../models/DrumKit'
-import { GuitarOnStand, Stool } from '../models/Instruments'
+import { GuitarOnStand, MusicStand, Stool } from '../models/Instruments'
 import { WallLamp } from '../models/WallLamp'
-import { DRUM_POS, FLOWERS, GUITARS, MONITORS, PIANO_POS, STAGE_CHAIRS, PULPIT_POS, SCREENS, SPEAKER_ARRAYS, STOOLS, WALL_LAMPS } from './sanctuaryLayout'
+import { CROSS_POS, DRUM_POS, DRUM_SCALE, MUSIC_STANDS, FLOWERS, GUITARS, MONITORS, PIANO_POS, STAGE_CHAIRS, PULPIT_POS, SCREENS, SPEAKER_ARRAYS, STOOLS, WALL_LAMPS } from './sanctuaryLayout'
 
 // 왼쪽 스크린 문구를 몇 분마다 바꾼다 (상태 변경은 수 분에 한 번이라 useState 사용)
 function useCyclingMessage() {
@@ -26,6 +26,7 @@ function useCyclingMessage() {
 
 function Lights() {
   const spotTarget = useMemo(() => new THREE.Object3D(), [])
+  const crossTarget = useMemo(() => new THREE.Object3D(), [])
   const s = LIGHTS.pulpitSpot
   return (
     <>
@@ -45,6 +46,17 @@ function Lights() {
         shadow-mapSize={[1024, 1024]}
         shadow-bias={-0.0005}
         shadow-normalBias={0.02}
+      />
+      <primitive object={crossTarget} position={CROSS_POS} />
+      <spotLight
+        position={[CROSS_POS[0], 3.2, CROSS_POS[2] + 3]}
+        target={crossTarget}
+        color={LIGHTS.crossSpot.color}
+        intensity={LIGHTS.crossSpot.intensity}
+        angle={0.3}
+        penumbra={0.9}
+        decay={2}
+        distance={14}
       />
       {WALL_LAMPS.map((p, i) => (
         <WallLamp key={i} position={p} seed={i} />
@@ -78,7 +90,13 @@ export function SanctuaryScene() {
       {MONITORS.map((p, i) => (
         <MonitorWedge key={i} position={p} rotationY={Math.PI} />
       ))}
-      <DrumKit position={DRUM_POS} />
+      <group position={DRUM_POS} scale={DRUM_SCALE}>
+        <DrumKit position={[0, 0, 0]} />
+      </group>
+      <WoodenCross position={CROSS_POS} />
+      {MUSIC_STANDS.map((p, i) => (
+        <MusicStand key={i} position={p} />
+      ))}
       {GUITARS.map((g, i) => (
         <GuitarOnStand key={i} position={g.pos} kind={g.kind} color={g.color} />
       ))}

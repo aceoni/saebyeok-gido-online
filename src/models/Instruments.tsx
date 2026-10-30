@@ -102,3 +102,39 @@ export function Stool({ position }: P) {
     </group>
   )
 }
+
+// 보면대: 세 갈래 다리 + 기둥 + 기울어진 악보대. 악보대 앞면 = 로컬 +z
+export function MusicStand({ position, rotationY = 0 }: P) {
+  return (
+    <group position={position} rotation-y={rotationY}>
+      {[0, 1, 2].map((i) => {
+        const a = (i / 3) * Math.PI * 2
+        return (
+          <mesh key={i} position={[Math.cos(a) * 0.14, 0.1, -Math.sin(a) * 0.14]} rotation={[0, a, 0.6]}>
+            <boxGeometry args={[0.3, 0.015, 0.015]} />
+            {black}
+          </mesh>
+        )
+      })}
+      <mesh position={[0, 0.55, 0]}>
+        <cylinderGeometry args={[0.01, 0.012, 0.9, 5]} />
+        {black}
+      </mesh>
+      <group position={[0, 1.08, 0]} rotation-x={-0.35}>
+        <mesh>
+          <boxGeometry args={[0.5, 0.34, 0.012]} />
+          {black}
+        </mesh>
+        <mesh position={[0, -0.18, 0.03]}>
+          <boxGeometry args={[0.5, 0.02, 0.06]} />
+          {black}
+        </mesh>
+        {/* 악보 */}
+        <mesh position={[0, 0.01, 0.008]}>
+          <planeGeometry args={[0.42, 0.29]} />
+          <meshStandardMaterial color="#efe9dc" roughness={0.9} />
+        </mesh>
+      </group>
+    </group>
+  )
+}

@@ -81,3 +81,32 @@ export function SpeakerArray({ position, count, ceilingY }: P & { count: number;
     </group>
   )
 }
+
+// 벽에 거는 나무 십자가: 세로 기둥 + 가로대, 모서리를 살짝 깎은 두께감
+export function WoodenCross({ position, height = 3.0 }: P & { height?: number }) {
+  const bar = height * 0.105
+  const armW = height * 0.62
+  const depth = 0.16
+  const mat = <meshStandardMaterial color={COLORS.cross} roughness={0.55} />
+  return (
+    <group position={position}>
+      <mesh castShadow>
+        <boxGeometry args={[bar, height, depth]} />
+        {mat}
+      </mesh>
+      <mesh position={[0, height * 0.2, 0]} castShadow>
+        <boxGeometry args={[armW, bar, depth]} />
+        {mat}
+      </mesh>
+      {/* 앞면 가장자리 띠 (살짝 어두운 결) */}
+      <mesh position={[0, 0, depth / 2 + 0.002]}>
+        <boxGeometry args={[bar * 0.55, height - bar * 0.45, 0.004]} />
+        <meshStandardMaterial color={COLORS.woodDark} roughness={0.6} transparent opacity={0.35} />
+      </mesh>
+      <mesh position={[0, height * 0.2, depth / 2 + 0.002]}>
+        <boxGeometry args={[armW - bar * 0.45, bar * 0.55, 0.004]} />
+        <meshStandardMaterial color={COLORS.woodDark} roughness={0.6} transparent opacity={0.35} />
+      </mesh>
+    </group>
+  )
+}
