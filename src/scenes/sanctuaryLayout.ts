@@ -16,8 +16,14 @@ export type PewSlot = {
 export const pewSlots: PewSlot[] = Array.from({ length: PEWS.rows }, (_, row) => {
   const z = PEWS.firstZ + row * PEWS.spacing
   const cx = PEWS.aisleHalf + PEWS.length / 2
+  // 왼쪽 앞 몇 줄은 그랜드피아노 자리만큼 짧게 (통로 쪽 끝은 그대로)
+  const shortLen = -PEWS.aisleHalf - PEWS.leftShortEndX
+  const left =
+    row < PEWS.leftShortRows
+      ? { x: -PEWS.aisleHalf - shortLen / 2, length: shortLen }
+      : { x: -cx, length: PEWS.length }
   return [
-    { id: `L${row}`, x: -cx, z, side: 'left' as const, row },
+    { id: `L${row}`, x: left.x, z, side: 'left' as const, row, length: left.length },
     { id: `R${row}`, x: cx, z, side: 'right' as const, row },
   ]
 }).flat()
@@ -35,6 +41,17 @@ export const choirSlots: PewSlot[] = Array.from({ length: CHOIR.rows }, (_, row)
   length: CHOIR_LENGTH,
 }))
 
+// 지휘자 자리: 성가대 앞, 단상 왼쪽 끝. 성가대와 그랜드피아노 연주자가 모두 이곳을 바라본다.
+export const CONDUCTOR_POS: [number, number, number] = [-6.2, STAGE.height, (CHOIR.zFrom + CHOIR.zTo) / 2]
+
+// 그랜드피아노: 성가대석 앞(회중석 쪽), 연주자가 지휘자를 정면으로 바라보도록 회전.
+// (모델 로컬 좌표: 건반 = +z, 꼬리 = -z → 연주자는 -z 를 바라봄)
+export const GRAND_PIANO_POS: [number, number, number] = [-8.3, 0, -5.3]
+export const GRAND_PIANO_ROT_Y = Math.atan2(
+  GRAND_PIANO_POS[0] - CONDUCTOR_POS[0],
+  GRAND_PIANO_POS[2] - CONDUCTOR_POS[2],
+)
+
 // 정면 좌/우 흰 벽의 앞면 z (중앙 원목 벽보다 돌출)
 export const FRONT_SIDE_Z = HALL.frontZ + HALL.frontSideDepth
 
@@ -51,7 +68,7 @@ export const PULPIT_POS: [number, number, number] = [0, STAGE.height, -12.6]
 export const PIANO_POS: [number, number, number] = [5.2, 0, -9.35]
 
 // 강단 소품
-export const DRUM_POS: [number, number, number] = [6.2, STAGE.height, -13.0] // 오른쪽 스크린 아래
+export const DRUM_POS: [number, number, number] = [7.6, STAGE.height, -13.0] // 오른쪽 스크린 아래
 export const DRUM_SCALE = 1.4
 // 강단 의자 2개: 붙여서 왼쪽에만. 오른쪽 끝 ≈ 왼쪽 스크린 오른쪽 끝(x = -4.3)
 const CHAIR_W = 0.77
@@ -80,8 +97,8 @@ export const MONITORS: [number, number, number][] = [
   [3.4, STAGE.height, -11.0],
 ]
 export const FLOWERS: [number, number, number][] = [
-  [-7.3, STAGE.height, -14.6],
-  [7.3, STAGE.height, -14.6],
+  [-6.3, STAGE.height, -14.6],
+  [9.2, STAGE.height, -14.6],
 ]
 
 // 정면 좌/우 대형 스크린 2개 (가운데는 강대상만 남김)

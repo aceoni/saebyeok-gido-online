@@ -15,17 +15,18 @@ export const STAGE = {
   stepDepth: 0.6, // 아래 단 깊이
   stepHeight: 0.25,
   height: 0.6, // 위 단 높이
-  halfWidth: 7.8, // 단상 반폭 (왼쪽 앞에 성가대석 자리)
+  leftX: -6.9, // 단상 왼쪽 끝 (왼쪽 앞은 성가대석)
+  rightX: 10, // 단상 오른쪽 끝 (오른쪽은 넓게)
 }
 
 // 성가대석: 왼쪽 앞, 왼쪽 벽을 등지고 중앙(+x)을 바라보는 3단
 export const CHOIR = {
-  rows: 3,
-  frontX: -9.0, // 맨 앞줄 장의자 중심 x
-  rowSpacing: 0.95,
+  rows: 4,
+  frontX: -7.6, // 맨 앞줄 장의자 중심 x
+  rowSpacing: 1.1,
   tierHeight: 0.22, // 단마다 높아지는 높이
   zFrom: -15.0,
-  zTo: -8.2,
+  zTo: -8.4,
 }
 
 export const PEWS = {
@@ -37,6 +38,9 @@ export const PEWS = {
   seatHeight: 0.45,
   seatDepth: 0.45,
   backHeight: 0.95, // 등받이 꼭대기 높이
+  // 왼쪽 앞 몇 줄은 그랜드피아노 자리만큼 짧게
+  leftShortRows: 3,
+  leftShortEndX: -5.9,
 }
 
 // 밝은 원목 + 크림색 벽 + 회색 쿠션의 현대적인 예배당 톤
@@ -57,6 +61,7 @@ export const COLORS = {
   cross: '#f0dcb8', // 벽 십자가 (연한 원목)
   piano: '#16161a',
   pianoKeys: '#e8e2d4',
+  grandPiano: '#1b1b1e', // 무광에 가까운 검정 (튀지 않게)
   pulpitAcrylic: '#f4f2ee', // 반투명 흰색 아크릴 강대상
   pulpitGlow: '#fff4e2',
   screenFrame: '#1a1a1d',

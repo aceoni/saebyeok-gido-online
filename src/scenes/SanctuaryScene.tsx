@@ -7,13 +7,14 @@ import { Pulpit } from '../models/Pulpit'
 import { Pews } from '../models/Pews'
 import { ChoirLoft } from '../models/ChoirLoft'
 import { Piano } from '../models/Piano'
+import { GrandPiano } from '../models/GrandPiano'
 import { Screen } from '../models/Screen'
 import { FlowerStand, SpeakerArray, WoodenCross } from '../models/Decor'
 import { MonitorWedge, StageChair } from '../models/StageFurniture'
 import { DrumKit } from '../models/DrumKit'
 import { GuitarOnStand, MusicStand, Stool } from '../models/Instruments'
 import { WallLamp } from '../models/WallLamp'
-import { CROSS_POS, DRUM_POS, DRUM_SCALE, MUSIC_STANDS, FLOWERS, GUITARS, MONITORS, PIANO_POS, STAGE_CHAIRS, PULPIT_POS, SCREENS, SPEAKER_ARRAYS, STOOLS, WALL_LAMPS } from './sanctuaryLayout'
+import { CONDUCTOR_POS, CROSS_POS, GRAND_PIANO_POS, GRAND_PIANO_ROT_Y, DRUM_POS, DRUM_SCALE, MUSIC_STANDS, FLOWERS, GUITARS, MONITORS, PIANO_POS, STAGE_CHAIRS, PULPIT_POS, SCREENS, SPEAKER_ARRAYS, STOOLS, WALL_LAMPS } from './sanctuaryLayout'
 
 function Lights() {
   const crossTarget = useMemo(() => new THREE.Object3D(), [])
@@ -53,6 +54,13 @@ export function SanctuaryScene() {
       <Pews />
       <ChoirLoft />
       <Piano position={PIANO_POS} />
+      <GrandPiano position={GRAND_PIANO_POS} rotationY={GRAND_PIANO_ROT_Y} />
+      {/* 지휘자 단 + 성가대를 향한 보면대 */}
+      <mesh position={[CONDUCTOR_POS[0], CONDUCTOR_POS[1] + 0.06, CONDUCTOR_POS[2]]} receiveShadow>
+        <boxGeometry args={[0.8, 0.12, 0.8]} />
+        <meshStandardMaterial color={COLORS.woodDark} roughness={0.6} />
+      </mesh>
+      <MusicStand position={[CONDUCTOR_POS[0] - 0.35, CONDUCTOR_POS[1] + 0.12, CONDUCTOR_POS[2]]} rotationY={Math.PI / 2} />
 
       {FLOWERS.map((p, i) => (
         <FlowerStand key={i} position={p} scale={1.7} />
