@@ -1,0 +1,1 @@
+{"root":["./src/App.tsx","./src/config.ts","./src/main.tsx","./src/models/Decor.tsx","./src/models/Pews.tsx","./src/models/Piano.tsx","./src/models/Pulpit.tsx","./src/models/Room.tsx","./src/models/Screen.tsx","./src/models/Stage.tsx","./src/models/WallLamp.tsx","./src/scenes/SanctuaryScene.tsx","./src/scenes/sanctuaryLayout.ts","./vite.config.ts"],"version":"5.9.3"}

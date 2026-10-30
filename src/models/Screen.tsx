@@ -1,0 +1,116 @@
+import { useEffect, useMemo, useRef } from 'react'
+import { useFrame } from '@react-three/fiber'
+import * as THREE from 'three'
+import { RectAreaLightUniformsLib } from 'three/examples/jsm/lights/RectAreaLightUniformsLib.js'
+import { COLORS, LIGHTS, SCREEN } from '../config'
+
+RectAreaLightUniformsLib.init()
+
+type Props = {
+  width: number
+  height: number
+  text: string
+  /** 정면 스크린: 숨 쉬듯 밝기 변화 + RectAreaLight */
+  main?: boolean
+  fontScale?: number
+}
+
+const TEX_W = 1024
+
+function drawText(canvas: HTMLCanvasElement, text: string, fontScale: number) {
+  const ctx = canvas.getContext('2d')!
+  const { width: w, height: h } = canvas
+  const g = ctx.createRadialGradient(w / 2, h / 2, h * 0.1, w / 2, h / 2, w * 0.7)
+  g.addColorStop(0, '#1e2a48')
+  g.addColorStop(1, '#070a14')
+  ctx.fillStyle = g
+  ctx.fillRect(0, 0, w, h)
+  ctx.fillStyle = '#f4ead6'
+  ctx.textAlign = 'center'
+  ctx.textBaseline = 'middle'
+  const size = Math.round(h * 0.11 * fontScale)
+  ctx.font = `${size}px ${SCREEN.font}`
+  ctx.shadowColor = 'rgba(255, 220, 170, 0.5)'
+  ctx.shadowBlur = size * 0.4
+  ctx.fillText(text, w / 2, h / 2)
+}
+
+/** 자체 발광 스크린. text가 바뀌면 천천히 페이드아웃 → 교체 → 페이드인 */
+export function Screen({ width, height, text, main = false, fontScale = 1 }: Props) {
+  const canvas = useMemo(() => {
+    const c = document.createElement('canvas')
+    c.width = TEX_W
+    c.height = Math.round((TEX_W * height) / width)
+    return c
+  }, [width, height])
+  const texture = useMemo(() => {
+    const t = new THREE.CanvasTexture(canvas)
+    t.colorSpace = THREE.SRGBColorSpace
+    t.anisotropy = 4
+    return t
+  }, [canvas])
+
+  const matRef = useRef<THREE.MeshBasicMaterial>(null)
+  const lightRef = useRef<THREE.RectAreaLight>(null)
+  const shown = useRef<string | null>(null)
+  const target = useRef(text)
+  const fade = useRef(0) // 0 ~ 1
+  target.current = text
+
+  // 웹폰트가 늦게 로드되면 다시 그린다
+  useEffect(() => {
+    document.fonts?.load(`48px ${SCREEN.font}`).then(() => {
+      if (shown.current !== null) {
+        drawText(canvas, shown.current, fontScale)
+        texture.needsUpdate = true
+      }
+    })
+  }, [canvas, texture, fontScale])
+
+  useEffect(() => {
+    lightRef.current?.lookAt(0, 1.5, 10)
+  }, [])
+
+  useFrame(({ clock }, dt) => {
+    const step = dt / SCREEN.fadeSeconds
+    if (shown.current !== target.current) {
+      fade.current = Math.max(0, fade.current - step)
+      if (fade.current === 0) {
+        shown.current = target.current
+        drawText(canvas, shown.current, fontScale)
+        texture.needsUpdate = true
+      }
+    } else {
+      fade.current = Math.min(1, fade.current + step)
+    }
+    const { period, depth } = LIGHTS.screenBreath
+    const breath = main ? 1 - depth / 2 + (depth / 2) * Math.sin((clock.elapsedTime * Math.PI * 2) / period) : 1
+    const k = (0.25 + 0.75 * fade.current) * breath
+    matRef.current?.color.setScalar(k)
+    if (lightRef.current) lightRef.current.intensity = LIGHTS.screenRect.intensity * k
+  })
+
+  const frame = 0.12
+  return (
+    <group>
+      <mesh position={[0, 0, -0.04]}>
+        <boxGeometry args={[width + frame * 2, height + frame * 2, 0.06]} />
+        <meshStandardMaterial color={COLORS.screenFrame} roughness={0.6} />
+      </mesh>
+      <mesh>
+        <planeGeometry args={[width, height]} />
+        <meshBasicMaterial ref={matRef} map={texture} toneMapped={false} />
+      </mesh>
+      {main && (
+        <rectAreaLight
+          ref={lightRef}
+          position={[0, 0, 0.05]}
+          width={width}
+          height={height}
+          color={LIGHTS.screenRect.color}
+          intensity={LIGHTS.screenRect.intensity}
+        />
+      )}
+    </group>
+  )
+}
