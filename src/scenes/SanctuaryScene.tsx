@@ -14,7 +14,7 @@ import { MonitorWedge, StageChair } from '../models/StageFurniture'
 import { DrumKit } from '../models/DrumKit'
 import { GuitarOnStand, MusicStand, OrchestraChair, Stool } from '../models/Instruments'
 import { WallLamp } from '../models/WallLamp'
-import { CONDUCTOR_POS, CROSS_POS, GRAND_PIANO_POS, GRAND_PIANO_ROT_Y, GRAND_PIANO_SCALE, ORCHESTRA_CHAIRS, ORCHESTRA_STANDS, DRUM_POS, DRUM_SCALE, MUSIC_STANDS, FLOWERS, GUITARS, MONITORS, PIANO_POS, STAGE_CHAIRS, PULPIT_POS, SCREENS, SPEAKER_ARRAYS, STOOLS, WALL_LAMPS } from './sanctuaryLayout'
+import { CONDUCTOR_POS, CROSS_POS, GRAND_PIANO_POS, GRAND_PIANO_ROT_Y, GRAND_PIANO_SCALE, INSTRUMENT_SCALE, ORCHESTRA_CHAIRS, ORCHESTRA_STANDS, DRUM_POS, DRUM_SCALE, MUSIC_STANDS, FLOWERS, GUITARS, MONITORS, PIANO_POS, STAGE_CHAIRS, PULPIT_POS, SCREENS, SPEAKER_ARRAYS, STOOLS, WALL_LAMPS } from './sanctuaryLayout'
 
 function Lights() {
   const crossTarget = useMemo(() => new THREE.Object3D(), [])
@@ -53,15 +53,21 @@ export function SanctuaryScene() {
       <Pulpit position={PULPIT_POS} />
       <Pews />
       <ChoirLoft />
-      <Piano position={PIANO_POS} />
+      <group position={PIANO_POS} scale={INSTRUMENT_SCALE}>
+        <Piano position={[0, 0, 0]} />
+      </group>
       <group position={GRAND_PIANO_POS} rotation-y={GRAND_PIANO_ROT_Y} scale={GRAND_PIANO_SCALE}>
         <GrandPiano position={[0, 0, 0]} />
       </group>
       {ORCHESTRA_CHAIRS.map((c, i) => (
-        <OrchestraChair key={i} position={c.pos} rotationY={c.rotY} />
+        <group key={i} position={c.pos} scale={INSTRUMENT_SCALE}>
+          <OrchestraChair position={[0, 0, 0]} rotationY={c.rotY} />
+        </group>
       ))}
       {ORCHESTRA_STANDS.map((m, i) => (
-        <MusicStand key={i} position={m.pos} rotationY={m.rotY} />
+        <group key={i} position={m.pos} scale={INSTRUMENT_SCALE}>
+          <MusicStand position={[0, 0, 0]} rotationY={m.rotY} />
+        </group>
       ))}
       {/* 지휘자 단 + 성가대를 향한 보면대 */}
       <mesh position={[CONDUCTOR_POS[0], CONDUCTOR_POS[1] + 0.06, CONDUCTOR_POS[2]]} receiveShadow>
@@ -84,13 +90,19 @@ export function SanctuaryScene() {
       </group>
       <WoodenCross position={CROSS_POS} />
       {MUSIC_STANDS.map((p, i) => (
-        <MusicStand key={i} position={p} />
+        <group key={i} position={p} scale={INSTRUMENT_SCALE}>
+          <MusicStand position={[0, 0, 0]} />
+        </group>
       ))}
       {GUITARS.map((g, i) => (
-        <GuitarOnStand key={i} position={g.pos} kind={g.kind} color={g.color} />
+        <group key={i} position={g.pos} scale={INSTRUMENT_SCALE}>
+          <GuitarOnStand position={[0, 0, 0]} kind={g.kind} color={g.color} />
+        </group>
       ))}
       {STOOLS.map((p, i) => (
-        <Stool key={i} position={p} />
+        <group key={i} position={p} scale={INSTRUMENT_SCALE}>
+          <Stool position={[0, 0, 0]} />
+        </group>
       ))}
 
       {/* 정면 좌/우 스크린: 같은 문구 */}

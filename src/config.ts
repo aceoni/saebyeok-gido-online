@@ -38,7 +38,7 @@ export const PEWS = {
   seatHeight: 0.45,
   seatDepth: 0.45,
   backHeight: 0.95, // 등받이 꼭대기 높이
-  leftSkipRows: 4, // 왼쪽 앞 몇 줄은 비움 (그랜드피아노 + 관현악 연주자 자리)
+  frontSkipRows: 4, // 앞 몇 줄은 좌우 모두 비움 (왼쪽: 그랜드피아노·관현악, 오른쪽: 키보드·밴드)
 }
 
 // 밝은 원목 + 크림색 벽 + 회색 쿠션의 현대적인 예배당 톤
