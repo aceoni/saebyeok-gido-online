@@ -151,8 +151,6 @@ export const SCREENS = [
 export const SPEAKER_ARRAYS: [number, number, number][] = [
   [-8.3, -12.5, 9],
   [8.3, -12.5, 9],
-  [-8.3, 1, 6],
-  [8.3, 1, 6],
 ]
 
 // 벽등: 천장:바닥 1:4 지점보다 조금 아래

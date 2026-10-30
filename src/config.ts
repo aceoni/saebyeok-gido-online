@@ -87,11 +87,14 @@ export const COLORS = {
   cymbal: '#c9a548',
   chairFabric: '#9a9184',
   character: {
-    top: '#8c7b68', // 따뜻한 회갈색 카디건
-    pants: '#3a3d46',
-    skin: '#e4c19f',
-    hair: '#2a221d',
-    shoes: '#26262a',
+    top: '#9c8670', // 따뜻한 회갈색 카디건
+    shirt: '#efe8dc', // 안쪽 셔츠 깃
+    pants: '#454a58',
+    skin: '#f0cfae',
+    hair: '#3a2c24',
+    eyes: '#2a2220',
+    cheek: '#eaa79a',
+    shoes: '#5a4636',
   },
   door: '#dcb684', // 정문 밝은 원목
 }
@@ -134,9 +137,9 @@ export const PULPIT = {
 
 // 플레이어(캐릭터) 이동
 export const PLAYER = {
-  spawn: [0, 0, 12.3] as [number, number, number], // 1층 정문 안쪽
+  spawn: [0, 0, 9.8] as [number, number, number], // 1층 중앙 통로 뒤쪽 (캐릭터와 정면 십자가가 함께 보이는 자리)
   spawnRotY: Math.PI, // 단상(-z)을 바라봄
-  walkSpeed: 1.7, // m/s (조용히 걷는 속도)
+  walkSpeed: 3.4, // m/s
   turnSpeed: 10, // 방향 전환 부드러움
   radius: 0.25, // 충돌 반경
   maxStep: 0.36, // 한 번에 오를 수 있는 높이 (단상 계단, 성가대 단)
@@ -144,13 +147,13 @@ export const PLAYER = {
 
 // 3인칭 카메라
 export const CAMERA = {
-  distance: 5, // 기본 거리
-  minDistance: 1.8,
+  distance: 4, // 기본 거리
+  minDistance: 1.5,
   maxDistance: 12,
-  pitch: 0.32, // 기본 내려다보는 각도 (rad)
+  pitch: 0.12, // 기본 내려다보는 각도 (rad): 낮게 → 정면 십자가까지 보임
   minPitch: 0.05,
   maxPitch: 1.25,
-  lookHeight: 1.45, // 캐릭터의 어디를 바라볼지 (높이)
+  lookHeight: 1.5, // 바라보는 높이 (SD 캐릭터 머리 위쪽 → 캐릭터는 화면 아래, 정면은 위로 보임)
   follow: 6, // 따라가는 부드러움 (클수록 빠름)
   rotateSpeed: 0.005, // 우클릭 드래그 회전 감도
 }

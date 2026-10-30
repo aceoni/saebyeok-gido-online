@@ -54,7 +54,8 @@ export function SpeakerArray({ position, count, ceilingY }: P & { count: number;
   let y = 0
   let z = 0
   for (let i = 0; i < count; i++) {
-    const tilt = 0.04 * i * i * 0.25 + 0.03 * i
+    // 아래로 갈수록 단상 쪽(-z)으로 휘어, 아래 박스일수록 회중석 앞쪽을 내려다봄
+    const tilt = -(0.04 * i * i * 0.25 + 0.03 * i)
     boxes.push({ y, z, tilt })
     y -= boxH * Math.cos(tilt)
     z += boxH * Math.sin(tilt)

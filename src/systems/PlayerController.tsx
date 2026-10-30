@@ -102,7 +102,7 @@ export function PlayerController({ clickToMove = true }: { clickToMove?: boolean
   }, [clickToMove, camera, scene, gl, raycaster])
 
   useFrame((_, rawDt) => {
-    const dt = Math.min(rawDt, 0.05)
+    const dt = Math.min(rawDt, 0.1)
     const s = usePlayer.getState()
     let [x, y, z] = s.position
     let path = s.path
