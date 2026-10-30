@@ -3,7 +3,7 @@ import { COLORS } from '../config'
 type P = { position: [number, number, number] }
 
 // 꽃꽂이: 받침대 + 화병 + 꽃송이(정이십면체) + 잎(원뿔)
-export function FlowerStand({ position }: P) {
+export function FlowerStand({ position, scale = 1 }: P & { scale?: number }) {
   const blooms: [number, number, number, number][] = [
     [0, 1.42, 0, 0],
     [0.16, 1.34, 0.05, 1],
@@ -14,7 +14,7 @@ export function FlowerStand({ position }: P) {
     [-0.18, 1.25, -0.08, 0],
   ]
   return (
-    <group position={position}>
+    <group position={position} scale={scale}>
       <mesh position={[0, 0.45, 0]} castShadow>
         <cylinderGeometry args={[0.12, 0.18, 0.9, 6]} />
         <meshStandardMaterial color={COLORS.wood} roughness={0.7} flatShading />
@@ -42,51 +42,6 @@ export function FlowerStand({ position }: P) {
           </mesh>
         )
       })}
-    </group>
-  )
-}
-
-// 깃발: 깃대 + 천(얇은 상자) + 십자가 문양
-export function Flag({ position, variant }: P & { variant: 'christian' | 'church' }) {
-  const field = variant === 'christian' ? COLORS.flagCross : COLORS.flagNavy
-  const cross = variant === 'christian' ? COLORS.flagRed : COLORS.flagCross
-  return (
-    <group position={position}>
-      <mesh position={[0, 1.3, 0]} castShadow>
-        <cylinderGeometry args={[0.025, 0.03, 2.6, 6]} />
-        <meshStandardMaterial color="#b89a5a" metalness={0.5} roughness={0.4} />
-      </mesh>
-      <mesh position={[0, 2.66, 0]}>
-        <octahedronGeometry args={[0.06, 0]} />
-        <meshStandardMaterial color="#d8b868" metalness={0.6} roughness={0.3} />
-      </mesh>
-      <mesh position={[0, 0.04, 0]}>
-        <cylinderGeometry args={[0.18, 0.22, 0.08, 8]} />
-        <meshStandardMaterial color="#3a2a1a" roughness={0.6} />
-      </mesh>
-      {/* 깃발 천은 정면(+z)을 향해 늘어짐 */}
-      <group position={[0, 1.95, 0.05]}>
-        <mesh position={[0.48, 0, 0.0]} rotation-y={-0.15} castShadow>
-          <boxGeometry args={[0.92, 1.1, 0.02]} />
-          <meshStandardMaterial color={field} roughness={0.9} />
-        </mesh>
-        {variant === 'christian' && (
-          <mesh position={[0.2, 0.3, 0.035]} rotation-y={-0.15}>
-            <boxGeometry args={[0.36, 0.42, 0.01]} />
-            <meshStandardMaterial color={COLORS.flagBlue} roughness={0.9} />
-          </mesh>
-        )}
-        <group position={variant === 'christian' ? [0.2, 0.3, 0.045] : [0.48, 0, 0.025]} rotation-y={-0.15}>
-          <mesh>
-            <boxGeometry args={[0.05, 0.3, 0.01]} />
-            <meshStandardMaterial color={cross} roughness={0.9} />
-          </mesh>
-          <mesh position={[0, 0.05, 0]}>
-            <boxGeometry args={[0.2, 0.05, 0.01]} />
-            <meshStandardMaterial color={cross} roughness={0.9} />
-          </mesh>
-        </group>
-      </group>
     </group>
   )
 }

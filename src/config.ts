@@ -51,10 +51,9 @@ export const COLORS = {
   downlight: '#fff1d6',
   flower: ['#f2ead8', '#e8b4b4', '#f2e6a6'],
   leaf: '#4a6a3e',
-  flagCross: '#f0ead8',
-  flagRed: '#8a2a2a',
-  flagBlue: '#2a3a6a',
-  flagNavy: '#25335a',
+  drumShell: '#5b1f24', // 드럼 셸 (짙은 와인색 래커)
+  cymbal: '#c9a548',
+  chairFabric: '#9a9184',
   door: '#b08a62',
 }
 

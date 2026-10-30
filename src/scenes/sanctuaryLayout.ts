@@ -24,9 +24,24 @@ export const pillarX = HALL.width / 2 - 0.35
 
 export const PULPIT_POS: [number, number, number] = [0, STAGE.height, -12.6]
 
-// 키보드(디지털 피아노): 단상 바로 앞, 중앙 통로 오른쪽에 강대상과 가깝게.
+// 키보드(디지털 피아노): 단상 바로 앞 바닥, 회중석 기준 오른쪽.
 // 연주자는 강대상(정면, -z)을 바라봄. 모델 로컬 좌표: 건반 = +z 쪽.
-export const PIANO_POS: [number, number, number] = [2.3, 0, -9.35]
+export const PIANO_POS: [number, number, number] = [5.2, 0, -9.35]
+
+// 강단 소품
+export const DRUM_POS: [number, number, number] = [7.8, STAGE.height, -13.4] // 오른쪽 스크린 아래
+export const STAGE_CHAIRS: [number, number, number][] = [
+  [-2.7, STAGE.height, -13.8],
+  [2.7, STAGE.height, -13.8],
+]
+export const MONITORS: [number, number, number][] = [
+  [-3.4, STAGE.height, -11.0],
+  [3.4, STAGE.height, -11.0],
+]
+export const FLOWERS: [number, number, number][] = [
+  [-9.3, STAGE.height, -15.0],
+  [9.3, STAGE.height, -15.0],
+]
 
 // 정면 좌/우 대형 스크린 2개 (가운데는 강대상만 남김)
 export const SCREENS = [

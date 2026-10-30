@@ -1,16 +1,18 @@
 import { useEffect, useMemo, useState } from 'react'
 import * as THREE from 'three'
-import { COLORS, HALL, LIGHTS, SCREEN, STAGE } from '../config'
+import { COLORS, HALL, LIGHTS, SCREEN } from '../config'
 import { Room } from '../models/Room'
 import { Stage } from '../models/Stage'
 import { Pulpit } from '../models/Pulpit'
 import { Pews } from '../models/Pews'
 import { Piano } from '../models/Piano'
 import { Screen } from '../models/Screen'
-import { Flag, FlowerStand, SpeakerArray } from '../models/Decor'
+import { FlowerStand, SpeakerArray } from '../models/Decor'
+import { MonitorWedge, StageChair } from '../models/StageFurniture'
+import { DrumKit } from '../models/DrumKit'
 import { Banner } from '../models/Banner'
 import { WallLamp } from '../models/WallLamp'
-import { BANNER_POS, PIANO_POS, PULPIT_POS, SCREENS, SPEAKER_ARRAYS, WALL_LAMPS } from './sanctuaryLayout'
+import { BANNER_POS, DRUM_POS, FLOWERS, MONITORS, PIANO_POS, STAGE_CHAIRS, PULPIT_POS, SCREENS, SPEAKER_ARRAYS, WALL_LAMPS } from './sanctuaryLayout'
 
 // 왼쪽 스크린 문구를 몇 분마다 바꾼다 (상태 변경은 수 분에 한 번이라 useState 사용)
 function useCyclingMessage() {
@@ -68,10 +70,16 @@ export function SanctuaryScene() {
       <Piano position={PIANO_POS} />
       <Banner position={BANNER_POS} />
 
-      <FlowerStand position={[-1.9, STAGE.height, -12.3]} />
-      <FlowerStand position={[1.9, STAGE.height, -12.3]} />
-      <Flag position={[-10.2, STAGE.height, -15.3]} variant="christian" />
-      <Flag position={[10.2, STAGE.height, -15.3]} variant="church" />
+      {FLOWERS.map((p, i) => (
+        <FlowerStand key={i} position={p} scale={1.7} />
+      ))}
+      {STAGE_CHAIRS.map((p, i) => (
+        <StageChair key={i} position={p} />
+      ))}
+      {MONITORS.map((p, i) => (
+        <MonitorWedge key={i} position={p} rotationY={Math.PI} />
+      ))}
+      <DrumKit position={DRUM_POS} />
 
       {/* 정면 좌: 문구 / 정면 우: 찬송 제목 */}
       {SCREENS.map((sc, i) => (
