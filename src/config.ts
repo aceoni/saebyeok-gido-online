@@ -24,7 +24,7 @@ export const CHOIR = {
   rows: 4,
   frontX: -7.6, // 맨 앞줄 장의자 중심 x
   rowSpacing: 1.1,
-  tierHeight: 0.22, // 단마다 높아지는 높이
+  tierHeight: 0.3, // 단마다 높아지는 높이 (단상 높이에서 시작)
   zFrom: -15.0,
   zTo: -8.4,
 }
@@ -39,8 +39,8 @@ export const PEWS = {
   seatDepth: 0.45,
   backHeight: 0.95, // 등받이 꼭대기 높이
   // 왼쪽 앞 몇 줄은 그랜드피아노 자리만큼 짧게
-  leftShortRows: 3,
-  leftShortEndX: -5.9,
+  leftShortRows: 4,
+  leftShortEndX: -4.4, // 피아노 + 관현악 연주자 자리
 }
 
 // 밝은 원목 + 크림색 벽 + 회색 쿠션의 현대적인 예배당 톤

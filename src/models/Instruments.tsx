@@ -138,3 +138,40 @@ export function MusicStand({ position, rotationY = 0 }: P) {
     </group>
   )
 }
+
+// 관현악 연주자용 일반 의자 (검은 철제 프레임 + 원목 좌판/등받이). 앞면 = 로컬 +z
+export function OrchestraChair({ position, rotationY = 0 }: P) {
+  const frame = <meshStandardMaterial color="#2a2a2e" metalness={0.4} roughness={0.5} />
+  const wood = <meshStandardMaterial color={COLORS.wood} roughness={0.6} />
+  return (
+    <group position={position} rotation-y={rotationY}>
+      <mesh position={[0, 0.46, 0]} castShadow>
+        <boxGeometry args={[0.44, 0.04, 0.42]} />
+        {wood}
+      </mesh>
+      <mesh position={[0, 0.78, -0.21]} rotation-x={-0.12} castShadow>
+        <boxGeometry args={[0.42, 0.26, 0.03]} />
+        {wood}
+      </mesh>
+      {(
+        [
+          [-0.19, 0.18],
+          [0.19, 0.18],
+          [-0.19, -0.18],
+          [0.19, -0.18],
+        ] as const
+      ).map(([x, z]) => (
+        <mesh key={`${x}${z}`} position={[x, 0.23, z]}>
+          <cylinderGeometry args={[0.012, 0.012, 0.46, 5]} />
+          {frame}
+        </mesh>
+      ))}
+      {[-0.19, 0.19].map((x) => (
+        <mesh key={x} position={[x, 0.66, -0.2]} rotation-x={-0.12}>
+          <cylinderGeometry args={[0.011, 0.011, 0.42, 5]} />
+          {frame}
+        </mesh>
+      ))}
+    </group>
+  )
+}

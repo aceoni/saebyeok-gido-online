@@ -36,7 +36,7 @@ export const choirSlots: PewSlot[] = Array.from({ length: CHOIR.rows }, (_, row)
   z: (CHOIR.zFrom + CHOIR.zTo) / 2,
   side: 'choir' as const,
   row,
-  y: row * CHOIR.tierHeight,
+  y: STAGE.height + row * CHOIR.tierHeight,
   rotY: -Math.PI / 2,
   length: CHOIR_LENGTH,
 }))
@@ -46,7 +46,8 @@ export const CONDUCTOR_POS: [number, number, number] = [-6.2, STAGE.height, (CHO
 
 // 그랜드피아노: 성가대석 앞(회중석 쪽), 연주자가 지휘자를 정면으로 바라보도록 회전.
 // (모델 로컬 좌표: 건반 = +z, 꼬리 = -z → 연주자는 -z 를 바라봄)
-export const GRAND_PIANO_POS: [number, number, number] = [-8.3, 0, -5.3]
+export const GRAND_PIANO_POS: [number, number, number] = [-8.6, 0, -4.9]
+export const GRAND_PIANO_SCALE = 1.3
 export const GRAND_PIANO_ROT_Y = Math.atan2(
   GRAND_PIANO_POS[0] - CONDUCTOR_POS[0],
   GRAND_PIANO_POS[2] - CONDUCTOR_POS[2],
@@ -71,11 +72,31 @@ export const PIANO_POS: [number, number, number] = [5.2, 0, -9.35]
 export const DRUM_POS: [number, number, number] = [7.6, STAGE.height, -13.0] // 오른쪽 스크린 아래
 export const DRUM_SCALE = 1.4
 // 강단 의자 2개: 붙여서 왼쪽에만. 오른쪽 끝 ≈ 왼쪽 스크린 오른쪽 끝(x = -4.3)
+// 정면 벽에 붙이고, 오른쪽 끝을 원목 벽이 시작하는 선(x = -frontCenterHalf)에 맞춤
 const CHAIR_W = 0.77
+const CHAIR_Z = FRONT_SIDE_Z + 0.4
 export const STAGE_CHAIRS: [number, number, number][] = [
-  [-4.3 - CHAIR_W / 2, STAGE.height, -13.8],
-  [-4.3 - CHAIR_W * 1.5, STAGE.height, -13.8],
+  [-HALL.frontCenterHalf - CHAIR_W / 2, STAGE.height, CHAIR_Z],
+  [-HALL.frontCenterHalf - CHAIR_W * 1.5, STAGE.height, CHAIR_Z],
 ]
+
+// 관현악 연주자 자리: 그랜드피아노 오른쪽(회중석에서 볼 때). 모두 지휘자를 바라봄.
+// 두 사람이 보면대 하나를 함께 보는 배치.
+const facing = (x: number, z: number) => Math.atan2(CONDUCTOR_POS[0] - x, CONDUCTOR_POS[2] - z)
+const orchestraChairXZ: [number, number][] = [
+  [-6.4, -6.6],
+  [-5.5, -6.4],
+  [-6.2, -5.0],
+  [-5.2, -4.8],
+]
+export const ORCHESTRA_CHAIRS = orchestraChairXZ.map(([x, z]) => ({
+  pos: [x, 0, z] as [number, number, number],
+  rotY: facing(x, z),
+}))
+export const ORCHESTRA_STANDS = [
+  [-5.95, -7.3],
+  [-5.7, -5.7],
+].map(([x, z]) => ({ pos: [x, 0, z] as [number, number, number], rotY: facing(x, z) + Math.PI }))
 
 // 키보드 오른쪽: 기타/베이스 거치대 + 연주자 스툴
 export const GUITARS: { pos: [number, number, number]; kind: 'acoustic' | 'electric' | 'bass'; color: string }[] = [
