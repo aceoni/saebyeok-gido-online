@@ -2,7 +2,7 @@ import { COLORS, HALL, STAGE } from '../config'
 
 // 단상: 아래 계단 1단 + 위 단
 export function Stage() {
-  const w = HALL.width - 4
+  const w = STAGE.halfWidth * 2
   const topDepth = STAGE.frontZ + STAGE.stepDepth - HALL.frontZ
   const topZ = HALL.frontZ + topDepth / 2
   return (

@@ -5,6 +5,7 @@ import { Room } from '../models/Room'
 import { Stage } from '../models/Stage'
 import { Pulpit } from '../models/Pulpit'
 import { Pews } from '../models/Pews'
+import { ChoirLoft } from '../models/ChoirLoft'
 import { Piano } from '../models/Piano'
 import { Screen } from '../models/Screen'
 import { FlowerStand, SpeakerArray, WoodenCross } from '../models/Decor'
@@ -50,6 +51,7 @@ export function SanctuaryScene() {
       <Stage />
       <Pulpit position={PULPIT_POS} />
       <Pews />
+      <ChoirLoft />
       <Piano position={PIANO_POS} />
 
       {FLOWERS.map((p, i) => (

@@ -6,6 +6,8 @@ export const HALL = {
   frontZ: -16, // 정면 벽
   backZ: 14, // 입구 벽
   height: 14, // 높은 천장으로 탁 트인 느낌
+  frontSideDepth: 0.6, // 정면 좌/우 흰 벽이 중앙 원목 벽보다 앞으로 나온 깊이
+  frontCenterHalf: 3.5, // 중앙 원목 벽 반폭
 }
 
 export const STAGE = {
@@ -13,6 +15,17 @@ export const STAGE = {
   stepDepth: 0.6, // 아래 단 깊이
   stepHeight: 0.25,
   height: 0.6, // 위 단 높이
+  halfWidth: 7.8, // 단상 반폭 (왼쪽 앞에 성가대석 자리)
+}
+
+// 성가대석: 왼쪽 앞, 왼쪽 벽을 등지고 중앙(+x)을 바라보는 3단
+export const CHOIR = {
+  rows: 3,
+  frontX: -9.0, // 맨 앞줄 장의자 중심 x
+  rowSpacing: 0.95,
+  tierHeight: 0.22, // 단마다 높아지는 높이
+  zFrom: -15.0,
+  zTo: -8.2,
 }
 
 export const PEWS = {
@@ -82,5 +95,5 @@ export const SCREEN = {
 
 export const PULPIT = {
   motto: 'SOLI DEO GLORIA',
-  glow: 0.4, // 아크릴 안쪽 은은한 발광
+  glow: 0.13, // 아크릴 안쪽 아주 약한 발광 (조명 받은 듯 튀지 않게)
 }

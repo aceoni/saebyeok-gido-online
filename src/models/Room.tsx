@@ -77,6 +77,16 @@ export function Room() {
         <boxGeometry args={[HALL.width + t * 2, H, t]} />
         <meshStandardMaterial color={COLORS.wall} roughness={0.9} />
       </mesh>
+      {/* 정면 좌/우 흰 벽: 중앙 원목 벽보다 앞으로 돌출 */}
+      {[-1, 1].map((s) => {
+        const w = halfW - HALL.frontCenterHalf
+        return (
+          <mesh key={s} position={[s * (HALL.frontCenterHalf + w / 2), H / 2, HALL.frontZ + HALL.frontSideDepth / 2]} receiveShadow>
+            <boxGeometry args={[w, H, HALL.frontSideDepth]} />
+            <meshStandardMaterial color={COLORS.wall} roughness={0.9} />
+          </mesh>
+        )
+      })}
       {Array.from({ length: 7 }, (_, i) => (
         <mesh key={i} position={[(i - 3) * 1.0, H / 2, HALL.frontZ + 0.04]} receiveShadow>
           <boxGeometry args={[0.96, H, 0.08]} />

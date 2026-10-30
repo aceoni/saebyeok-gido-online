@@ -100,7 +100,7 @@ export function Pulpit({ position }: Props) {
       </mesh>
       <mesh position={[0, topY + 0.06, 0.306]}>
         <planeGeometry args={[0.92, 0.086]} />
-        <meshStandardMaterial map={texture} roughness={0.4} />
+        <meshStandardMaterial map={texture} emissiveMap={texture} emissive="#ffffff" emissiveIntensity={PULPIT.glow * 1.5} roughness={0.4} />
       </mesh>
       {/* 마이크 2개 */}
       <group position={[0, topY + 0.1, 0]}>
