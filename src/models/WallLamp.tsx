@@ -5,7 +5,7 @@ import { COLORS, LIGHTS } from '../config'
 
 type Props = { position: [number, number, number]; seed: number }
 
-// 측벽 낮은 벽등 (약한 PointLight + 미세한 깜빡임, 그림자 없음)
+// 측벽 높은 벽등 (약한 PointLight + 미세한 깜빡임, 그림자 없음)
 export function WallLamp({ position, seed }: Props) {
   const light = useRef<THREE.PointLight>(null)
   const shade = useRef<THREE.MeshStandardMaterial>(null)
@@ -20,7 +20,7 @@ export function WallLamp({ position, seed }: Props) {
   })
 
   return (
-    <group position={position}>
+    <group position={position} scale={1.8}>
       <mesh position={[-inward * 0.08, 0, 0]}>
         <boxGeometry args={[0.04, 0.3, 0.18]} />
         <meshStandardMaterial color="#5a4630" metalness={0.4} roughness={0.5} />

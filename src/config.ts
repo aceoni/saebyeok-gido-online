@@ -43,8 +43,8 @@ export const COLORS = {
   frontPanel: '#bf9466', // 강대상 뒤 원목 벽
   piano: '#16161a',
   pianoKeys: '#e8e2d4',
-  banner: ['#2f8f8c', '#3b6fa8'], // 현수막 그라데이션 (청록 → 파랑)
-  bannerText: '#fbf7ee',
+  pulpitAcrylic: '#f4f2ee', // 반투명 흰색 아크릴 강대상
+  pulpitGlow: '#fff4e2',
   screenFrame: '#1a1a1d',
   speaker: '#1a1a1c',
   lampShade: '#f3e6cc',
@@ -64,7 +64,7 @@ export const LIGHTS = {
   pulpitSpot: { color: '#ffd9a0', intensity: 160, angle: 0.42, penumbra: 0.7, height: 7 },
   screenRect: { color: '#a8b8ff', intensity: 2.5 },
   screenBreath: { period: 14, depth: 0.25 }, // 초, 밝기 변화 폭
-  wallLamp: { color: '#ffc488', intensity: 5, distance: 9, flicker: 0.05 },
+  wallLamp: { color: '#ffc488', intensity: 22, distance: 20, flicker: 0.05 },
   pianoLamp: { color: '#ffc27a', intensity: 3, distance: 3.5 },
   downlightGlow: 0.35, // 천장 매입등 자체 발광 세기 (실제 광원 아님)
 }
@@ -83,8 +83,7 @@ export const SCREEN = {
   font: '"Gowun Batang", serif',
 }
 
-export const BANNER = {
-  text: '새벽을 깨우리라!',
-  width: 9.4,
-  height: 1.7,
+export const PULPIT = {
+  motto: 'SOLI DEO GLORIA',
+  glow: 0.4, // 아크릴 안쪽 은은한 발광
 }

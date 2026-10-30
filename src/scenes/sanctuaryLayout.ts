@@ -30,9 +30,22 @@ export const PIANO_POS: [number, number, number] = [5.2, 0, -9.35]
 
 // 강단 소품
 export const DRUM_POS: [number, number, number] = [7.8, STAGE.height, -13.4] // 오른쪽 스크린 아래
+// 강단 의자 2개: 붙여서 왼쪽에만. 오른쪽 끝 ≈ 왼쪽 스크린 오른쪽 끝(x = -4.3)
+const CHAIR_W = 0.77
 export const STAGE_CHAIRS: [number, number, number][] = [
-  [-2.7, STAGE.height, -13.8],
-  [2.7, STAGE.height, -13.8],
+  [-4.3 - CHAIR_W / 2, STAGE.height, -13.8],
+  [-4.3 - CHAIR_W * 1.5, STAGE.height, -13.8],
+]
+
+// 키보드 오른쪽: 기타/베이스 거치대 + 연주자 스툴
+export const GUITARS: { pos: [number, number, number]; kind: 'acoustic' | 'electric' | 'bass'; color: string }[] = [
+  { pos: [6.5, 0, -9.7], kind: 'acoustic', color: '#c8955a' },
+  { pos: [7.1, 0, -9.7], kind: 'electric', color: '#e9e4da' },
+  { pos: [7.75, 0, -9.7], kind: 'bass', color: '#2b2b30' },
+]
+export const STOOLS: [number, number, number][] = [
+  [6.6, 0, -8.6],
+  [7.6, 0, -8.6],
 ]
 export const MONITORS: [number, number, number][] = [
   [-3.4, STAGE.height, -11.0],
@@ -49,18 +62,17 @@ export const SCREENS = [
   { pos: [7.6, 7.4, HALL.frontZ + 0.12] as const, w: 6.6, h: 3.7 },
 ]
 
-// 천장 꼭대기 현수막
-export const BANNER_POS: [number, number, number] = [0, HALL.height - 1.6, HALL.frontZ + 0.2]
-
-// 천장에 매단 라인 어레이 스피커 (x, z, 박스 개수)
+// 천장에 매단 라인 어레이 스피커 (x, z, 박스 개수) — 양 사이드로
 export const SPEAKER_ARRAYS: [number, number, number][] = [
-  [-5.6, -12.5, 8],
-  [5.6, -12.5, 8],
-  [-7, 1, 5],
-  [7, 1, 5],
+  [-9.6, -12.5, 9],
+  [9.6, -12.5, 9],
+  [-9.4, 1, 6],
+  [9.4, 1, 6],
 ]
 
+// 벽등: 천장:바닥 = 1:5 지점 (천장에서 1/6 아래)
+const LAMP_Y = (HALL.height * 5) / 6
 export const WALL_LAMPS: [number, number, number][] = [-10, -4, 2, 8].flatMap((z) => [
-  [-HALL.width / 2 + 0.25, 2.3, z] as [number, number, number],
-  [HALL.width / 2 - 0.25, 2.3, z] as [number, number, number],
+  [-HALL.width / 2 + 0.25, LAMP_Y, z] as [number, number, number],
+  [HALL.width / 2 - 0.25, LAMP_Y, z] as [number, number, number],
 ])

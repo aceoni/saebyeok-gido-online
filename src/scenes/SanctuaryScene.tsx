@@ -10,9 +10,9 @@ import { Screen } from '../models/Screen'
 import { FlowerStand, SpeakerArray } from '../models/Decor'
 import { MonitorWedge, StageChair } from '../models/StageFurniture'
 import { DrumKit } from '../models/DrumKit'
-import { Banner } from '../models/Banner'
+import { GuitarOnStand, Stool } from '../models/Instruments'
 import { WallLamp } from '../models/WallLamp'
-import { BANNER_POS, DRUM_POS, FLOWERS, MONITORS, PIANO_POS, STAGE_CHAIRS, PULPIT_POS, SCREENS, SPEAKER_ARRAYS, WALL_LAMPS } from './sanctuaryLayout'
+import { DRUM_POS, FLOWERS, GUITARS, MONITORS, PIANO_POS, STAGE_CHAIRS, PULPIT_POS, SCREENS, SPEAKER_ARRAYS, STOOLS, WALL_LAMPS } from './sanctuaryLayout'
 
 // 왼쪽 스크린 문구를 몇 분마다 바꾼다 (상태 변경은 수 분에 한 번이라 useState 사용)
 function useCyclingMessage() {
@@ -68,7 +68,6 @@ export function SanctuaryScene() {
       <Pulpit position={PULPIT_POS} />
       <Pews />
       <Piano position={PIANO_POS} />
-      <Banner position={BANNER_POS} />
 
       {FLOWERS.map((p, i) => (
         <FlowerStand key={i} position={p} scale={1.7} />
@@ -80,6 +79,12 @@ export function SanctuaryScene() {
         <MonitorWedge key={i} position={p} rotationY={Math.PI} />
       ))}
       <DrumKit position={DRUM_POS} />
+      {GUITARS.map((g, i) => (
+        <GuitarOnStand key={i} position={g.pos} kind={g.kind} color={g.color} />
+      ))}
+      {STOOLS.map((p, i) => (
+        <Stool key={i} position={p} />
+      ))}
 
       {/* 정면 좌: 문구 / 정면 우: 찬송 제목 */}
       {SCREENS.map((sc, i) => (

@@ -49,7 +49,7 @@ export function FlowerStand({ position, scale = 1 }: P & { scale?: number }) {
 // 라인 어레이 스피커: 천장에서 와이어로 매단 박스를 세로로 여러 개 이어 붙이고,
 // 아래로 갈수록 조금씩 더 기울여 J자 곡선을 만든다.
 export function SpeakerArray({ position, count, ceilingY }: P & { count: number; ceilingY: number }) {
-  const boxH = 0.32
+  const boxH = 0.42
   const boxes: { y: number; z: number; tilt: number }[] = []
   let y = 0
   let z = 0
@@ -62,19 +62,19 @@ export function SpeakerArray({ position, count, ceilingY }: P & { count: number;
   const wire = ceilingY - position[1]
   return (
     <group position={position}>
-      {[-0.4, 0.4].map((x) => (
+      {[-0.55, 0.55].map((x) => (
         <mesh key={x} position={[x, wire / 2 + 0.2, 0]}>
           <cylinderGeometry args={[0.008, 0.008, wire, 4]} />
           <meshStandardMaterial color="#444" />
         </mesh>
       ))}
       <mesh position={[0, 0.25, 0]}>
-        <boxGeometry args={[1.1, 0.06, 0.6]} />
+        <boxGeometry args={[1.5, 0.07, 0.8]} />
         <meshStandardMaterial color={COLORS.speaker} roughness={0.6} />
       </mesh>
       {boxes.map((b, i) => (
         <mesh key={i} position={[0, b.y, b.z]} rotation-x={b.tilt}>
-          <boxGeometry args={[1.0, boxH - 0.015, 0.55]} />
+          <boxGeometry args={[1.35, boxH - 0.02, 0.75]} />
           <meshStandardMaterial color={COLORS.speaker} roughness={0.8} />
         </mesh>
       ))}
