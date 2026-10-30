@@ -19,7 +19,7 @@ export const STAGE = {
   rightX: 10, // 단상 오른쪽 끝 (오른쪽은 넓게)
 }
 
-// 성가대석: 왼쪽 앞, 왼쪽 벽을 등지고 중앙(+x)을 바라보는 3단
+// 성가대석: 왼쪽 앞, 왼쪽 벽을 등지고 중앙(+x)을 바라보는 계단식
 export const CHOIR = {
   rows: 4,
   frontX: -7.6, // 맨 앞줄 장의자 중심 x
@@ -27,6 +27,8 @@ export const CHOIR = {
   tierHeight: 0.3, // 단마다 높아지는 높이 (단상 높이에서 시작)
   zFrom: -15.0,
   zTo: -8.4,
+  frontAisle: 0.8, // 정면 벽 쪽 통로 폭 (장의자는 그만큼 짧음) → 각 줄 끝까지 걸어갈 수 있음
+  entrance: [-15.3, -14.5] as [number, number], // 단상 쪽 칸막이 출입구 (z 범위, 통로 끝)
 }
 
 // 2층 좌석(발코니): 뒤쪽 위 공간. 단상을 바라보는 계단식 장의자
@@ -84,6 +86,13 @@ export const COLORS = {
   drumShell: '#5b1f24', // 드럼 셸 (짙은 와인색 래커)
   cymbal: '#c9a548',
   chairFabric: '#9a9184',
+  character: {
+    top: '#8c7b68', // 따뜻한 회갈색 카디건
+    pants: '#3a3d46',
+    skin: '#e4c19f',
+    hair: '#2a221d',
+    shoes: '#26262a',
+  },
   door: '#dcb684', // 정문 밝은 원목
 }
 
@@ -121,4 +130,27 @@ export const CLOCK = {
 export const PULPIT = {
   motto: 'SOLI DEO GLORIA',
   glow: 0.13, // 아크릴 안쪽 아주 약한 발광 (조명 받은 듯 튀지 않게)
+}
+
+// 플레이어(캐릭터) 이동
+export const PLAYER = {
+  spawn: [0, 0, 12.3] as [number, number, number], // 1층 정문 안쪽
+  spawnRotY: Math.PI, // 단상(-z)을 바라봄
+  walkSpeed: 1.7, // m/s (조용히 걷는 속도)
+  turnSpeed: 10, // 방향 전환 부드러움
+  radius: 0.25, // 충돌 반경
+  maxStep: 0.36, // 한 번에 오를 수 있는 높이 (단상 계단, 성가대 단)
+}
+
+// 3인칭 카메라
+export const CAMERA = {
+  distance: 5, // 기본 거리
+  minDistance: 1.8,
+  maxDistance: 12,
+  pitch: 0.32, // 기본 내려다보는 각도 (rad)
+  minPitch: 0.05,
+  maxPitch: 1.25,
+  lookHeight: 1.45, // 캐릭터의 어디를 바라볼지 (높이)
+  follow: 6, // 따라가는 부드러움 (클수록 빠름)
+  rotateSpeed: 0.005, // 우클릭 드래그 회전 감도
 }

@@ -2,31 +2,38 @@ import { Canvas } from '@react-three/fiber'
 import { OrbitControls } from '@react-three/drei'
 import * as THREE from 'three'
 import { SanctuaryScene } from './scenes/SanctuaryScene'
+import { PlayerController } from './systems/PlayerController'
+import { CameraRig } from './systems/CameraRig'
+import { Hud } from './ui/Hud'
 
-// 개발용: ?cam=x,y,z,tx,ty,tz 로 시점 지정
+// 개발용: ?cam=x,y,z,tx,ty,tz 로 자유 시점 (OrbitControls: 좌클릭 이동, 우클릭 회전)
 const camParam = new URLSearchParams(location.search).get('cam')?.split(',').map(Number)
-const camPos = (camParam?.slice(0, 3) ?? [0, 3.6, 12]) as [number, number, number]
-const camTarget = (camParam?.slice(3, 6) ?? [0, 3.4, -6]) as [number, number, number]
+const devCam = !!camParam
 
-// M1: 공간 확인용 임시 카메라(OrbitControls). M2에서 3인칭 카메라로 교체.
 export default function App() {
   return (
-    <Canvas
-      dpr={[1, 1.5]}
-      camera={{ position: camPos, fov: 55, near: 0.1, far: 100 }}
-      gl={{ antialias: true, toneMapping: THREE.ACESFilmicToneMapping, toneMappingExposure: 1.2 }}
-    >
-      <SanctuaryScene />
-      <OrbitControls
-        target={camTarget}
-        minDistance={2}
-        maxDistance={26}
-        maxPolarAngle={Math.PI * 0.55}
-        enableDamping
-        // 좌클릭: 화면과 평행하게 이동, 우클릭: 회전, 휠: 확대/축소
-        mouseButtons={{ LEFT: THREE.MOUSE.PAN, MIDDLE: THREE.MOUSE.DOLLY, RIGHT: THREE.MOUSE.ROTATE }}
-        screenSpacePanning
-      />
-    </Canvas>
+    <>
+      <Canvas
+        dpr={[1, 1.5]}
+        camera={{ position: (camParam?.slice(0, 3) as [number, number, number]) ?? [0, 3, 16], fov: 55, near: 0.1, far: 100 }}
+        gl={{ antialias: true, toneMapping: THREE.ACESFilmicToneMapping, toneMappingExposure: 1.2 }}
+      >
+        <SanctuaryScene />
+        <PlayerController clickToMove={!devCam} />
+        {devCam ? (
+          <OrbitControls
+            target={camParam!.slice(3, 6) as [number, number, number]}
+            minDistance={1}
+            maxDistance={26}
+            enableDamping
+            mouseButtons={{ LEFT: THREE.MOUSE.PAN, MIDDLE: THREE.MOUSE.DOLLY, RIGHT: THREE.MOUSE.ROTATE }}
+            screenSpacePanning
+          />
+        ) : (
+          <CameraRig />
+        )}
+      </Canvas>
+      {!devCam && <Hud />}
+    </>
   )
 }

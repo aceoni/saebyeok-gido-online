@@ -9,3 +9,34 @@ body,
   color: #efe6d4;
   font-family: 'Gowun Batang', serif;
 }
+
+.hud-guide {
+  position: fixed;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  max-width: calc(100vw - 32px);
+  padding: 10px 20px;
+  border-radius: 999px;
+  background: rgba(12, 14, 22, 0.55);
+  color: #f3eadb;
+  font-size: 15px;
+  letter-spacing: 0.02em;
+  text-align: center;
+  pointer-events: none;
+  backdrop-filter: blur(4px);
+  animation: hud-fade 9s ease forwards;
+}
+
+@keyframes hud-fade {
+  0% {
+    opacity: 0;
+  }
+  10%,
+  70% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}

@@ -36,11 +36,13 @@ export const balconySlots: PewSlot[] = Array.from({ length: BALCONY.rows }, (_, 
 }).flat()
 
 // 성가대석 장의자: 왼쪽 벽을 등지고 중앙(+x)을 바라봄 → rotY = -90°
-export const CHOIR_LENGTH = CHOIR.zTo - CHOIR.zFrom
+// 장의자는 정면 벽 쪽 통로만큼 짧게
+const CHOIR_PEW_Z0 = CHOIR.zFrom + CHOIR.frontAisle
+export const CHOIR_LENGTH = CHOIR.zTo - CHOIR_PEW_Z0
 export const choirSlots: PewSlot[] = Array.from({ length: CHOIR.rows }, (_, row) => ({
   id: `C${row}`,
   x: CHOIR.frontX - row * CHOIR.rowSpacing,
-  z: (CHOIR.zFrom + CHOIR.zTo) / 2,
+  z: (CHOIR_PEW_Z0 + CHOIR.zTo) / 2,
   side: 'choir' as const,
   row,
   y: STAGE.height + row * CHOIR.tierHeight,
@@ -49,7 +51,7 @@ export const choirSlots: PewSlot[] = Array.from({ length: CHOIR.rows }, (_, row)
 }))
 
 // 지휘자 자리: 성가대 앞, 단상 왼쪽 끝. 성가대와 그랜드피아노 연주자가 모두 이곳을 바라본다.
-export const CONDUCTOR_POS: [number, number, number] = [-6.2, STAGE.height, (CHOIR.zFrom + CHOIR.zTo) / 2]
+export const CONDUCTOR_POS: [number, number, number] = [-6.2, STAGE.height, (CHOIR_PEW_Z0 + CHOIR.zTo) / 2]
 
 // 그랜드피아노: 성가대석 앞(회중석 쪽), 연주자가 지휘자를 정면으로 바라보도록 회전.
 // (모델 로컬 좌표: 건반 = +z, 꼬리 = -z → 연주자는 -z 를 바라봄)
@@ -135,7 +137,7 @@ export const MONITORS: [number, number, number][] = [
   [3.4, STAGE.height, -11.0],
 ]
 export const FLOWERS: [number, number, number][] = [
-  [-6.3, STAGE.height, -14.6],
+  [-5.8, STAGE.height, -14.6], // 성가대석 출입구를 막지 않게
   [9.4, STAGE.height, -15.0],
 ]
 

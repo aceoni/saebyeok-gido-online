@@ -30,15 +30,22 @@ export function ChoirLoft() {
           </mesh>
         )
       })}
-      {/* 단상 쪽 낮은 칸막이 */}
-      <mesh position={[CHOIR.frontX + 0.55, STAGE.height + 0.36, midZ]} castShadow>
-        <boxGeometry args={[0.06, 0.72, depth]} />
-        <meshStandardMaterial color={COLORS.wood} roughness={0.6} />
-      </mesh>
-      <mesh position={[CHOIR.frontX + 0.55, STAGE.height + 0.74, midZ]}>
-        <boxGeometry args={[0.12, 0.04, depth + 0.04]} />
-        <meshStandardMaterial color={COLORS.woodDark} roughness={0.6} />
-      </mesh>
+      {/* 단상 쪽 낮은 칸막이 (출입구 한 곳만 비워 둠) */}
+      {[
+        [z0, CHOIR.entrance[0]],
+        [CHOIR.entrance[1], z1],
+      ].map(([a, b]) => (
+        <group key={a} position={[CHOIR.frontX + 0.55, 0, (a + b) / 2]}>
+          <mesh position={[0, STAGE.height + 0.36, 0]} castShadow>
+            <boxGeometry args={[0.06, 0.72, b - a]} />
+            <meshStandardMaterial color={COLORS.wood} roughness={0.6} />
+          </mesh>
+          <mesh position={[0, STAGE.height + 0.74, 0]}>
+            <boxGeometry args={[0.12, 0.04, b - a + 0.04]} />
+            <meshStandardMaterial color={COLORS.woodDark} roughness={0.6} />
+          </mesh>
+        </group>
+      ))}
     </group>
   )
 }
