@@ -24,15 +24,25 @@ export const pillarX = HALL.width / 2 - 0.35
 
 export const PULPIT_POS: [number, number, number] = [0, STAGE.height, -12.6]
 
-// 피아노: 단상 바로 앞 오른쪽 바닥. 연주자가 앉으면 강대상을 바라보도록 회전.
-// (Piano 모델 로컬 좌표: 건반 = +z, 꼬리 = -z → 연주자는 -z 를 바라봄)
-export const PIANO_POS: [number, number, number] = [4.4, 0, -7.4]
-export const PIANO_ROT_Y = Math.atan2(PIANO_POS[0] - PULPIT_POS[0], PIANO_POS[2] - PULPIT_POS[2])
+// 키보드(디지털 피아노): 단상 바로 앞, 중앙 통로 오른쪽에 강대상과 가깝게.
+// 연주자는 강대상(정면, -z)을 바라봄. 모델 로컬 좌표: 건반 = +z 쪽.
+export const PIANO_POS: [number, number, number] = [2.3, 0, -9.35]
 
-// 정면 좌/우 스크린 2개 (가운데는 강대상만 남김)
+// 정면 좌/우 대형 스크린 2개 (가운데는 강대상만 남김)
 export const SCREENS = [
-  { pos: [-6.3, 4.9, HALL.frontZ + 0.12] as const, w: 4.8, h: 2.7 },
-  { pos: [6.3, 4.9, HALL.frontZ + 0.12] as const, w: 4.8, h: 2.7 },
+  { pos: [-7.6, 7.4, HALL.frontZ + 0.12] as const, w: 6.6, h: 3.7 },
+  { pos: [7.6, 7.4, HALL.frontZ + 0.12] as const, w: 6.6, h: 3.7 },
+]
+
+// 천장 꼭대기 현수막
+export const BANNER_POS: [number, number, number] = [0, HALL.height - 1.6, HALL.frontZ + 0.2]
+
+// 천장에 매단 라인 어레이 스피커 (x, z, 박스 개수)
+export const SPEAKER_ARRAYS: [number, number, number][] = [
+  [-5.6, -12.5, 8],
+  [5.6, -12.5, 8],
+  [-7, 1, 5],
+  [7, 1, 5],
 ]
 
 export const WALL_LAMPS: [number, number, number][] = [-10, -4, 2, 8].flatMap((z) => [

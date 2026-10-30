@@ -7,9 +7,10 @@ import { Pulpit } from '../models/Pulpit'
 import { Pews } from '../models/Pews'
 import { Piano } from '../models/Piano'
 import { Screen } from '../models/Screen'
-import { CeilingSpeaker, Flag, FlowerStand } from '../models/Decor'
+import { Flag, FlowerStand, SpeakerArray } from '../models/Decor'
+import { Banner } from '../models/Banner'
 import { WallLamp } from '../models/WallLamp'
-import { PIANO_POS, PIANO_ROT_Y, PULPIT_POS, SCREENS, WALL_LAMPS } from './sanctuaryLayout'
+import { BANNER_POS, PIANO_POS, PULPIT_POS, SCREENS, SPEAKER_ARRAYS, WALL_LAMPS } from './sanctuaryLayout'
 
 // 왼쪽 스크린 문구를 몇 분마다 바꾼다 (상태 변경은 수 분에 한 번이라 useState 사용)
 function useCyclingMessage() {
@@ -64,12 +65,13 @@ export function SanctuaryScene() {
       <Stage />
       <Pulpit position={PULPIT_POS} />
       <Pews />
-      <Piano position={PIANO_POS} rotationY={PIANO_ROT_Y} />
+      <Piano position={PIANO_POS} />
+      <Banner position={BANNER_POS} />
 
       <FlowerStand position={[-1.9, STAGE.height, -12.3]} />
       <FlowerStand position={[1.9, STAGE.height, -12.3]} />
-      <Flag position={[-8.4, STAGE.height, -15.3]} variant="christian" />
-      <Flag position={[8.4, STAGE.height, -15.3]} variant="church" />
+      <Flag position={[-10.2, STAGE.height, -15.3]} variant="christian" />
+      <Flag position={[10.2, STAGE.height, -15.3]} variant="church" />
 
       {/* 정면 좌: 문구 / 정면 우: 찬송 제목 */}
       {SCREENS.map((sc, i) => (
@@ -78,9 +80,9 @@ export function SanctuaryScene() {
         </group>
       ))}
 
-      {[-8, 2].flatMap((z) =>
-        [-5, 5].map((x) => <CeilingSpeaker key={`${x}${z}`} position={[x, HALL.height - 0.9, z]} />),
-      )}
+      {SPEAKER_ARRAYS.map(([x, z, n]) => (
+        <SpeakerArray key={`${x}${z}`} position={[x, HALL.height - 1.6, z]} count={n} ceilingY={HALL.height} />
+      ))}
     </>
   )
 }

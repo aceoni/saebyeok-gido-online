@@ -2,10 +2,10 @@
 // 단위: 미터. 좌표계: x = 좌우, y = 위, z = 앞(-, 단상) / 뒤(+, 입구)
 
 export const HALL = {
-  width: 20, // x: -10 ~ 10
+  width: 24, // x: -12 ~ 12
   frontZ: -16, // 정면 벽
   backZ: 14, // 입구 벽
-  height: 8,
+  height: 14, // 높은 천장으로 탁 트인 느낌
 }
 
 export const STAGE = {
@@ -17,10 +17,10 @@ export const STAGE = {
 
 export const PEWS = {
   rows: 11,
-  firstZ: -5.6, // 첫 줄 앞에 피아노 자리를 비워 둠
+  firstZ: -6.2, // 첫 줄 앞에 키보드 자리를 비워 둠
   spacing: 1.1,
   aisleHalf: 1.2, // 중앙 통로 반폭
-  length: 6.8,
+  length: 7.6,
   seatHeight: 0.45,
   seatDepth: 0.45,
   backHeight: 0.95, // 등받이 꼭대기 높이
@@ -41,8 +41,10 @@ export const COLORS = {
   cushion: '#8b8f96', // 장의자 회색 쿠션
   stage: '#d4b78e', // 단상 원목 마루
   frontPanel: '#bf9466', // 강대상 뒤 원목 벽
-  piano: '#0d0d0f',
+  piano: '#16161a',
   pianoKeys: '#e8e2d4',
+  banner: ['#2f8f8c', '#3b6fa8'], // 현수막 그라데이션 (청록 → 파랑)
+  bannerText: '#fbf7ee',
   screenFrame: '#1a1a1d',
   speaker: '#1a1a1c',
   lampShade: '#f3e6cc',
@@ -57,14 +59,14 @@ export const COLORS = {
 }
 
 export const LIGHTS = {
-  ambient: { color: '#b4bad6', intensity: 0.22 },
-  hemi: { sky: '#cfd3e6', ground: '#5a4a3a', intensity: 0.3 },
-  fog: { near: 12, far: 60 },
+  ambient: { color: '#b4bad6', intensity: 0.26 },
+  hemi: { sky: '#cfd3e6', ground: '#5a4a3a', intensity: 0.36 },
+  fog: { near: 14, far: 75 },
   pulpitSpot: { color: '#ffd9a0', intensity: 160, angle: 0.42, penumbra: 0.7, height: 7 },
   screenRect: { color: '#a8b8ff', intensity: 2.5 },
   screenBreath: { period: 14, depth: 0.25 }, // 초, 밝기 변화 폭
   wallLamp: { color: '#ffc488', intensity: 5, distance: 9, flicker: 0.05 },
-  pianoLamp: { color: '#ffc27a', intensity: 4, distance: 4 },
+  pianoLamp: { color: '#ffc27a', intensity: 3, distance: 3.5 },
   downlightGlow: 0.35, // 천장 매입등 자체 발광 세기 (실제 광원 아님)
 }
 
@@ -80,4 +82,10 @@ export const SCREEN = {
   holdSeconds: 150, // 한 문구 유지 시간
   fadeSeconds: 4,
   font: '"Gowun Batang", serif',
+}
+
+export const BANNER = {
+  text: '새벽을 깨우리라!',
+  width: 9.4,
+  height: 1.7,
 }

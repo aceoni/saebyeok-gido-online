@@ -6,7 +6,7 @@ import { pillarX, pillarZs } from '../scenes/sanctuaryLayout'
 // 천장 매입등 위치 (자체 발광 원판만, 실제 광원은 아님)
 const downlights: [number, number][] = []
 for (let z = HALL.frontZ + 2; z < HALL.backZ - 1; z += 3) {
-  for (const x of [-7.5, -4.5, -1.5, 1.5, 4.5, 7.5]) downlights.push([x, z])
+  for (const x of [-9, -6, -3, 0, 3, 6, 9]) downlights.push([x, z])
 }
 
 function Downlights() {
@@ -37,6 +37,7 @@ export function Room() {
   const H = HALL.height
   const t = 0.3 // 벽 두께
   const panelH = 1.4 // 아래 원목 패널 높이
+  const frontPanelH = 9.5 // 강대상 뒤 원목 벽 높이 (현수막 아래까지)
 
   return (
     <group>
@@ -78,8 +79,8 @@ export function Room() {
         <meshStandardMaterial color={COLORS.wall} roughness={0.9} />
       </mesh>
       {Array.from({ length: 7 }, (_, i) => (
-        <mesh key={i} position={[(i - 3) * 1.0, H / 2, HALL.frontZ + 0.04]} receiveShadow>
-          <boxGeometry args={[0.96, H, 0.08]} />
+        <mesh key={i} position={[(i - 3) * 1.0, frontPanelH / 2, HALL.frontZ + 0.04]} receiveShadow>
+          <boxGeometry args={[0.96, frontPanelH, 0.08]} />
           <meshStandardMaterial color={COLORS.frontPanel} roughness={0.7} />
         </mesh>
       ))}

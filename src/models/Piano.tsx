@@ -1,88 +1,90 @@
-import { useMemo } from 'react'
+import { useLayoutEffect, useRef } from 'react'
 import * as THREE from 'three'
 import { COLORS, LIGHTS } from '../config'
 
 type Props = { position: [number, number, number]; rotationY?: number }
 
-// 그랜드 피아노 (로컬 좌표: 건반 = +z 쪽, 꼬리 = -z 쪽, 높은음 = +x)
-const outline: [number, number][] = [
-  [-0.75, 0],
-  [0.75, 0],
-  [0.75, 0.55],
-  [0.55, 0.85],
-  [0.28, 1.3],
-  [0.15, 1.7],
-  [-0.05, 1.95],
-  [-0.4, 2.02],
-  [-0.68, 1.95],
-  [-0.75, 1.8],
-]
+// 스탠드형 디지털 키보드 (로컬 좌표: 건반 = +z 쪽, 연주자는 -z 를 바라봄)
+const W = 1.36 // 본체 폭
+const KEY_Y = 0.9 // 건반 높이
+const WHITE_COUNT = 52 // 88건반 기준 흰건반 수
+const whiteW = (W - 0.08) / WHITE_COUNT
 
-function useOutlineGeometry(thickness: number) {
-  return useMemo(() => {
-    const shape = new THREE.Shape(outline.map(([x, y]) => new THREE.Vector2(x, y)))
-    const g = new THREE.ExtrudeGeometry(shape, { depth: thickness, bevelEnabled: false })
-    g.rotateX(-Math.PI / 2) // shape y → -z, 두께 → +y
-    return g
-  }, [thickness])
+// 검은건반 x 위치: 옥타브마다 흰건반 사이 [0,1], [1,2], [3,4], [4,5], [5,6] 경계
+const blackXs: number[] = []
+for (let i = 0; i < WHITE_COUNT - 1; i++) {
+  const inOctave = (i + 5) % 7 // A0 에서 시작 → C 기준으로 맞춤
+  if (inOctave !== 2 && inOctave !== 6) blackXs.push(-W / 2 + 0.04 + (i + 1) * whiteW)
+}
+
+function BlackKeys() {
+  const ref = useRef<THREE.InstancedMesh>(null)
+  useLayoutEffect(() => {
+    const m = new THREE.Matrix4()
+    blackXs.forEach((x, i) => ref.current!.setMatrixAt(i, m.makeTranslation(x, KEY_Y + 0.025, 0.06)))
+    ref.current!.instanceMatrix.needsUpdate = true
+    ref.current!.computeBoundingSphere()
+  }, [])
+  return (
+    <instancedMesh ref={ref} args={[undefined, undefined, blackXs.length]}>
+      <boxGeometry args={[whiteW * 0.55, 0.02, 0.09]} />
+      <meshStandardMaterial color="#0a0a0c" roughness={0.4} />
+    </instancedMesh>
+  )
 }
 
 export function Piano({ position, rotationY = 0 }: Props) {
-  const body = useOutlineGeometry(0.32)
-  const lid = useOutlineGeometry(0.03)
-  const black = <meshStandardMaterial color={COLORS.piano} roughness={0.25} metalness={0.1} flatShading />
+  const black = <meshStandardMaterial color={COLORS.piano} roughness={0.35} metalness={0.15} />
 
   return (
     <group position={position} rotation-y={rotationY}>
-      <mesh geometry={body} position={[0, 0.62, 0]} castShadow receiveShadow>
+      {/* 본체 */}
+      <mesh position={[0, KEY_Y - 0.02, -0.05]} castShadow receiveShadow>
+        <boxGeometry args={[W, 0.11, 0.36]} />
         {black}
       </mesh>
-      {/* 뚜껑: 직선(낮은음) 쪽 경첩 기준으로 열림 */}
-      <group position={[-0.75, 0.95, 0]} rotation-z={0.32}>
-        <mesh geometry={lid} position={[0.75, 0, 0]} castShadow>
-          {black}
-        </mesh>
-      </group>
-      <mesh position={[0.35, 1.1, -1.0]} rotation-z={0.15}>
-        <cylinderGeometry args={[0.012, 0.012, 0.32, 5]} />
-        {black}
+      {/* 흰건반 판 + 검은건반 */}
+      <mesh position={[0, KEY_Y + 0.04, 0.04]}>
+        <boxGeometry args={[W - 0.08, 0.02, 0.15]} />
+        <meshStandardMaterial color={COLORS.pianoKeys} roughness={0.45} />
       </mesh>
-      {/* 건반부 */}
-      <mesh position={[0, 0.72, 0.16]} castShadow>
-        <boxGeometry args={[1.5, 0.12, 0.32]} />
-        {black}
-      </mesh>
-      <mesh position={[0, 0.785, 0.18]}>
-        <boxGeometry args={[1.32, 0.02, 0.18]} />
-        <meshStandardMaterial color={COLORS.pianoKeys} roughness={0.4} />
-      </mesh>
+      <BlackKeys />
       {/* 보면대 */}
-      <mesh position={[0, 1.05, -0.1]} rotation-x={-0.25}>
-        <boxGeometry args={[0.8, 0.28, 0.02]} />
+      <mesh position={[0, KEY_Y + 0.2, -0.17]} rotation-x={-0.22}>
+        <boxGeometry args={[0.7, 0.26, 0.015]} />
         {black}
       </mesh>
-      {/* 다리 */}
-      {(
-        [
-          [-0.65, 0.1],
-          [0.65, 0.1],
-          [-0.35, -1.85],
-        ] as const
-      ).map(([x, z]) => (
-        <mesh key={`${x}${z}`} position={[x, 0.31, z]} castShadow>
-          <cylinderGeometry args={[0.05, 0.035, 0.62, 6]} />
-          {black}
-        </mesh>
+      {/* 테이블형 스탠드: 양옆 다리 + 가로 지지대 */}
+      {[-1, 1].map((s) => (
+        <group key={s} position={[s * (W / 2 - 0.08), 0, -0.05]}>
+          <mesh position={[0, (KEY_Y - 0.07) / 2, 0]} castShadow>
+            <boxGeometry args={[0.04, KEY_Y - 0.07, 0.04]} />
+            {black}
+          </mesh>
+          <mesh position={[0, 0.02, 0]}>
+            <boxGeometry args={[0.05, 0.04, 0.42]} />
+            {black}
+          </mesh>
+        </group>
       ))}
+      <mesh position={[0, 0.3, -0.05]}>
+        <boxGeometry args={[W - 0.16, 0.03, 0.03]} />
+        {black}
+      </mesh>
+      {/* 서스테인 페달 */}
+      <mesh position={[0.08, 0.02, 0.12]}>
+        <boxGeometry args={[0.08, 0.03, 0.2]} />
+        {black}
+      </mesh>
       {/* 의자 */}
-      <group position={[0, 0, 0.75]}>
+      <group position={[0, 0, 0.62]}>
         <mesh position={[0, 0.5, 0]} castShadow>
-          <boxGeometry args={[0.85, 0.08, 0.38]} />
+          <boxGeometry args={[0.6, 0.07, 0.34]} />
           {black}
         </mesh>
-        {[-0.36, 0.36].map((x) => (
+        {[-0.25, 0.25].map((x) => (
           <mesh key={x} position={[x, 0.24, 0]}>
-            <boxGeometry args={[0.05, 0.48, 0.32]} />
+            <boxGeometry args={[0.04, 0.48, 0.28]} />
             {black}
           </mesh>
         ))}
@@ -95,17 +97,17 @@ export function Piano({ position, rotationY = 0 }: Props) {
 // 보면대 옆 작은 스탠드 조명
 function PianoLamp() {
   return (
-    <group position={[0.58, 0.94, -0.25]}>
+    <group position={[0.52, KEY_Y + 0.03, -0.15]}>
       <mesh position={[0, 0.02, 0]}>
-        <cylinderGeometry args={[0.07, 0.08, 0.04, 8]} />
+        <cylinderGeometry args={[0.05, 0.06, 0.03, 8]} />
         <meshStandardMaterial color="#8a7448" metalness={0.5} roughness={0.4} />
       </mesh>
-      <mesh position={[0, 0.2, 0]}>
-        <cylinderGeometry args={[0.01, 0.01, 0.36, 5]} />
+      <mesh position={[0, 0.17, 0]}>
+        <cylinderGeometry args={[0.008, 0.008, 0.3, 5]} />
         <meshStandardMaterial color="#8a7448" metalness={0.5} roughness={0.4} />
       </mesh>
-      <mesh position={[0, 0.4, 0]}>
-        <cylinderGeometry args={[0.06, 0.12, 0.12, 8, 1, true]} />
+      <mesh position={[0, 0.33, 0]}>
+        <cylinderGeometry args={[0.045, 0.09, 0.09, 8, 1, true]} />
         <meshStandardMaterial
           color={COLORS.lampShade}
           emissive={LIGHTS.pianoLamp.color}
@@ -114,7 +116,7 @@ function PianoLamp() {
         />
       </mesh>
       <pointLight
-        position={[0, 0.3, 0]}
+        position={[0, 0.25, 0.05]}
         color={LIGHTS.pianoLamp.color}
         intensity={LIGHTS.pianoLamp.intensity}
         distance={LIGHTS.pianoLamp.distance}
