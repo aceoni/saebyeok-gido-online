@@ -122,7 +122,7 @@ export function Screen({ width, height, text, main = false, fontScale = 1 }: Pro
     }
     const { period, depth } = LIGHTS.screenBreath
     const breath = main ? 1 - depth / 2 + (depth / 2) * Math.sin((clock.elapsedTime * Math.PI * 2) / period) : 1
-    const k = (0.25 + 0.75 * fade.current) * breath
+    const k = (0.25 + 0.75 * fade.current) * breath * SCREEN.brightness
     matRef.current?.color.setScalar(k)
     if (lightRef.current) lightRef.current.intensity = LIGHTS.screenRect.intensity * k
   })

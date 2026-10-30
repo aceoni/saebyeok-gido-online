@@ -5,10 +5,10 @@ import { COLORS, LIGHTS } from '../config'
 
 type Props = { position: [number, number, number]; seed: number }
 
-const GLOW_W = 2.6
+const GLOW_W = 3.4
 const GLOW_UP = 3.6 // 등 위로 퍼지는 길이
 const GLOW_DOWN = 0.25 // 갓 바로 아래 아주 짧은 번짐
-const FAN_HALF_ANGLE = 0.6 // 부채꼴 반각 (rad, 약 34°)
+const FAN_HALF_ANGLE = 0.85 // 부채꼴 반각 (rad, 약 49° → 전체 약 97°)
 
 const smooth = (e0: number, e1: number, x: number) => {
   const t = Math.min(1, Math.max(0, (x - e0) / (e1 - e0)))

@@ -75,6 +75,7 @@ export const SCREEN = {
   text: '조용히 기도하는 시간입니다.',
   // 은은한 교회 예배 화면 느낌의 대각선 그라데이션 (보라빛 파랑 → 파랑)
   background: ['#6668bf', '#4b7fcf', '#5fa0db'],
+  brightness: 0.85, // 스크린 전체 밝기 배율
   fadeSeconds: 4,
   font: '"Gowun Batang", serif',
 }
