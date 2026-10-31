@@ -1,0 +1,32 @@
+{
+  "id": "amazing-grace",
+  "title": "나 같은 죄인 살리신",
+  "titleEn": "Amazing Grace",
+  "hymnal": "새찬송가 305장",
+  "tune": "NEW BRITAIN",
+  "composer": "미국 민요 (James P. Carrell & David S. Clayton, Virginia Harmony)",
+  "year": 1831,
+  "source": "멜로디: Edwin O. Excell 정리본(1900), Open Hymnal Project 악보(퍼블릭 도메인) 참고. 왼손 반주: 새벽기도 온라인 편곡",
+  "key": "G",
+  "meter": [3, 4],
+  "bpm": 63,
+  "measures": [
+    { "m": 0, "rh": "D4/1", "lh": "r/1", "dyn": "p" },
+    { "m": 1, "rh": "G4/2 B4/.5 G4/.5", "lh": "G2/1 D3+B3/2", "dyn": "p" },
+    { "m": 2, "rh": "B4/2 A4/1", "lh": "D2/1 G3+B3/1 F#3+C4/1" },
+    { "m": 3, "rh": "G4/2 E4/1", "lh": "E2/1 G3+B3/1 C3+E3/1" },
+    { "m": 4, "rh": "D4/2 D4/1", "lh": "G2/1 D3+B3/2", "end": true },
+    { "m": 5, "rh": "G4/2 B4/.5 G4/.5", "lh": "G2/1 D3+B3/2" },
+    { "m": 6, "rh": "B4/2 A4/1", "lh": "D2/1 G3+B3/1 F#3+C4/1", "dyn": "mp" },
+    { "m": 7, "rh": "D5/3~", "lh": "B2/1 D3+G3/2" },
+    { "m": 8, "rh": "D5/2 B4/1", "lh": "G2/1 D3+B3/2", "end": true },
+    { "m": 9, "rh": "D5/1.5 B4/.5 D5/.5 B4/.5", "lh": "G2/1 D3+B3/2" },
+    { "m": 10, "rh": "G4/2 D4/1", "lh": "B2/1 D3+G3/2" },
+    { "m": 11, "rh": "E4/1.5 G4/.5 G4/.5 E4/.5", "lh": "C3/1 E3+G3/2", "dyn": "p" },
+    { "m": 12, "rh": "D4/2 D4/1", "lh": "G2/1 D3+B3/2", "end": true },
+    { "m": 13, "rh": "G4/2 B4/.5 G4/.5", "lh": "E2/1 G3+B3/1 D3/1" },
+    { "m": 14, "rh": "B4/2 A4/1", "lh": "D2/1 F#3+A3/1 F#3+C4/1" },
+    { "m": 15, "rh": "G4/3~", "lh": "G2/1 D3+G3+B3/2~", "dyn": "pp" },
+    { "m": 16, "rh": "G4/2", "lh": "D3+G3+B3/2", "end": true }
+  ]
+}

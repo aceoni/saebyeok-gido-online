@@ -168,3 +168,14 @@ export const SEAT = {
   eyeHeight: 1.05, // 기도 중 1인칭 눈높이 (앉은 기준점 위)
   prayLookDown: 0.09, // 1인칭에서 살짝 내려다보는 정도 (앞자리 등받이와 단상이 함께 보이게)
 }
+
+// 배경 찬양 (피아노)
+export const AUDIO = {
+  volume: 0.7, // 기본 볼륨 (0~1)
+  passes: 2, // 곡마다 몇 번 반복할지
+  gapSeconds: 5, // 곡 사이 쉼
+  reverb: { decay: 4.5, wet: 0.32 }, // 예배당 울림
+  release: 1.4, // 건반을 뗀 뒤 소리가 사라지는 시간(초)
+  duck: { praying: 0.6, playing: 0.2 }, // 기도 중 / 직접 연주 중 배경 찬양 볼륨 배율
+  fadeSeconds: 1.5,
+}

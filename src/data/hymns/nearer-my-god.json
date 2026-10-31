@@ -1,0 +1,31 @@
+{
+  "id": "nearer-my-god",
+  "title": "내 주를 가까이 하게 함은",
+  "titleEn": "Nearer, My God, to Thee",
+  "hymnal": "새찬송가 338장",
+  "tune": "BETHANY",
+  "composer": "Lowell Mason",
+  "year": 1856,
+  "source": "멜로디: Lowell Mason, The Sabbath Hymn and Tune Book(1859), Open Hymnal Project 악보(퍼블릭 도메인) 참고. 왼손 반주: 새벽기도 온라인 편곡",
+  "key": "G",
+  "meter": [6, 4],
+  "bpm": 76,
+  "measures": [
+    { "m": 1, "rh": "B4/3 A4/2 G4/1", "lh": "G2/1 D3+B3/2 D3/1 F#3+C4/2", "dyn": "p" },
+    { "m": 2, "rh": "G4/2 E4/1 E4/3", "lh": "C2/1 G2+E3/2 C3/1 E3+G3/2" },
+    { "m": 3, "rh": "D4/3 G4/2 B4/1", "lh": "G2/1 D3+B3/2 B2/1 D3+G3/2" },
+    { "m": 4, "rh": "A4/5 r/1", "lh": "D2/1 F#3+A3/2 D3+F#3/3", "end": true },
+    { "m": 5, "rh": "B4/3 A4/2 G4/1", "lh": "G2/1 D3+B3/2 D3/1 F#3+C4/2" },
+    { "m": 6, "rh": "G4/2 E4/1 E4/3", "lh": "C2/1 G2+E3/2 C3/1 E3+G3/2" },
+    { "m": 7, "rh": "D4/2 G4/1 F#4/2 A4/1", "lh": "D2/1 G3+B3/2 D3/1 F#3+C4/2" },
+    { "m": 8, "rh": "G4/5 r/1", "lh": "G2/1 D3+B3/2 D3+G3/3", "end": true },
+    { "m": 9, "rh": "D5/3 E5/2 D5/1", "lh": "G2/1 D3+B3/2 G2/1 E3+C4/2", "dyn": "mp" },
+    { "m": 10, "rh": "D5/2 B4/1 D5/3", "lh": "G2/1 D3+B3/2 G2/1 D3+B3/2" },
+    { "m": 11, "rh": "D5/3 E5/2 D5/1", "lh": "G2/1 D3+B3/2 C3/1 E3+G3/2" },
+    { "m": 12, "rh": "D5/2 B4/1 A4/3", "lh": "F#2/1 D3+A3/1 G2/1 D2/1 F#3+A3/2", "end": true },
+    { "m": 13, "rh": "B4/3 A4/2 G4/1", "lh": "G2/1 D3+B3/2 D3/1 F#3+C4/2", "dyn": "p" },
+    { "m": 14, "rh": "G4/2 E4/1 E4/3", "lh": "C2/1 G2+E3/2 C3/1 E3+G3/2" },
+    { "m": 15, "rh": "D4/2 G4/1 F#4/2 A4/1", "lh": "D2/1 G3+B3/2 D3/1 F#3+C4/2", "dyn": "pp" },
+    { "m": 16, "rh": "G4/5 r/1", "lh": "G2/1 D3+B3/2 G2+D3+G3/3", "end": true }
+  ]
+}

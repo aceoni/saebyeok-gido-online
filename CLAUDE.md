@@ -75,6 +75,12 @@
      It Is Well with My Soul(내 평생에 가는 길), Rock of Ages(만세 반석 열리니), Amazing Grace(나 같은 죄인 살리신)
    - 곡마다 출처(작곡자, 연도)를 JSON에 기록
    - UI: 이전/다음/일시정지/볼륨/음소거. 첫 클릭 전에는 오디오 시작 안 함(브라우저 정책) → "입장하기" 버튼으로 시작
+   - 구현: 멜로디는 Open Hymnal Project(퍼블릭 도메인) 악보와 음높이·박자 일치, 왼손 반주는 직접 편곡.
+     표기법은 src/data/hymns/README.md, 마디 박 수 검사는 `npm run check:hymns`
+   - 샘플: Salamander A1~C7 단3도 간격 22개(약 1.5MB, CC BY 3.0 — 플레이어 곡 정보에 출처 표시)
+   - Tone.js 는 입장 시 동적 import (첫 로딩에서 제외). 곡마다 2번 반복, 곡 사이 5초 쉼, 리버브로 예배당 울림
+   - 플레이어에 지금 연주 중인 마디 번호 표시 → 음표 수정 요청 시 참고
+   - 기도 중 배경 찬양 볼륨 ×0.6, 직접 연주 중 ×0.2 (AudioManager.setDuck)
 5. **직접 치는 피아노 (키보드)**
    - 키보드 근처에서 앉기 → 2옥타브 건반 오버레이 UI
    - 키보드 매핑: 흰건반 A S D F G H J K L ; / 검은건반 W E T Y U O P, Z/X 옥타브 이동

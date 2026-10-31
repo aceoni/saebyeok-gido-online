@@ -7,12 +7,16 @@ import { CameraRig } from './systems/CameraRig'
 import { Hud } from './ui/Hud'
 import { InteractionSystem } from './systems/InteractionSystem'
 import { SeatControls } from './ui/SeatControls'
+import { EnterScreen } from './ui/EnterScreen'
+import { MusicPlayer } from './ui/MusicPlayer'
+import { useAudio } from './store/audio'
 
 // 개발용: ?cam=x,y,z,tx,ty,tz 로 자유 시점 (OrbitControls: 좌클릭 이동, 우클릭 회전)
 const camParam = new URLSearchParams(location.search).get('cam')?.split(',').map(Number)
 const devCam = !!camParam
 
 export default function App() {
+  const entered = useAudio((s) => s.entered)
   return (
     <>
       <Canvas
@@ -36,8 +40,10 @@ export default function App() {
           <CameraRig />
         )}
       </Canvas>
-      {!devCam && <Hud />}
+      {!devCam && entered && <Hud />}
       <SeatControls />
+      <MusicPlayer />
+      {!devCam && <EnterScreen />}
     </>
   )
 }
