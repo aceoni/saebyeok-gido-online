@@ -136,6 +136,9 @@ export function buildTimeline(h: Hymn, passes = 2, style: PlayStyle = 'piano', r
   const pendingRest: Record<'rh' | 'lh', boolean> = { rh: true, lh: true }
   const beatUnit = h.meter[1] === 8 ? 1.5 : 1 // 큰 박 길이(4분음표 단위)
 
+  // 못갖춘마디 길이(박): 프레이즈 끝 마디의 마지막 이만큼은 다음 줄의 시작
+  const pickupLen = h.measures[0]?.m === 0 ? sumBeats(parseVoice(h.measures[0].rh)) : 0
+
   plan.forEach((pass, pi) => {
     pass.measures.forEach((ms, mi) => {
       if (ms.dyn) vel = DYN_VEL[ms.dyn]
@@ -144,16 +147,27 @@ export function buildTimeline(h: Hymn, passes = 2, style: PlayStyle = 'piano', r
       const rh = parseVoice(ms.rh)
       const lh = parseVoice(ms.lh)
       const len = Math.max(sumBeats(rh), sumBeats(lh))
-      // 마디 안의 박 위치 x(0~len) → 초. 점점 느려지는 리타르단도: x + rit·x²/(2·len)
+      // 프레이즈 끝 마디의 마지막 몇 박이 다음 줄의 못갖춘마디(예: 8분음표 하나)이면,
+      // 느려짐과 숨은 그 앞(긴 음)에서 끝내고 못갖춘마디는 제 박자로 친다
+      const isLastMeasure = mi === pass.measures.length - 1
+      const tail = ms.end && !isLastMeasure ? pickupLen : 0
+      const phrase = len - tail
+      const breath = ms.end && !isFinal ? beatSec * 0.18 : 0
+      // 마디 안의 박 위치 x(0~len) → 초. 점점 느려지는 리타르단도: x + rit·x²/(2·phrase)
       const sway = 1 + 0.025 * Math.sin((mi / 4) * Math.PI) // 아주 미세한 흔들림
-      const at = (x: number) => (x + (rit * x * x) / (2 * len)) * beatSec * sway
+      const ritAt = (x: number) => (x + (rit * x * x) / (2 * phrase)) * beatSec * sway
+      // 시작 시각은 프레이즈 경계에서 숨 뒤로, 끝 시각은 숨 앞으로
+      const at = (x: number, isEnd = false) =>
+        x < phrase - 1e-9 || (isEnd && x <= phrase + 1e-9)
+          ? ritAt(x)
+          : ritAt(phrase) + breath + (x - phrase) * beatSec * sway
       measures.push({ m: ms.m, time: t })
 
       for (const hand of ['rh', 'lh'] as const) {
         let x = 0
         for (const tok of hand === 'rh' ? rh : lh) {
           const start = t + at(x)
-          const end = t + at(x + tok.beats)
+          const end = t + at(x + tok.beats, true)
           x += tok.beats
           if (tok.pitches.length === 0) {
             pendingTie[hand] = false
@@ -227,8 +241,8 @@ export function buildTimeline(h: Hymn, passes = 2, style: PlayStyle = 'piano', r
         }
       }
       t += at(len)
-      // 프레이즈 끝: 살짝 숨 쉬는 틈 (페달은 이어짐)
-      if (ms.end && !isFinal) t += beatSec * 0.18
+      // 프레이즈 끝: 살짝 숨 쉬는 틈 (못갖춘마디가 없을 때는 마디 뒤에)
+      if (tail === 0) t += breath
     })
     if (pi < plan.length - 1) t += beatSec * 0.4 // 절 사이 숨
   })

@@ -49,11 +49,8 @@ export function MusicPlayer() {
             작곡 {h.composer}
             {h.year !== null && `, ${h.year}`}
           </div>
-          <div className="mp-dim">{h.source}</div>
-          {instrument === 'piano' ? (
+          {instrument === 'piano' && (
             <div className="mp-dim">피아노 음원: Salamander Grand Piano (Alexander Holm, CC BY 3.0)</div>
-          ) : (
-            <div className="mp-dim">오르간: 파이프 배음을 합성한 소리 (음원 파일 없음)</div>
           )}
         </div>
       )}
