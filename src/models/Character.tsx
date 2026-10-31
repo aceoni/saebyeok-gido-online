@@ -13,6 +13,8 @@ const HEAD_Y = 1.08
 const HEAD_R = 0.26
 
 const mat = (color: string) => <meshStandardMaterial color={color} roughness={0.85} flatShading />
+// 피부(얼굴·귀·손)는 각지지 않게 매끈한 구
+const skinMat = <meshStandardMaterial color={C.skin} roughness={0.75} />
 
 function Leg({ x, legRef }: { x: number; legRef: React.RefObject<THREE.Group | null> }) {
   return (
@@ -39,8 +41,8 @@ function Arm({ side, armRef }: { side: -1 | 1; armRef: React.RefObject<THREE.Gro
           {mat(C.top)}
         </mesh>
         <mesh position={[0, -0.33, 0]}>
-          <icosahedronGeometry args={[0.058, 1]} />
-          {mat(C.skin)}
+          <sphereGeometry args={[0.058, 16, 12]} />
+          {skinMat}
         </mesh>
       </group>
     </group>
@@ -116,21 +118,21 @@ export function Character() {
         <Arm side={-1} armRef={armL} />
         <Arm side={1} armRef={armR} />
         <mesh position={[0, 0.85, 0]}>
-          <cylinderGeometry args={[0.05, 0.06, 0.06, 6]} />
-          {mat(C.skin)}
+          <cylinderGeometry args={[0.05, 0.06, 0.06, 16]} />
+          {skinMat}
         </mesh>
 
         {/* 큰 머리 */}
         <group ref={head} position={[0, HEAD_Y, 0]}>
           <mesh scale={[1, 0.94, 0.95]} castShadow>
-            <icosahedronGeometry args={[HEAD_R, 2]} />
-            {mat(C.skin)}
+            <sphereGeometry args={[HEAD_R, 40, 28]} />
+            {skinMat}
           </mesh>
           {/* 귀 */}
           {[-1, 1].map((s) => (
             <mesh key={s} position={[s * HEAD_R * 0.98, -0.01, 0]} scale={[0.5, 1, 0.8]}>
-              <icosahedronGeometry args={[0.06, 0]} />
-              {mat(C.skin)}
+              <sphereGeometry args={[0.06, 16, 12]} />
+              {skinMat}
             </mesh>
           ))}
           {/* 머리카락: 정수리~뒤통수, 앞머리는 이마를 살짝 덮음 */}

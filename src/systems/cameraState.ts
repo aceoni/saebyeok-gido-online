@@ -6,4 +6,6 @@ export const cameraState = {
   yaw: 0, // 0 = 캐릭터 뒤(+z)에서 앞(-z)을 바라봄
   pitch: CAMERA.pitch,
   distance: CAMERA.distance,
+  // 터치: 이번 손가락 제스처가 드래그(회전)나 두 손가락 핀치였으면 탭(이동/상호작용)으로 처리하지 않음
+  gestureUsed: false,
 }

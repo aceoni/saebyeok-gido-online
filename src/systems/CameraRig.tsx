@@ -7,7 +7,9 @@ import { cameraState } from './cameraState'
 
 const clamp = (v: number, lo: number, hi: number) => Math.min(hi, Math.max(lo, v))
 
-/** 3인칭 카메라: 캐릭터 뒤에서 부드럽게 따라감. 우클릭 드래그 = 회전, 휠 = 확대/축소.
+/** 3인칭 카메라: 캐릭터 뒤에서 부드럽게 따라감.
+ *  마우스: 우클릭 드래그 = 회전, 휠 = 확대/축소
+ *  터치: 한 손가락 드래그 = 회전, 두 손가락 핀치 = 확대/축소 (탭 = 이동/상호작용은 PlayerController)
  *  기도 중에는 앉은 자리의 눈높이 1인칭으로 천천히 전환 (앞자리 등받이와 단상이 보이게) */
 export function CameraRig() {
   const { camera, gl } = useThree()
@@ -20,7 +22,50 @@ export function CameraRig() {
     let dragging = false
     let lx = 0
     let ly = 0
+    // 터치: 화면에 닿아 있는 손가락들
+    const touches = new Map<number, { x: number; y: number; sx: number; sy: number }>()
+    let pinchDist = 0
+    const rotate = (dx: number, dy: number) => {
+      cameraState.yaw -= dx * CAMERA.rotateSpeed
+      cameraState.pitch = clamp(cameraState.pitch + dy * CAMERA.rotateSpeed, CAMERA.minPitch, CAMERA.maxPitch)
+    }
+    const zoom = (factor: number) => {
+      cameraState.distance = clamp(cameraState.distance * factor, CAMERA.minDistance, CAMERA.maxDistance)
+    }
+    const twoFingerDist = () => {
+      const [a, b] = [...touches.values()]
+      return Math.hypot(a.x - b.x, a.y - b.y)
+    }
+    const onTouchDown = (e: PointerEvent) => {
+      if (touches.size === 0) cameraState.gestureUsed = false
+      touches.set(e.pointerId, { x: e.clientX, y: e.clientY, sx: e.clientX, sy: e.clientY })
+      if (touches.size >= 2) {
+        cameraState.gestureUsed = true
+        pinchDist = twoFingerDist()
+      }
+    }
+    const onTouchMove = (e: PointerEvent) => {
+      const t = touches.get(e.pointerId)
+      if (!t) return
+      const dx = e.clientX - t.x
+      const dy = e.clientY - t.y
+      t.x = e.clientX
+      t.y = e.clientY
+      if (touches.size >= 2) {
+        const d = twoFingerDist()
+        if (pinchDist > 0 && d > 0) zoom(pinchDist / d) // 벌리면 가까이, 오므리면 멀리
+        pinchDist = d
+        return
+      }
+      if (!cameraState.gestureUsed && Math.hypot(t.x - t.sx, t.y - t.sy) > 8) cameraState.gestureUsed = true
+      if (cameraState.gestureUsed) rotate(dx * 1.3, dy * 1.3)
+    }
+    const onTouchUp = (e: PointerEvent) => {
+      touches.delete(e.pointerId)
+      pinchDist = touches.size >= 2 ? twoFingerDist() : 0
+    }
     const onDown = (e: PointerEvent) => {
+      if (e.pointerType === 'touch') return onTouchDown(e)
       if (e.button !== 2) return
       dragging = true
       lx = e.clientX
@@ -28,29 +73,32 @@ export function CameraRig() {
       el.setPointerCapture(e.pointerId)
     }
     const onMove = (e: PointerEvent) => {
+      if (e.pointerType === 'touch') return onTouchMove(e)
       if (!dragging) return
-      cameraState.yaw -= (e.clientX - lx) * CAMERA.rotateSpeed
-      cameraState.pitch = clamp(cameraState.pitch + (e.clientY - ly) * CAMERA.rotateSpeed, CAMERA.minPitch, CAMERA.maxPitch)
+      rotate(e.clientX - lx, e.clientY - ly)
       lx = e.clientX
       ly = e.clientY
     }
     const onUp = (e: PointerEvent) => {
+      if (e.pointerType === 'touch') return onTouchUp(e)
       if (e.button === 2) dragging = false
     }
     const onWheel = (e: WheelEvent) => {
       e.preventDefault()
-      cameraState.distance = clamp(cameraState.distance * Math.exp(e.deltaY * 0.001), CAMERA.minDistance, CAMERA.maxDistance)
+      zoom(Math.exp(e.deltaY * 0.001))
     }
     const noMenu = (e: Event) => e.preventDefault()
     el.addEventListener('pointerdown', onDown)
     el.addEventListener('pointermove', onMove)
     el.addEventListener('pointerup', onUp)
+    el.addEventListener('pointercancel', onUp)
     el.addEventListener('wheel', onWheel, { passive: false })
     el.addEventListener('contextmenu', noMenu)
     return () => {
       el.removeEventListener('pointerdown', onDown)
       el.removeEventListener('pointermove', onMove)
       el.removeEventListener('pointerup', onUp)
+      el.removeEventListener('pointercancel', onUp)
       el.removeEventListener('wheel', onWheel)
       el.removeEventListener('contextmenu', noMenu)
     }

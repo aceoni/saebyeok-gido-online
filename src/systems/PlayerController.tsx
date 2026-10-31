@@ -81,7 +81,9 @@ export function PlayerController({ clickToMove = true }: { clickToMove?: boolean
       if (e.button !== 0 || !down) return
       const moved = Math.hypot(e.clientX - down.x, e.clientY - down.y)
       down = null
-      if (moved > CLICK_MOVE_TOLERANCE) return
+      if (moved > (e.pointerType === 'touch' ? 12 : CLICK_MOVE_TOLERANCE)) return
+      // 터치: 드래그(회전)나 핀치(확대/축소)를 한 제스처면 이동하지 않음
+      if (e.pointerType === 'touch' && cameraState.gestureUsed) return
       const rect = el.getBoundingClientRect()
       const ndc = new THREE.Vector2(((e.clientX - rect.left) / rect.width) * 2 - 1, -((e.clientY - rect.top) / rect.height) * 2 + 1)
       raycaster.setFromCamera(ndc, camera)
