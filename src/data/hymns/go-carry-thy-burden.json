@@ -11,6 +11,7 @@
   "meter": [6, 8],
   "bpm": 36,
   "satb": true,
+  "rubato": false,
   "measures": [
     { "m": 0, "rh": "Eb4/.5", "lh": "G3+Eb3/.5", "dyn": "p" },
     { "m": 1, "rh": "G4+Eb4/.75 F4+Eb4/.25 G4+Eb4/.5 Ab4+D4/.75 G4+D4/.25 Ab4+D4/.5", "lh": "Bb3+Eb3/.75 Bb3+Eb3/.25 Bb3+Eb3/.5 Bb3+F3/.75 Bb3+F3/.25 Bb3+F3/.5" },

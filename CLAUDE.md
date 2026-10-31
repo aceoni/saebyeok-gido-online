@@ -69,14 +69,12 @@
    - "이 기록은 이 브라우저에만 저장됩니다" 안내 문구 상시 표시
 4. **배경 찬양 (오르간 / 피아노)**
    - 악보를 코드 데이터(/src/data/hymns/*.json: 음높이, 길이, 셈여림)로 저장, Tone.js 피아노 샘플로 재생
-   - 가사 없음. 멜로디 + 단순한 왼손 반주로 직접 편곡. 느린 템포, 루바토/페달 느낌, 곡 사이 몇 초 쉼
-   - 저작권 만료된 찬송가 멜로디만 사용 (재생 순서):
-     Go Carry Thy Burden to Jesus(너 예수께 조용히 나가, W. J. Kirkpatrick — 사용자가 준 새찬송가 539장 악보의 4성부를 그대로 옮김, `satb: true`, 빠르기 절반), Nearer My God to Thee(내 주를 가까이 하게 함은), Jesus Loves Me(예수 사랑하심은),
-     It Is Well with My Soul(내 평생에 가는 길), Rock of Ages(만세 반석 열리니), Amazing Grace(나 같은 죄인 살리신)
+   - 가사 없음. 느린 템포, 곡 사이 몇 초 쉼
+   - 현재 2곡 (재생 순서): 너 예수께 조용히 나가(새찬송가 539장, W. J. Kirkpatrick), 내 주를 가까이 하게 함은(338장, Lowell Mason 1856)
+     — 사용자가 준 새찬송가 악보의 4성부를 그대로 옮김(`satb: true`), 악보 박자 그대로(`rubato: false`, 느려짐·숨 없음), 6/8, bpm 36(4분음표 기준), 338장 아멘은 마지막 절 끝에서만
    - 곡마다 출처(작곡자, 연도)를 JSON에 기록
    - UI: 이전/다음/일시정지/볼륨/음소거. 첫 클릭 전에는 오디오 시작 안 함(브라우저 정책) → "입장하기" 버튼으로 시작
-   - 구현: 멜로디는 Open Hymnal Project(퍼블릭 도메인) 악보와 음높이·박자 일치, 왼손 반주는 직접 편곡.
-     표기법은 src/data/hymns/README.md, 마디 박 수 검사는 `npm run check:hymns`
+   - 표기법은 src/data/hymns/README.md, 마디 박 수 검사는 `npm run check:hymns`. 악보 사진은 오선 위치 검출로 음높이를 읽고, 338장은 Mason 원본(Open Hymnal) 소프라노와 대조함
    - 악기: 기본은 **교회 오르간 신시사이저**(파이프 배음 합성, 음원 파일 없음 — 손건반 8'+4', 베이스는 발건반 16'), 플레이어에서 피아노로 전환 가능(선택은 localStorage에 저장). 오르간 음색은 config.ts AUDIO.organ
    - 피아노 샘플: Salamander A1~C7 단3도 간격 22개(약 1.5MB, CC BY 3.0 — 플레이어 곡 정보에 출처 표시), 피아노를 고를 때 처음 불러옴
    - Tone.js 는 입장 시 동적 import (첫 로딩에서 제외). 곡마다 2번 반복, 곡 사이 5초 쉼, 리버브로 예배당 울림

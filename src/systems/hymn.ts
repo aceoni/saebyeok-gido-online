@@ -10,6 +10,7 @@ export type HymnMeasure = {
   lh: string // 왼손(반주)
   dyn?: Dyn // 이 마디부터의 셈여림
   end?: boolean // 프레이즈 끝: 살짝 느려지며 숨 쉼
+  amen?: boolean // 아멘: 마지막 절 끝에서만 연주
 }
 
 export type Hymn = {
@@ -24,6 +25,7 @@ export type Hymn = {
   key: string
   meter: [number, number]
   bpm: number
+  rubato?: boolean // false 면 악보 박자 그대로 (느려짐·숨·흔들림 없음)
   satb?: boolean // 찬송가 4성부를 그대로: rh = 소프라노+알토, lh = 테너+베이스 (lh 가장 낮은 음 = 베이스)
   measures: HymnMeasure[]
 }
@@ -75,7 +77,7 @@ export function validateHymn(h: Hymn): string[] {
       }
       let expect = full
       if (ms_ === pickup) expect = sumBeats(parseVoice(pickup.rh))
-      else if (pickup && i === ms.length - 1) expect = full - sumBeats(parseVoice(pickup.rh))
+      else if (pickup && i === ms.length - 1 - (ms[ms.length - 1].amen ? 1 : 0)) expect = full - sumBeats(parseVoice(pickup.rh))
       if (Math.abs(beats - expect) > 1e-6) errors.push(`${ms_.m}마디 ${hand}: ${beats}박 (예상 ${expect}박)`)
     }
     if (i > 0 && ms_.m !== ms[i - 1].m + 1) errors.push(`마디 번호가 이어지지 않음: ${ms[i - 1].m} → ${ms_.m}`)
@@ -119,7 +121,8 @@ export function buildTimeline(h: Hymn, passes = 2, style: PlayStyle = 'piano', r
   const measures: Timeline['measures'] = []
   // 반복할 때 마지막 마디 + 다음 절 못갖춘마디가 합쳐져 한 마디가 된다
   const plan: Pass[] = Array.from({ length: passes }, (_, p) => ({
-    measures: h.measures,
+    // 아멘은 마지막 절에서만
+    measures: p === passes - 1 ? h.measures : h.measures.filter((m) => !m.amen),
     soft: p === 0 ? 1 : 0.85,
     last: p === passes - 1,
   }))
@@ -143,7 +146,8 @@ export function buildTimeline(h: Hymn, passes = 2, style: PlayStyle = 'piano', r
     pass.measures.forEach((ms, mi) => {
       if (ms.dyn) vel = DYN_VEL[ms.dyn]
       const isFinal = pass.last && mi === pass.measures.length - 1
-      const rit = isFinal ? 0.9 : ms.end ? 0.32 : 0
+      const rubato = h.rubato !== false
+      const rit = !rubato ? 0 : isFinal ? 0.9 : ms.end ? 0.32 : 0
       const rh = parseVoice(ms.rh)
       const lh = parseVoice(ms.lh)
       const len = Math.max(sumBeats(rh), sumBeats(lh))
@@ -152,9 +156,9 @@ export function buildTimeline(h: Hymn, passes = 2, style: PlayStyle = 'piano', r
       const isLastMeasure = mi === pass.measures.length - 1
       const tail = ms.end && !isLastMeasure ? pickupLen : 0
       const phrase = len - tail
-      const breath = ms.end && !isFinal ? beatSec * 0.18 : 0
+      const breath = rubato && ms.end && !isFinal ? beatSec * 0.18 : 0
       // 마디 안의 박 위치 x(0~len) → 초. 점점 느려지는 리타르단도: x + rit·x²/(2·phrase)
-      const sway = 1 + 0.025 * Math.sin((mi / 4) * Math.PI) // 아주 미세한 흔들림
+      const sway = rubato ? 1 + 0.025 * Math.sin((mi / 4) * Math.PI) : 1 // 아주 미세한 흔들림
       const ritAt = (x: number) => (x + (rit * x * x) / (2 * phrase)) * beatSec * sway
       // 시작 시각은 프레이즈 경계에서 숨 뒤로, 끝 시각은 숨 앞으로
       const at = (x: number, isEnd = false) =>
@@ -244,7 +248,7 @@ export function buildTimeline(h: Hymn, passes = 2, style: PlayStyle = 'piano', r
       // 프레이즈 끝: 살짝 숨 쉬는 틈 (못갖춘마디가 없을 때는 마디 뒤에)
       if (tail === 0) t += breath
     })
-    if (pi < plan.length - 1) t += beatSec * 0.4 // 절 사이 숨
+    if (pi < plan.length - 1 && h.rubato !== false) t += beatSec * 0.4 // 절 사이 숨
   })
   // 마지막 페달 묶음은 곡 끝까지
   for (const pe of pedalGroup) pe.duration = Math.max(pe.duration, t - pe.time + (organ ? 1.2 : 2.5))
