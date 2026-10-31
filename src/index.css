@@ -390,3 +390,22 @@ kbd {
   min-width: 0;
   accent-color: #e9c99a;
 }
+.mp-instrument {
+  display: flex;
+  gap: 4px;
+  margin-top: 8px;
+}
+.mp-instrument button {
+  flex: 1;
+  padding: 4px 0;
+  border: 1px solid rgba(255, 236, 205, 0.18);
+  border-radius: 999px;
+  background: none;
+  color: rgba(240, 228, 208, 0.65);
+  font-size: 12px;
+}
+.mp-instrument button.on {
+  border-color: rgba(233, 201, 154, 0.6);
+  background: rgba(233, 201, 154, 0.16);
+  color: #f6ecda;
+}

@@ -13,7 +13,7 @@ for (const f of readdirSync(dir).filter((f) => f.endsWith('.json')).sort()) {
     console.log(`✗ ${f} (${h.title})`)
     for (const e of errors) console.log(`   - ${e}`)
   } else {
-    const t = buildTimeline(h, 1, () => 0.5)
+    const t = buildTimeline(h, 1, 'piano', () => 0.5)
     console.log(`✓ ${f}  ${h.title} · ${h.measures.length}마디 · 1절 약 ${Math.round(t.length)}초`)
   }
 }

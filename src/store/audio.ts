@@ -5,7 +5,8 @@ import { AUDIO } from '../config'
 // 볼륨/음소거는 다음 방문 때도 유지되도록 localStorage 에 저장한다.
 const PREF_KEY = 'saebyeok-gido.audio.v1'
 
-type Prefs = { volume: number; muted: boolean }
+export type Instrument = 'organ' | 'piano'
+type Prefs = { volume: number; muted: boolean; instrument: Instrument }
 
 function loadPrefs(): Prefs {
   try {
@@ -13,9 +14,10 @@ function loadPrefs(): Prefs {
     return {
       volume: typeof p.volume === 'number' ? Math.min(1, Math.max(0, p.volume)) : AUDIO.volume,
       muted: p.muted === true,
+      instrument: p.instrument === 'piano' || p.instrument === 'organ' ? p.instrument : AUDIO.instrument,
     }
   } catch {
-    return { volume: AUDIO.volume, muted: false }
+    return { volume: AUDIO.volume, muted: false, instrument: AUDIO.instrument }
   }
 }
 
@@ -27,6 +29,8 @@ function savePrefs(p: Prefs) {
   }
 }
 
+const pick = (s: Prefs): Prefs => ({ volume: s.volume, muted: s.muted, instrument: s.instrument })
+
 export type AudioPhase = 'idle' | 'loading' | 'ready' | 'error'
 
 type AudioState = Prefs & {
@@ -37,6 +41,7 @@ type AudioState = Prefs & {
   measure: number | null // 지금 연주 중인 마디 번호 (쉬는 중이면 null)
   setVolume: (v: number) => void
   setMuted: (m: boolean) => void
+  setInstrument: (i: Instrument) => void
 }
 
 export const useAudio = create<AudioState>((set, get) => ({
@@ -48,10 +53,14 @@ export const useAudio = create<AudioState>((set, get) => ({
   measure: null,
   setVolume: (volume) => {
     set({ volume, muted: volume > 0 ? false : get().muted })
-    savePrefs({ volume, muted: get().muted })
+    savePrefs({ ...pick(get()), volume })
   },
   setMuted: (muted) => {
     set({ muted })
-    savePrefs({ volume: get().volume, muted })
+    savePrefs({ ...pick(get()), muted })
+  },
+  setInstrument: (instrument) => {
+    set({ instrument })
+    savePrefs({ ...pick(get()), instrument })
   },
 }))

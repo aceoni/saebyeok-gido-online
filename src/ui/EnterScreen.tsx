@@ -25,7 +25,7 @@ export function EnterScreen() {
         <button className="enter-quiet" onClick={() => go(false)} disabled={leaving}>
           소리 없이 입장
         </button>
-        <p className="enter-note">잔잔한 피아노 찬양이 흘러나옵니다.</p>
+        <p className="enter-note">잔잔한 찬양 반주가 흘러나옵니다.</p>
       </div>
     </div>
   )

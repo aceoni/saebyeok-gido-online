@@ -89,7 +89,11 @@ export type NoteEvent = {
   notes: string[]
   duration: number // 초 (페달 포함 울림 길이)
   velocity: number // 0~1
+  bass?: boolean // 왼손 베이스 음(가장 낮은 음은 오르간 발건반으로)
 }
+
+/** piano: 페달로 왼손 전체를 이어 울림 / organ: 베이스만 이어지고 나머지는 적힌 길이대로 레가토 */
+export type PlayStyle = 'piano' | 'organ'
 
 export type Timeline = {
   events: NoteEvent[]
@@ -107,7 +111,8 @@ type Pass = { measures: HymnMeasure[]; soft: number; last: boolean }
  * - 왼손 음은 다음 베이스 음(C3 아래)이 나올 때까지 울림(페달 교체), 오른손은 살짝 겹치게(레가토)
  * - passes: 몇 번 반복할지. 두 번째부터는 조금 더 여리게
  */
-export function buildTimeline(h: Hymn, passes = 2, rand: () => number = Math.random): Timeline {
+export function buildTimeline(h: Hymn, passes = 2, style: PlayStyle = 'piano', rand: () => number = Math.random): Timeline {
+  const organ = style === 'organ'
   const beatSec = 60 / h.bpm
   const events: NoteEvent[] = []
   const measures: Timeline['measures'] = []
@@ -156,20 +161,24 @@ export function buildTimeline(h: Hymn, passes = 2, rand: () => number = Math.ran
             pendingTie[hand] = tok.tie
             continue
           }
-          const jitter = (rand() - 0.5) * 0.024
+          const jitter = (rand() - 0.5) * (organ ? 0.01 : 0.024)
           const bassy = hand === 'lh' && Math.min(...tok.midis) < 48
-          const accent = x - tok.beats === 0 ? 1.06 : 1
-          const v = vel * pass.soft * accent * (hand === 'rh' ? 1 : 0.62) * (0.94 + rand() * 0.12)
+          // 오르간은 건반 세기로 소리가 달라지지 않으므로 셈여림만 반영(강세·흔들림 없음)
+          const accent = organ ? 1 : x - tok.beats === 0 ? 1.06 : 1
+          const v = vel * pass.soft * accent * (hand === 'rh' ? 1 : organ ? 0.8 : 0.62) * (organ ? 1 : 0.94 + rand() * 0.12)
+          // 오르간: 같은 음을 다시 칠 때 끊김이 들리도록 아주 살짝 짧게
+          const legato = hand === 'rh' ? (organ ? 0.97 : 1.08) : organ ? 0.97 : 1
           const ev: NoteEvent = {
-            time: Math.max(0, start + jitter - (bassy ? 0.012 : 0)),
+            time: Math.max(0, start + jitter - (bassy && !organ ? 0.012 : 0)),
             notes: tok.pitches,
-            duration: (end - start) * (hand === 'rh' ? 1.08 : 1) + (isFinal ? 2.5 : 0),
+            duration: (end - start) * legato + (isFinal ? (organ ? 1.2 : 2.5) : 0),
             velocity: Math.min(1, v),
+            bass: bassy,
           }
-          if (hand === 'lh') {
+          if (hand === 'lh' && (!organ || bassy)) {
             if (bassy) {
               // 페달 교체: 이전 묶음은 이 시점까지 울리고 끝
-              for (const pe of pedalGroup) pe.duration = Math.max(pe.duration, ev.time - pe.time + 0.05)
+              for (const pe of pedalGroup) pe.duration = Math.max(pe.duration, ev.time - pe.time + (organ ? -0.03 : 0.05))
               pedalGroup = []
             }
             pedalGroup.push(ev)
@@ -186,7 +195,7 @@ export function buildTimeline(h: Hymn, passes = 2, rand: () => number = Math.ran
     if (pi < plan.length - 1) t += beatSec * 0.4 // 절 사이 숨
   })
   // 마지막 페달 묶음은 곡 끝까지
-  for (const pe of pedalGroup) pe.duration = Math.max(pe.duration, t - pe.time + 2.5)
+  for (const pe of pedalGroup) pe.duration = Math.max(pe.duration, t - pe.time + (organ ? 1.2 : 2.5))
   events.sort((a, b) => a.time - b.time)
   return { events, measures, length: t + 2.5 }
 }
