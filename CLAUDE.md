@@ -70,8 +70,8 @@
 4. **배경 찬양 (오르간 / 피아노)**
    - 악보를 코드 데이터(/src/data/hymns/*.json: 음높이, 길이, 셈여림)로 저장, Tone.js 피아노 샘플로 재생
    - 가사 없음. 멜로디 + 단순한 왼손 반주로 직접 편곡. 느린 템포, 루바토/페달 느낌, 곡 사이 몇 초 쉼
-   - 저작권 만료된 찬송가 멜로디만 사용:
-     Nearer My God to Thee(내 주를 가까이 하게 함은), Jesus Loves Me(예수 사랑하심은),
+   - 저작권 만료된 찬송가 멜로디만 사용 (재생 순서):
+     Go Carry Thy Burden to Jesus(너 예수께 조용히 나가, W. J. Kirkpatrick — 사용자가 준 새찬송가 539장 악보에서 멜로디만 옮김), Nearer My God to Thee(내 주를 가까이 하게 함은), Jesus Loves Me(예수 사랑하심은),
      It Is Well with My Soul(내 평생에 가는 길), Rock of Ages(만세 반석 열리니), Amazing Grace(나 같은 죄인 살리신)
    - 곡마다 출처(작곡자, 연도)를 JSON에 기록
    - UI: 이전/다음/일시정지/볼륨/음소거. 첫 클릭 전에는 오디오 시작 안 함(브라우저 정책) → "입장하기" 버튼으로 시작

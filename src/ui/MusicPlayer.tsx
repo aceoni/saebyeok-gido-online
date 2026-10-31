@@ -46,7 +46,8 @@ export function MusicPlayer() {
             {h.hymnal} · 곡조 {h.tune}
           </div>
           <div>
-            작곡 {h.composer}, {h.year}
+            작곡 {h.composer}
+            {h.year !== null && `, ${h.year}`}
           </div>
           <div className="mp-dim">{h.source}</div>
           {instrument === 'piano' ? (

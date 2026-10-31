@@ -19,7 +19,7 @@ export type Hymn = {
   hymnal: string
   tune: string
   composer: string
-  year: number
+  year: number | null // 작곡 연도 (확인되지 않으면 null)
   source: string
   key: string
   meter: [number, number]

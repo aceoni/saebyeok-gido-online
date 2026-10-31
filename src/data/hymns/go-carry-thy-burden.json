@@ -1,0 +1,32 @@
+{
+  "id": "go-carry-thy-burden",
+  "title": "너 예수께 조용히 나가",
+  "titleEn": "Go Carry Thy Burden to Jesus",
+  "hymnal": "새찬송가 539장",
+  "tune": "O STEAL AWAY",
+  "composer": "William J. Kirkpatrick (1838–1921)",
+  "year": null,
+  "source": "멜로디: W. J. Kirkpatrick 곡(작곡자 사후 100년 이상, 퍼블릭 도메인). 새찬송가 539장 악보에서 멜로디 음만 옮김. 왼손 반주: 새벽기도 온라인 편곡",
+  "key": "Eb",
+  "meter": [6, 8],
+  "bpm": 72,
+  "measures": [
+    { "m": 0, "rh": "Eb4/.5", "lh": "r/.5", "dyn": "p" },
+    { "m": 1, "rh": "G4/.75 F4/.25 G4/.5 Ab4/.75 G4/.25 Ab4/.5", "lh": "Eb2/1 G2+Bb2/.5 Bb2/1 D3+Ab3/.5" },
+    { "m": 2, "rh": "Bb4/1.5 G4/1 Bb4/.5", "lh": "Eb2/1 G2+Bb2/.5 Eb2/1 G2+Bb2/.5" },
+    { "m": 3, "rh": "Bb4/.5 Ab4/.5 G4/.5 F4/.5 G4/.5 Ab4/.5", "lh": "Bb2/1 D3+F3/.5 Bb2/1 D3+F3/.5" },
+    { "m": 4, "rh": "G4/2.5 Eb4/.5", "lh": "Eb2/1 G2+Bb2/.5 Eb2/1 G2+Bb2/.5", "end": true },
+    { "m": 5, "rh": "G4/.75 F4/.25 G4/.5 Ab4/.75 G4/.25 Ab4/.5", "lh": "Eb2/1 G2+Bb2/.5 Bb2/1 D3+Ab3/.5" },
+    { "m": 6, "rh": "Bb4/1.5 G4/1 Bb4/.5", "lh": "Eb2/1 G2+Bb2/.5 Eb2/1 G2+Bb2/.5" },
+    { "m": 7, "rh": "Bb4/.5 Ab4/.5 G4/.5 F4/.5 G4/.5 F4/.5", "lh": "Bb2/1 D3+F3/.5 Bb2/1 D3+Ab3/.5" },
+    { "m": 8, "rh": "Eb4/2.5 Bb4/.5", "lh": "Eb2/1 G2+Bb2/.5 Eb2/1 G2+Bb2/.5", "end": true },
+    { "m": 9, "rh": "C5/.75 C5/.25 C5/.5 Ab4/.5 Bb4/.5 C5/.5", "lh": "Ab2/1 C3+Eb3/.5 Ab2/1 C3+Eb3/.5", "dyn": "mp" },
+    { "m": 10, "rh": "Bb4/1.5 G4/1 Bb4/.5", "lh": "Eb2/1 G2+Bb2/.5 Eb2/1 G2+Bb2/.5" },
+    { "m": 11, "rh": "Bb4/.5 Ab4/.5 G4/.5 F4/.5 G4/.5 Ab4/.5", "lh": "Bb2/1 D3+F3/.5 Bb2/1 D3+Ab3/.5" },
+    { "m": 12, "rh": "G4/2.5 Bb4/.5", "lh": "Eb2/1 G2+Bb2/.5 Eb2/1 G2+Bb2/.5", "end": true },
+    { "m": 13, "rh": "C5/.75 C5/.25 C5/.5 Ab4/.5 Bb4/.5 C5/.5", "lh": "Ab2/1 C3+Eb3/.5 Ab2/1 C3+Eb3/.5", "dyn": "p" },
+    { "m": 14, "rh": "Bb4/1.5 G4/1 Eb4/.5", "lh": "Eb2/1 G2+Bb2/.5 Eb2/1 G2+Bb2/.5" },
+    { "m": 15, "rh": "F4/.5 G4/.5 Ab4/.5 G4/.5 G4/.5 F4/.5", "lh": "Ab2/1 C3+Eb3/.5 Bb2/1 D3+Ab3/.5", "dyn": "pp" },
+    { "m": 16, "rh": "Eb4/2.5", "lh": "Eb2+G2+Bb2/2.5", "end": true }
+  ]
+}
