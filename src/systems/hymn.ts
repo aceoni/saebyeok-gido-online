@@ -24,6 +24,7 @@ export type Hymn = {
   key: string
   meter: [number, number]
   bpm: number
+  satb?: boolean // 찬송가 4성부를 그대로: rh = 소프라노+알토, lh = 테너+베이스 (lh 가장 낮은 음 = 베이스)
   measures: HymnMeasure[]
 }
 
@@ -130,6 +131,10 @@ export function buildTimeline(h: Hymn, passes = 2, style: PlayStyle = 'piano', r
   const pendingTie: Record<'rh' | 'lh', boolean> = { rh: false, lh: false }
   // 왼손 페달: 다음 베이스 음이 나올 때까지 울릴 이벤트들
   let pedalGroup: NoteEvent[] = []
+  // 오르간 4성부: 이어서 누르고 있는 안쪽 성부 음
+  const held: Record<'rh' | 'lh', Map<string, NoteEvent>> = { rh: new Map(), lh: new Map() }
+  const pendingRest: Record<'rh' | 'lh', boolean> = { rh: true, lh: true }
+  const beatUnit = h.meter[1] === 8 ? 1.5 : 1 // 큰 박 길이(4분음표 단위)
 
   plan.forEach((pass, pi) => {
     pass.measures.forEach((ms, mi) => {
@@ -152,6 +157,8 @@ export function buildTimeline(h: Hymn, passes = 2, style: PlayStyle = 'piano', r
           x += tok.beats
           if (tok.pitches.length === 0) {
             pendingTie[hand] = false
+            pendingRest[hand] = true
+            held[hand] = new Map()
             continue
           }
           if (pendingTie[hand] && lastEv[hand]) {
@@ -162,7 +169,7 @@ export function buildTimeline(h: Hymn, passes = 2, style: PlayStyle = 'piano', r
             continue
           }
           const jitter = (rand() - 0.5) * (organ ? 0.01 : 0.024)
-          const bassy = hand === 'lh' && Math.min(...tok.midis) < 48
+          const bassy = hand === 'lh' && (h.satb || Math.min(...tok.midis) < 48)
           // 오르간은 건반 세기로 소리가 달라지지 않으므로 셈여림만 반영(강세·흔들림 없음)
           const accent = organ ? 1 : x - tok.beats === 0 ? 1.06 : 1
           const v = vel * pass.soft * accent * (hand === 'rh' ? 1 : organ ? 0.8 : 0.62) * (organ ? 1 : 0.94 + rand() * 0.12)
@@ -174,6 +181,37 @@ export function buildTimeline(h: Hymn, passes = 2, style: PlayStyle = 'piano', r
             duration: (end - start) * legato + (isFinal ? (organ ? 1.2 : 2.5) : 0),
             velocity: Math.min(1, v),
             bass: bassy,
+          }
+          if (organ && h.satb) {
+            // 오르간 4성부: 안쪽 성부(알토·테너)의 같은 음은 다시 치지 않고 이어서 누른다.
+            // 멜로디(rh 맨 위)와 베이스(lh 맨 아래)는 매번 다시 친다
+            const sorted = [...tok.pitches].sort((a, b) => noteToMidi(a) - noteToMidi(b))
+            const outer = hand === 'rh' ? sorted[sorted.length - 1] : sorted[0]
+            const nextHeld = new Map<string, NoteEvent>()
+            const inner = sorted.filter((n) => n !== outer)
+            for (const n of inner) {
+              const prevEv = held[hand].get(n)
+              const tail = isFinal ? 1.2 : 0
+              if (prevEv) prevEv.duration = end - prevEv.time + tail
+              const e = prevEv ?? { ...ev, notes: [n], bass: false, duration: end - ev.time + tail }
+              if (!prevEv) events.push(e)
+              nextHeld.set(n, e)
+            }
+            held[hand] = nextHeld
+            // 베이스가 같은 음으로 이어지면 큰 박(6/8 은 점4분, 그 외 4분)에서만 다시 친다
+            const onBeat = Math.abs(((x - tok.beats) / beatUnit) % 1) < 1e-6
+            const prevBass = hand === 'lh' ? lastEv.lh : null
+            if (prevBass && prevBass.notes[0] === outer && !onBeat && !pendingRest.lh) {
+              prevBass.duration = end - prevBass.time + (isFinal ? 1.2 : 0)
+              pendingTie[hand] = tok.tie
+              continue
+            }
+            const main = { ...ev, notes: [outer] }
+            events.push(main)
+            lastEv[hand] = main
+            pendingRest[hand] = false
+            pendingTie[hand] = tok.tie
+            continue
           }
           if (hand === 'lh' && (!organ || bassy)) {
             if (bassy) {
