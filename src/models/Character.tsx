@@ -4,13 +4,14 @@ import * as THREE from 'three'
 import { COLORS } from '../config'
 import { usePlayer } from '../store/player'
 
-// 귀여운 SD(2~2.5등신) 로우폴리 캐릭터. 큰 머리 + 짧은 몸과 팔다리, 키 약 1.3m. 앞 = 로컬 +z.
+// 귀여운 SD(약 2.5등신) 로우폴리 캐릭터. 큰 머리 + 짧은 몸과 팔다리, 키 약 1.2m. 앞 = 로컬 +z.
 // 위치/방향/자세는 player store 에서 매 프레임 읽어 ref 로 직접 갱신한다.
 const C = COLORS.character
 const HIP_Y = 0.42
 const SHOULDER_Y = 0.8
-const HEAD_Y = 1.08
 const HEAD_R = 0.26
+const HEAD_SCALE = 0.8 // 머리 크기 비율 (1 = 처음의 아주 큰 SD 머리)
+const HEAD_Y = 0.86 + HEAD_R * 0.9 * HEAD_SCALE // 목 위에 얹히도록
 
 const mat = (color: string) => <meshStandardMaterial color={color} roughness={0.85} flatShading />
 // 피부(얼굴·귀·손)는 각지지 않게 매끈한 구
@@ -123,7 +124,7 @@ export function Character() {
         </mesh>
 
         {/* 큰 머리 */}
-        <group ref={head} position={[0, HEAD_Y, 0]}>
+        <group ref={head} position={[0, HEAD_Y, 0]} scale={HEAD_SCALE}>
           <mesh scale={[1, 0.94, 0.95]} castShadow>
             <sphereGeometry args={[HEAD_R, 40, 28]} />
             {skinMat}

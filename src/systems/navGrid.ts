@@ -108,7 +108,9 @@ function level1Obstacles(): Rect[] {
   for (const p of FLOWERS) add(p[0], p[2], 0.6, 0.6)
   for (const p of STAGE_CHAIRS) add(p[0], p[2], 0.8, 0.7)
   for (const p of MONITORS) add(p[0], p[2], 0.6, 0.45)
-  add(DRUM_POS[0], DRUM_POS[2] - 0.2 * DRUM_SCALE, 2.2 * DRUM_SCALE, 2.0 * DRUM_SCALE)
+  // 드럼: 세트 본체와 드럼 의자를 따로 (의자 뒤·옆으로 다가가 앉을 수 있게)
+  add(DRUM_POS[0], DRUM_POS[2] + 0.1 * DRUM_SCALE, 2.2 * DRUM_SCALE, 1.3 * DRUM_SCALE)
+  add(DRUM_POS[0], DRUM_POS[2] - 0.65 * DRUM_SCALE, 0.4 * DRUM_SCALE, 0.4 * DRUM_SCALE)
   add(CONDUCTOR_POS[0] - 0.35, CONDUCTOR_POS[2], 0.4, 0.4) // 지휘자 보면대
 
   // 악기·연주자 자리

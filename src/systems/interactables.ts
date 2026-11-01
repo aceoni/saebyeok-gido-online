@@ -53,9 +53,14 @@ function chairSeat(chair: ChairSeat, px: number, py: number, pz: number): { seat
   const fx = Math.sin(chair.rotY)
   const fz = Math.cos(chair.rotY)
   const nav = NAV[1]
-  const ax = cx + fx * 0.6
-  const az = cz + fz * 0.6
-  const stand = nav.walkable(ax, az) ? [ax, az] : (nav.nearestWalkable(ax, az, 1.5) ?? [px, pz])
+  // 일어설 자리: 앞 → 뒤 → 옆 순서로 걸을 수 있는 곳 (피아노·드럼 의자는 앞이 악기라 뒤로 일어남)
+  const tries: [number, number][] = [
+    [fx, fz],
+    [-fx, -fz],
+    [fz, -fx],
+    [-fz, fx],
+  ].flatMap(([dx, dz]) => [0.6, 0.8].map((d) => [cx + dx * d, cz + dz * d] as [number, number]))
+  const stand = tries.find(([x, z]) => nav.walkable(x, z)) ?? nav.nearestWalkable(px, pz, 1.5) ?? [px, pz]
   return {
     dist,
     seat: {

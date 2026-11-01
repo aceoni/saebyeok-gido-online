@@ -194,4 +194,27 @@ export const SEATABLE_CHAIRS: ChairSeat[] = [
   ...ORCHESTRA_CHAIRS.map((c, i) => ({ id: `orchestra-chair-${i}`, pos: c.pos, rotY: c.rotY, seatTop: 0.48 * INSTRUMENT_SCALE })),
   // 스툴은 앞의 보면대(강단 쪽, -z)를 바라봄
   ...STOOLS.map((p, i) => ({ id: `stool-${i}`, pos: p, rotY: Math.PI, seatTop: 0.69 * INSTRUMENT_SCALE })),
+  // 악기 의자 (모델 안에 이미 있는 벤치): 키보드 벤치(강대상 쪽 -z 를 봄), 그랜드피아노 벤치(건반 = 로컬 +z 쪽, 지휘자를 봄), 드럼 의자(회중 +z 를 봄)
+  {
+    id: 'keyboard-bench',
+    pos: [PIANO_POS[0], PIANO_POS[1], PIANO_POS[2] + 0.62 * INSTRUMENT_SCALE],
+    rotY: Math.PI,
+    seatTop: 0.535 * INSTRUMENT_SCALE,
+  },
+  {
+    id: 'grand-piano-bench',
+    pos: [
+      GRAND_PIANO_POS[0] + Math.sin(GRAND_PIANO_ROT_Y) * 0.75 * GRAND_PIANO_SCALE,
+      GRAND_PIANO_POS[1],
+      GRAND_PIANO_POS[2] + Math.cos(GRAND_PIANO_ROT_Y) * 0.75 * GRAND_PIANO_SCALE,
+    ],
+    rotY: GRAND_PIANO_ROT_Y + Math.PI,
+    seatTop: 0.54 * GRAND_PIANO_SCALE,
+  },
+  {
+    id: 'drum-throne',
+    pos: [DRUM_POS[0], DRUM_POS[1], DRUM_POS[2] - 0.65 * DRUM_SCALE],
+    rotY: 0,
+    seatTop: 0.54 * DRUM_SCALE,
+  },
 ]
