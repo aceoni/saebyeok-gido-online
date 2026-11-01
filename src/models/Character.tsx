@@ -1,28 +1,33 @@
-import { useRef } from 'react'
+import { useRef, type ReactNode } from 'react'
 import { useFrame } from '@react-three/fiber'
 import * as THREE from 'three'
 import { COLORS } from '../config'
-import { usePlayer } from '../store/player'
+import type { Avatar } from '../data/avatars'
+import type { Pose } from '../store/player'
 
 // 귀여운 SD(약 2.5등신) 로우폴리 캐릭터. 큰 머리 + 짧은 몸과 팔다리, 키 약 1.2m. 앞 = 로컬 +z.
-// 위치/방향/자세는 player store 에서 매 프레임 읽어 ref 로 직접 갱신한다.
+// 위치/방향/자세는 read() 로 매 프레임 읽어 ref 로 직접 갱신한다 (내 캐릭터 = player store, 다른 사람 = 네트워크 상태).
+// 아바타(머리 모양·옷 색)는 data/avatars.ts
 const C = COLORS.character
 const HIP_Y = 0.42
 const SHOULDER_Y = 0.8
 const HEAD_R = 0.26
 const HEAD_SCALE = 0.8 // 머리 크기 비율 (1 = 처음의 아주 큰 SD 머리)
 const HEAD_Y = 0.86 + HEAD_R * 0.9 * HEAD_SCALE // 목 위에 얹히도록
+export const CHARACTER_TOP = HEAD_Y + HEAD_R * HEAD_SCALE // 머리 꼭대기 높이 (이름표·말풍선 위치)
+
+export type CharacterState = { position: [number, number, number]; rotY: number; pose: Pose }
 
 const mat = (color: string) => <meshStandardMaterial color={color} roughness={0.85} flatShading />
 // 피부(얼굴·귀·손)는 각지지 않게 매끈한 구
 const skinMat = <meshStandardMaterial color={C.skin} roughness={0.75} />
 
-function Leg({ x, legRef }: { x: number; legRef: React.RefObject<THREE.Group | null> }) {
+function Leg({ x, legRef, color }: { x: number; legRef: React.RefObject<THREE.Group | null>; color: string }) {
   return (
     <group ref={legRef} position={[x, HIP_Y, 0]}>
       <mesh position={[0, -0.17, 0]} castShadow>
         <cylinderGeometry args={[0.075, 0.068, 0.34, 7]} />
-        {mat(C.pants)}
+        {mat(color)}
       </mesh>
       <mesh position={[0, -0.37, 0.035]} scale={[1, 0.7, 1.35]}>
         <icosahedronGeometry args={[0.085, 0]} />
@@ -32,14 +37,14 @@ function Leg({ x, legRef }: { x: number; legRef: React.RefObject<THREE.Group | n
   )
 }
 
-function Arm({ side, armRef }: { side: -1 | 1; armRef: React.RefObject<THREE.Group | null> }) {
+function Arm({ side, armRef, color }: { side: -1 | 1; armRef: React.RefObject<THREE.Group | null>; color: string }) {
   return (
     <group ref={armRef} position={[side * 0.2, SHOULDER_Y, 0]}>
       {/* 몸에서 살짝 벌어지게 */}
       <group rotation-z={side * 0.18}>
         <mesh position={[0, -0.15, 0]} castShadow>
           <cylinderGeometry args={[0.056, 0.05, 0.3, 7]} />
-          {mat(C.top)}
+          {mat(color)}
         </mesh>
         <mesh position={[0, -0.33, 0]}>
           <sphereGeometry args={[0.058, 16, 12]} />
@@ -50,8 +55,75 @@ function Arm({ side, armRef }: { side: -1 | 1; armRef: React.RefObject<THREE.Gro
   )
 }
 
-export function Character() {
+/** 머리 모양 (머리 그룹 안, 머리 중심 기준) */
+function Hair({ avatar }: { avatar: Avatar }) {
+  const m = mat(avatar.hair)
+  const style = avatar.hairStyle
+  return (
+    <>
+      {/* 정수리~뒤통수 (공통) */}
+      <mesh position={[0, 0.02, -0.01]} rotation-x={-0.3}>
+        <sphereGeometry args={[HEAD_R * 1.06, 12, 8, 0, Math.PI * 2, 0, Math.PI * 0.5]} />
+        {m}
+      </mesh>
+      <mesh position={[0, -0.01, -0.01]}>
+        <sphereGeometry args={[HEAD_R * 1.05, 12, 8, Math.PI, Math.PI, 0, Math.PI * (style === 'bob' ? 0.86 : 0.78)]} />
+        {m}
+      </mesh>
+      {style === 'sidePart' && (
+        // 옆으로 넘긴 앞머리
+        <mesh position={[0.07, 0.17, 0.16]} rotation={[-0.5, 0, -0.5]} scale={[1.5, 0.45, 0.8]}>
+          <sphereGeometry args={[0.1, 10, 8]} />
+          {m}
+        </mesh>
+      )}
+      {style === 'long' && (
+        <>
+          {/* 어깨 아래로 내려오는 긴 머리 */}
+          <mesh position={[0, -0.24, -0.1]} scale={[1, 1, 0.55]}>
+            <cylinderGeometry args={[HEAD_R * 0.95, HEAD_R * 0.85, 0.42, 12, 1, true, Math.PI * 0.5, Math.PI]} />
+            <meshStandardMaterial color={avatar.hair} roughness={0.85} flatShading side={THREE.DoubleSide} />
+          </mesh>
+          {[-1, 1].map((s) => (
+            <mesh key={s} position={[s * HEAD_R * 0.9, -0.14, 0.02]} scale={[0.45, 1.6, 0.7]}>
+              <sphereGeometry args={[0.09, 10, 8]} />
+              {m}
+            </mesh>
+          ))}
+        </>
+      )}
+      {style === 'bob' && (
+        <>
+          {/* 턱선까지 오는 단발 + 일자 앞머리 */}
+          {[-1, 1].map((s) => (
+            <mesh key={s} position={[s * HEAD_R * 0.92, -0.07, -0.01]} scale={[0.5, 1.15, 1.05]}>
+              <sphereGeometry args={[0.13, 10, 8]} />
+              {m}
+            </mesh>
+          ))}
+          <mesh position={[0, 0.13, 0.17]} rotation-x={-0.35} scale={[1.9, 0.5, 0.8]}>
+            <sphereGeometry args={[0.1, 10, 8]} />
+            {m}
+          </mesh>
+        </>
+      )}
+    </>
+  )
+}
+
+export function Character({
+  avatar,
+  read,
+  hideWhenPraying = false,
+  children,
+}: {
+  avatar: Avatar
+  read: () => CharacterState
+  hideWhenPraying?: boolean // 내 캐릭터: 기도 중엔 1인칭이라 숨김
+  children?: ReactNode // 캐릭터를 따라다니는 것 (이름표, 말풍선)
+}) {
   const root = useRef<THREE.Group>(null)
+  const model = useRef<THREE.Group>(null)
   const body = useRef<THREE.Group>(null)
   const head = useRef<THREE.Group>(null)
   const legL = useRef<THREE.Group>(null)
@@ -62,12 +134,11 @@ export function Character() {
   const amp = useRef(0)
 
   useFrame((_, dt) => {
-    const s = usePlayer.getState()
+    const s = read()
     if (!root.current) return
     root.current.position.set(...s.position)
-    root.current.rotation.y = s.rotY
-    // 기도 중에는 1인칭 시점이라 캐릭터를 숨김
-    root.current.visible = s.pose !== 'praying'
+    model.current!.rotation.y = s.rotY
+    model.current!.visible = !(hideWhenPraying && s.pose === 'praying')
 
     const walking = s.pose === 'walking'
     const seated = s.pose === 'sitting' || s.pose === 'praying'
@@ -98,68 +169,78 @@ export function Character() {
     head.current!.rotation.x += ((praying ? 0.42 : 0) - head.current!.rotation.x) * Math.min(1, dt * 3)
   })
 
+  const skirtH = avatar.skirt === 'long' ? 0.36 : 0.22
   return (
     <group ref={root} userData={{ noPick: true }}>
-      <group ref={body}>
-        <Leg x={-0.085} legRef={legL} />
-        <Leg x={0.085} legRef={legR} />
-        {/* 엉덩이(바지) + 몸통(카디건) + 셔츠 깃 */}
-        <mesh position={[0, 0.46, 0]} scale={[1, 1, 0.8]}>
-          <cylinderGeometry args={[0.18, 0.17, 0.12, 8]} />
-          {mat(C.pants)}
-        </mesh>
-        <mesh position={[0, 0.66, 0]} scale={[1, 1, 0.78]} castShadow>
-          <cylinderGeometry args={[0.15, 0.19, 0.34, 8]} />
-          {mat(C.top)}
-        </mesh>
-        <mesh position={[0, 0.775, 0.118]} rotation={[0.25, 0, Math.PI]} scale={[1, 1, 0.25]}>
-          <coneGeometry args={[0.055, 0.1, 3]} />
-          {mat(C.shirt)}
-        </mesh>
-        <Arm side={-1} armRef={armL} />
-        <Arm side={1} armRef={armR} />
-        <mesh position={[0, 0.85, 0]}>
-          <cylinderGeometry args={[0.05, 0.06, 0.06, 16]} />
-          {skinMat}
-        </mesh>
-
-        {/* 큰 머리 */}
-        <group ref={head} position={[0, HEAD_Y, 0]} scale={HEAD_SCALE}>
-          <mesh scale={[1, 0.94, 0.95]} castShadow>
-            <sphereGeometry args={[HEAD_R, 40, 28]} />
+      <group ref={model}>
+        <group ref={body}>
+          <Leg x={-0.085} legRef={legL} color={avatar.skirt ? '#4a4044' : avatar.bottom} />
+          <Leg x={0.085} legRef={legR} color={avatar.skirt ? '#4a4044' : avatar.bottom} />
+          {/* 엉덩이(바지) 또는 치마 + 몸통(카디건) + 셔츠 깃 */}
+          {avatar.skirt ? (
+            <mesh position={[0, 0.5 - skirtH / 2, 0]} scale={[1, 1, 0.85]} castShadow>
+              <cylinderGeometry args={[0.17, avatar.skirt === 'long' ? 0.25 : 0.23, skirtH + 0.08, 10]} />
+              {mat(avatar.bottom)}
+            </mesh>
+          ) : (
+            <mesh position={[0, 0.46, 0]} scale={[1, 1, 0.8]}>
+              <cylinderGeometry args={[0.18, 0.17, 0.12, 8]} />
+              {mat(avatar.bottom)}
+            </mesh>
+          )}
+          <mesh position={[0, 0.66, 0]} scale={[1, 1, 0.78]} castShadow>
+            <cylinderGeometry args={[0.15, 0.19, 0.34, 8]} />
+            {mat(avatar.top)}
+          </mesh>
+          <mesh position={[0, 0.775, 0.118]} rotation={[0.25, 0, Math.PI]} scale={[1, 1, 0.25]}>
+            <coneGeometry args={[0.055, 0.1, 3]} />
+            {mat(avatar.shirt)}
+          </mesh>
+          <Arm side={-1} armRef={armL} color={avatar.top} />
+          <Arm side={1} armRef={armR} color={avatar.top} />
+          <mesh position={[0, 0.85, 0]}>
+            <cylinderGeometry args={[0.05, 0.06, 0.06, 16]} />
             {skinMat}
           </mesh>
-          {/* 귀 */}
-          {[-1, 1].map((s) => (
-            <mesh key={s} position={[s * HEAD_R * 0.98, -0.01, 0]} scale={[0.5, 1, 0.8]}>
-              <sphereGeometry args={[0.06, 16, 12]} />
+
+          {/* 큰 머리 */}
+          <group ref={head} position={[0, HEAD_Y, 0]} scale={HEAD_SCALE}>
+            <mesh scale={[1, 0.94, 0.95]} castShadow>
+              <sphereGeometry args={[HEAD_R, 40, 28]} />
               {skinMat}
             </mesh>
-          ))}
-          {/* 머리카락: 정수리~뒤통수, 앞머리는 이마를 살짝 덮음 */}
-          <mesh position={[0, 0.02, -0.01]} rotation-x={-0.3}>
-            <sphereGeometry args={[HEAD_R * 1.06, 12, 8, 0, Math.PI * 2, 0, Math.PI * 0.5]} />
-            {mat(C.hair)}
-          </mesh>
-          <mesh position={[0, -0.01, -0.01]}>
-            <sphereGeometry args={[HEAD_R * 1.05, 12, 8, Math.PI, Math.PI, 0, Math.PI * 0.78]} />
-            {mat(C.hair)}
-          </mesh>
-          {/* 눈 + 볼 */}
-          {[-1, 1].map((s) => (
-            <group key={s}>
-              <mesh position={[s * 0.085, -0.02, HEAD_R * 0.9]} scale={[0.8, 1.15, 0.5]}>
-                <sphereGeometry args={[0.028, 8, 6]} />
-                <meshStandardMaterial color={C.eyes} roughness={0.4} />
+            {/* 귀 */}
+            {[-1, 1].map((s) => (
+              <mesh key={s} position={[s * HEAD_R * 0.98, -0.01, 0]} scale={[0.5, 1, 0.8]}>
+                <sphereGeometry args={[0.06, 16, 12]} />
+                {skinMat}
               </mesh>
-              <mesh position={[s * 0.15, -0.085, HEAD_R * 0.8]} scale={[1.2, 0.7, 0.4]}>
-                <sphereGeometry args={[0.03, 8, 6]} />
-                <meshStandardMaterial color={C.cheek} roughness={0.9} transparent opacity={0.65} />
-              </mesh>
-            </group>
-          ))}
+            ))}
+            <Hair avatar={avatar} />
+            {/* 눈 + 볼 */}
+            {[-1, 1].map((s) => (
+              <group key={s}>
+                <mesh position={[s * 0.085, -0.02, HEAD_R * 0.9]} scale={[0.8, 1.15, 0.5]}>
+                  <sphereGeometry args={[0.028, 8, 6]} />
+                  <meshStandardMaterial color={C.eyes} roughness={0.4} />
+                </mesh>
+                <mesh position={[s * 0.15, -0.085, HEAD_R * 0.8]} scale={[1.2, 0.7, 0.4]}>
+                  <sphereGeometry args={[0.03, 8, 6]} />
+                  <meshStandardMaterial color={C.cheek} roughness={0.9} transparent opacity={0.65} />
+                </mesh>
+              </group>
+            ))}
+            {avatar.glasses &&
+              [-1, 1].map((s) => (
+                <mesh key={s} position={[s * 0.085, -0.02, HEAD_R * 0.97]}>
+                  <torusGeometry args={[0.04, 0.0045, 6, 16]} />
+                  <meshStandardMaterial color="#2a2422" roughness={0.5} />
+                </mesh>
+              ))}
+          </group>
         </group>
       </group>
+      {children}
     </group>
   )
 }

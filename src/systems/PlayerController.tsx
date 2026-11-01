@@ -3,6 +3,9 @@ import { useFrame, useThree } from '@react-three/fiber'
 import * as THREE from 'three'
 import { BALCONY, PLAYER } from '../config'
 import { Character } from '../models/Character'
+import { avatarById } from '../data/avatars'
+import { useSession } from '../store/session'
+import { PrayBubble } from './RemotePlayers'
 import { usePlayer } from '../store/player'
 import { cameraState } from './cameraState'
 import { NAV } from './navGrid'
@@ -41,8 +44,12 @@ if (import.meta.env.DEV) {
   Object.assign(window, { __player: usePlayer, __nav: NAV })
 }
 
+const readMe = () => usePlayer.getState()
+
 /** 키보드(WASD/방향키) + 바닥 클릭 이동, 충돌/높이 처리, 캐릭터·목적지 표시 */
 export function PlayerController({ clickToMove = true }: { clickToMove?: boolean }) {
+  const avatarId = useSession((s) => s.avatarId)
+  const myId = useSession((s) => s.id)
   const keys = useRef({ f: false, b: false, l: false, r: false })
   const marker = useRef<THREE.Mesh>(null)
   const { camera, scene, gl } = useThree()
@@ -192,7 +199,9 @@ export function PlayerController({ clickToMove = true }: { clickToMove?: boolean
 
   return (
     <>
-      <Character />
+      <Character avatar={avatarById(avatarId)} read={readMe} hideWhenPraying>
+        <PrayBubble id={myId} />
+      </Character>
       <mesh ref={marker} rotation-x={-Math.PI / 2} visible={false} userData={{ noPick: true }}>
         <ringGeometry args={[0.18, 0.24, 24]} />
         <meshBasicMaterial color="#ffe2b0" transparent opacity={0.55} depthWrite={false} />

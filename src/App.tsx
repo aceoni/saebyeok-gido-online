@@ -7,9 +7,11 @@ import { CameraRig } from './systems/CameraRig'
 import { Hud } from './ui/Hud'
 import { InteractionSystem } from './systems/InteractionSystem'
 import { SeatBible } from './systems/SeatBible'
+import { RemotePlayers } from './systems/RemotePlayers'
 import { SeatControls } from './ui/SeatControls'
 import { EnterScreen } from './ui/EnterScreen'
 import { MusicPlayer } from './ui/MusicPlayer'
+import { Presence } from './ui/Presence'
 import { useAudio } from './store/audio'
 
 // 개발용: ?cam=x,y,z,tx,ty,tz 로 자유 시점 (OrbitControls: 좌클릭 이동, 우클릭 회전)
@@ -29,6 +31,7 @@ export default function App() {
         <PlayerController clickToMove={!devCam} />
         <InteractionSystem />
         <SeatBible />
+        <RemotePlayers />
         {devCam ? (
           <OrbitControls
             target={camParam!.slice(3, 6) as [number, number, number]}
@@ -45,6 +48,7 @@ export default function App() {
       {!devCam && entered && <Hud />}
       <SeatControls />
       <MusicPlayer />
+      <Presence />
       {!devCam && <EnterScreen />}
     </>
   )

@@ -1,6 +1,7 @@
 import { PEWS, SEAT } from '../config'
 import { DOOR_LINKS, SEATABLE_CHAIRS, balconySlots, choirSlots, pewSlots, type ChairSeat, type PewSlot } from '../scenes/sanctuaryLayout'
 import { usePlayer, type Level, type Seat } from '../store/player'
+import { occupiedSeats } from '../store/remote'
 import { NAV, localToWorld, worldToLocal } from './navGrid'
 
 /** 상호작용 공통 인터페이스: 위치(말풍선 기준점), 반경, 라벨, 실행 */
@@ -12,11 +13,16 @@ export type Interactable = {
   onInteract: () => void
 }
 
-const clamp = (v: number, lo: number, hi: number) => Math.min(hi, Math.max(lo, v))
 const SLOTS: Record<Level, PewSlot[]> = { 1: [...pewSlots, ...choirSlots], 2: balconySlots }
 
-// 장의자: 플레이어와 가장 가까운 좌판 위치에 "앉기"
-function pewSeat(level: Level, slot: PewSlot, px: number, py: number, pz: number): { seat: Seat; dist: number } | null {
+/** 장의자 한 개의 자리들 (로컬 x 좌표). 좌판 길이를 SEAT.seatWidth 간격의 칸으로 나눔 */
+export function pewSeatXs(length: number): number[] {
+  const n = Math.max(1, Math.floor((length - 2 * SEAT.edgeMargin) / SEAT.seatWidth) + 1)
+  return Array.from({ length: n }, (_, k) => (k - (n - 1) / 2) * SEAT.seatWidth)
+}
+
+// 장의자: 비어 있는 자리 중 플레이어와 가장 가까운 칸에 "앉기"
+function pewSeat(level: Level, slot: PewSlot, px: number, py: number, pz: number, taken: Set<string>): { seat: Seat; dist: number } | null {
   const floorY = slot.y ?? 0
   if (Math.abs(py - floorY) > 0.45) return null
   const rot = slot.rotY ?? 0
@@ -24,7 +30,11 @@ function pewSeat(level: Level, slot: PewSlot, px: number, py: number, pz: number
   const [lx, lz] = worldToLocal(slot.x, slot.z, rot, px, pz)
   // 등받이 뒤쪽에서는 앉지 않음 (끝에서 옆으로 다가온 경우는 허용)
   if (lz > 0.1 && Math.abs(lx) < L / 2) return null
-  const sx = clamp(lx, -L / 2 + SEAT.edgeMargin, L / 2 - SEAT.edgeMargin)
+  const free = pewSeatXs(L)
+    .map((x, k) => ({ x, k }))
+    .filter(({ k }) => !taken.has(`${slot.id}:${k}`))
+  if (!free.length) return null
+  const { x: sx, k } = free.reduce((a, b) => (Math.abs(b.x - lx) < Math.abs(a.x - lx) ? b : a))
   const dist = Math.hypot(lx - sx, lz)
   if (dist > SEAT.reach) return null
 
@@ -37,7 +47,7 @@ function pewSeat(level: Level, slot: PewSlot, px: number, py: number, pz: number
   return {
     dist,
     seat: {
-      id: `${slot.id}:${sx.toFixed(1)}`,
+      id: `${slot.id}:${k}`,
       position: [x, floorY + SEAT.hipLift, z],
       rotY: rot + Math.PI, // 장의자는 로컬 -z 를 바라봄
       standAt: [stand[0], nav.height(stand[0], stand[1]), stand[1]],
@@ -48,7 +58,8 @@ function pewSeat(level: Level, slot: PewSlot, px: number, py: number, pz: number
 
 // 일반 의자·스툴: 의자 가까이 오면 "앉기". 일어날 때는 의자 앞쪽으로
 const PEW_SEAT_TOP = 0.45 // hipLift 는 장의자 좌판 높이 기준
-function chairSeat(chair: ChairSeat, px: number, py: number, pz: number): { seat: Seat; dist: number } | null {
+function chairSeat(chair: ChairSeat, px: number, py: number, pz: number, taken: Set<string>): { seat: Seat; dist: number } | null {
+  if (taken.has(chair.id)) return null
   const [cx, cy, cz] = chair.pos
   if (Math.abs(py - cy) > 0.45) return null
   const dist = Math.hypot(px - cx, pz - cz)
@@ -82,9 +93,10 @@ export function findInteractable(): Interactable | null {
   const [px, py, pz] = position
   let best: Interactable | null = null
   let bestD = Infinity
+  const taken = occupiedSeats() // 다른 사람이 앉은 자리
 
   for (const slot of SLOTS[level]) {
-    const r = pewSeat(level, slot, px, py, pz)
+    const r = pewSeat(level, slot, px, py, pz, taken)
     if (r && r.dist < bestD) {
       bestD = r.dist
       const seat = r.seat
@@ -100,7 +112,7 @@ export function findInteractable(): Interactable | null {
 
   if (level === 1) {
     for (const chair of SEATABLE_CHAIRS) {
-      const r = chairSeat(chair, px, py, pz)
+      const r = chairSeat(chair, px, py, pz, taken)
       if (r && r.dist < bestD) {
         bestD = r.dist
         const seat = r.seat

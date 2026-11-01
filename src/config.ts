@@ -167,6 +167,7 @@ export const CAMERA = {
 // 앉기·기도
 export const SEAT = {
   reach: 0.95, // 이 거리 안이면 "앉기" 말풍선
+  seatWidth: 0.55, // 장의자 한 자리 폭: 자리를 정해진 칸으로 나눠 여러 사람이 겹치지 않게 나란히 앉음
   edgeMargin: 0.35, // 장의자 끝에서 이만큼 안쪽까지만 앉음
   hipLift: 0.095, // 앉았을 때 캐릭터 기준점 높이 (좌판 위)
   standOffset: 0.5, // 일어날 때 좌판 앞쪽으로 나서는 거리

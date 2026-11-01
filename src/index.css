@@ -234,18 +234,7 @@ kbd {
   padding: 12px 2px;
   color: #8a7660;
 }
-@media (max-width: 640px) {
-  .prayer-note {
-    top: auto;
-    bottom: 16px;
-    right: 16px;
-    transform: none;
-    max-height: 60vh;
-  }
-  .prayer-note textarea {
-    min-height: 160px;
-  }
-}
+
 
 /* 입장 화면: 예배당이 어렴풋이 비치는 어두운 막 */
 .enter-screen {
@@ -420,5 +409,199 @@ kbd {
   .hud-guide {
     top: 150px;
     font-size: 14px;
+  }
+}
+
+/* 이름 입력 (입장 화면) */
+.enter-name {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 6px;
+  color: rgba(240, 228, 208, 0.7);
+  font-size: 13px;
+}
+.enter-name input {
+  width: min(260px, 70vw);
+  padding: 9px 14px;
+  border: 1px solid rgba(255, 228, 190, 0.35);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.06);
+  color: #fff3e0;
+  font: inherit;
+  font-size: 16px;
+  text-align: center;
+  outline: none;
+}
+.enter-name input:focus {
+  border-color: rgba(255, 228, 190, 0.7);
+}
+.enter-name input::placeholder {
+  color: rgba(240, 228, 208, 0.4);
+}
+
+/* 함께 있는 사람 (오른쪽 위) */
+.presence {
+  position: fixed;
+  top: 16px;
+  right: 16px;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 14px;
+  border-radius: 999px;
+  background: rgba(14, 14, 20, 0.6);
+  color: #f1e7d6;
+  font-size: 13px;
+  backdrop-filter: blur(6px);
+}
+.presence-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #9fd39a;
+  box-shadow: 0 0 6px #9fd39a;
+}
+.presence-short {
+  display: none;
+}
+.presence-me {
+  padding-left: 8px;
+  border-left: 1px solid rgba(255, 236, 205, 0.2);
+  color: rgba(240, 228, 208, 0.6);
+}
+
+/* 다른 사람 이름표 + 소리내어 기도한 말풍선 (3D 위치를 따라다님) */
+.name-tag {
+  white-space: nowrap;
+  padding: 2px 9px;
+  border-radius: 999px;
+  background: rgba(14, 14, 20, 0.5);
+  color: #f3eadb;
+  font-size: 13px;
+}
+.pray-bubble {
+  width: max-content;
+  max-width: 220px;
+  padding: 8px 12px;
+  border-radius: 12px;
+  background: rgba(252, 246, 234, 0.92);
+  color: #3a2f25;
+  font-size: 14px;
+  line-height: 1.45;
+  text-align: center;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35);
+  animation: bubble-in 0.4s ease;
+}
+
+/* 소리내어 기도하기 확인 */
+.aloud-confirm {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  background: rgba(90, 70, 50, 0.08);
+}
+.aloud-confirm p,
+.aloud-sent {
+  margin: 0;
+  color: #7a6652;
+  font-size: 13px;
+}
+.aloud-confirm input {
+  padding: 8px 10px;
+  border: 1px solid rgba(90, 70, 50, 0.3);
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.6);
+  color: #2e251d;
+  font: 16px 'Gowun Batang', serif;
+}
+.aloud-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+.aloud-actions button {
+  padding: 5px 14px;
+  border: 1px solid rgba(90, 70, 50, 0.35);
+  border-radius: 999px;
+  background: transparent;
+  color: #4a3b2d;
+  font-size: 14px;
+}
+.aloud-actions button.primary,
+.prayer-note .note-actions button.aloud {
+  background: #7a5a3a;
+  border-color: #7a5a3a;
+  color: #f8f0e2;
+}
+.aloud-actions button:disabled {
+  opacity: 0.4;
+}
+
+/* 모바일: 기도 메모장은 화면 아래 전체 폭 시트 (키보드 위로 올라옴) */
+@media (max-width: 640px) {
+  .prayer-note {
+    top: auto;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    width: auto;
+    max-height: 75dvh;
+    transform: none;
+    gap: 8px;
+    padding: 14px 16px calc(12px + env(safe-area-inset-bottom));
+    border-radius: 16px 16px 0 0;
+    animation: note-up 0.5s ease;
+  }
+  .prayer-note h2 {
+    font-size: 15px;
+  }
+  .prayer-note textarea {
+    min-height: 110px;
+    font-size: 16px;
+    line-height: 30px;
+    background: repeating-linear-gradient(transparent 0 29px, rgba(140, 110, 80, 0.22) 29px 30px);
+  }
+  .prayer-note .note-actions {
+    justify-content: stretch;
+    gap: 6px;
+  }
+  .prayer-note .note-actions button {
+    flex: 1 1 auto;
+    padding: 8px 10px;
+    font-size: 13px;
+  }
+  .prayer-note .note-privacy {
+    font-size: 11px;
+  }
+  .note-list {
+    min-height: 120px;
+  }
+  .presence {
+    top: 12px;
+    right: 12px;
+    padding: 6px 10px;
+    font-size: 12px;
+  }
+  .presence-me,
+  .presence-long {
+    display: none;
+  }
+  .presence-short {
+    display: inline;
+  }
+  .pray-bubble {
+    max-width: 170px;
+    font-size: 13px;
+  }
+}
+@keyframes note-up {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
   }
 }
