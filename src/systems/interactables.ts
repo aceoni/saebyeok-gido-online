@@ -1,5 +1,5 @@
 import { PEWS, SEAT } from '../config'
-import { DOOR_LINKS, balconySlots, choirSlots, pewSlots, type PewSlot } from '../scenes/sanctuaryLayout'
+import { DOOR_LINKS, SEATABLE_CHAIRS, balconySlots, choirSlots, pewSlots, type ChairSeat, type PewSlot } from '../scenes/sanctuaryLayout'
 import { usePlayer, type Level, type Seat } from '../store/player'
 import { NAV, localToWorld, worldToLocal } from './navGrid'
 
@@ -43,6 +43,31 @@ function pewSeat(level: Level, slot: PewSlot, px: number, py: number, pz: number
   }
 }
 
+// 일반 의자·스툴: 의자 가까이 오면 "앉기". 일어날 때는 의자 앞쪽으로
+const PEW_SEAT_TOP = 0.45 // hipLift 는 장의자 좌판 높이 기준
+function chairSeat(chair: ChairSeat, px: number, py: number, pz: number): { seat: Seat; dist: number } | null {
+  const [cx, cy, cz] = chair.pos
+  if (Math.abs(py - cy) > 0.45) return null
+  const dist = Math.hypot(px - cx, pz - cz)
+  if (dist > SEAT.reach) return null
+  const fx = Math.sin(chair.rotY)
+  const fz = Math.cos(chair.rotY)
+  const nav = NAV[1]
+  const ax = cx + fx * 0.6
+  const az = cz + fz * 0.6
+  const stand = nav.walkable(ax, az) ? [ax, az] : (nav.nearestWalkable(ax, az, 1.5) ?? [px, pz])
+  return {
+    dist,
+    seat: {
+      id: chair.id,
+      // 엉덩이가 좌판 가운데보다 살짝 뒤에 오도록
+      position: [cx - fx * 0.04, cy + chair.seatTop - PEW_SEAT_TOP + SEAT.hipLift, cz - fz * 0.04],
+      rotY: chair.rotY,
+      standAt: [stand[0], nav.height(stand[0], stand[1]), stand[1]],
+    },
+  }
+}
+
 /** 지금 플레이어 근처에서 실행할 수 있는 가장 가까운 상호작용 */
 export function findInteractable(): Interactable | null {
   const { level, position } = usePlayer.getState()
@@ -61,6 +86,23 @@ export function findInteractable(): Interactable | null {
         anchor: [seat.position[0], seat.position[1] + 1.25, seat.position[2]],
         radius: SEAT.reach,
         onInteract: () => usePlayer.getState().sit(seat),
+      }
+    }
+  }
+
+  if (level === 1) {
+    for (const chair of SEATABLE_CHAIRS) {
+      const r = chairSeat(chair, px, py, pz)
+      if (r && r.dist < bestD) {
+        bestD = r.dist
+        const seat = r.seat
+        best = {
+          id: seat.id,
+          label: '앉기',
+          anchor: [chair.pos[0], seat.position[1] + 1.25, chair.pos[2]],
+          radius: SEAT.reach,
+          onInteract: () => usePlayer.getState().sit(seat),
+        }
       }
     }
   }

@@ -185,3 +185,13 @@ export const WALL_LAMPS: [number, number, number][] = [-10, -4, 2, 8].flatMap((z
   [-HALL.width / 2 + 0.25, LAMP_Y, z] as [number, number, number],
   [HALL.width / 2 - 0.25, LAMP_Y, z] as [number, number, number],
 ])
+
+// 앉을 수 있는 의자(장의자 말고): 강단 의자 2개, 관현악 의자 4개, 기타·베이스 연주자 스툴 2개.
+// seatTop = 좌판 윗면 높이(바닥 기준, 모델과 맞춤), rotY = 앉은 사람이 바라보는 방향(앞 = (sin, cos))
+export type ChairSeat = { id: string; pos: [number, number, number]; rotY: number; seatTop: number }
+export const SEATABLE_CHAIRS: ChairSeat[] = [
+  ...STAGE_CHAIRS.map((p, i) => ({ id: `stage-chair-${i}`, pos: p, rotY: 0, seatTop: 0.53 })),
+  ...ORCHESTRA_CHAIRS.map((c, i) => ({ id: `orchestra-chair-${i}`, pos: c.pos, rotY: c.rotY, seatTop: 0.48 * INSTRUMENT_SCALE })),
+  // 스툴은 앞의 보면대(강단 쪽, -z)를 바라봄
+  ...STOOLS.map((p, i) => ({ id: `stool-${i}`, pos: p, rotY: Math.PI, seatTop: 0.69 * INSTRUMENT_SCALE })),
+]
