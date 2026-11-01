@@ -14,9 +14,9 @@ export class SupabaseTransport implements Transport {
     this.key = key
   }
 
-  async connect(id: string, meta: Meta, h: Handlers) {
+  private subscribed = false
+  async connect(id: string, h: Handlers) {
     this.id = id
-    this.meta = meta
     h.onStatus('connecting')
     const { createClient } = await import('@supabase/supabase-js')
     const client = createClient(this.url, this.key, { auth: { persistSession: false } })
@@ -31,15 +31,20 @@ export class SupabaseTransport implements Transport {
     ch.on('broadcast', { event: 'pray' }, ({ payload }) => h.onPray(payload.id, String(payload.text ?? '')))
     ch.subscribe(async (status) => {
       if (status === 'SUBSCRIBED') {
-        await ch.track(this.meta!)
+        this.subscribed = true
+        if (this.meta) await ch.track(this.meta) // 연결 전에 이미 입장했으면 바로 알림
         h.onStatus('online')
       } else if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT') h.onStatus('error')
     })
   }
 
+  join(meta: Meta) {
+    this.updateMeta(meta)
+  }
+
   updateMeta(meta: Meta) {
     this.meta = meta
-    void this.channel?.track(meta)
+    if (this.subscribed) void this.channel?.track(meta)
   }
 
   private send(event: string, payload: object) {

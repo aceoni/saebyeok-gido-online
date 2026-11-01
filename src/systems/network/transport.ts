@@ -14,7 +14,10 @@ export type Handlers = {
 }
 
 export interface Transport {
-  connect(id: string, meta: Meta, h: Handlers): Promise<void>
+  /** 기도실 연결 (보기만: 누가 있는지 받기만 하고 나는 아직 안 보임) */
+  connect(id: string, h: Handlers): Promise<void>
+  /** 입장: 이제 다른 사람에게 나(이름·아바타)를 알림 */
+  join(meta: Meta): void
   updateMeta(meta: Meta): void
   sendState(state: NetState): void
   sendPray(text: string): void

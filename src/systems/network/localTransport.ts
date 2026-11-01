@@ -16,13 +16,11 @@ export class LocalTransport implements Transport {
   private timer = 0
   private h: Handlers | null = null
 
-  async connect(id: string, meta: Meta, h: Handlers) {
+  async connect(id: string, h: Handlers) {
     this.id = id
-    this.meta = meta
     this.h = h
     this.bc = new BroadcastChannel(ROOM)
     this.bc.onmessage = (e: MessageEvent<Msg>) => this.receive(e.data)
-    this.hello()
     this.timer = window.setInterval(() => {
       this.hello()
       const now = Date.now()
@@ -34,12 +32,20 @@ export class LocalTransport implements Transport {
     this.emitMembers()
   }
 
+  join(meta: Meta) {
+    this.meta = meta
+    this.hello()
+    this.emitMembers()
+  }
+
   private hello() {
+    if (!this.meta) return // 아직 입장 전: 보기만
     this.bc?.postMessage({ t: 'hello', id: this.id, meta: this.meta! } satisfies Msg)
   }
 
   private emitMembers() {
-    const list: Member[] = [{ id: this.id, ...this.meta! }, ...[...this.seen].map(([id, v]) => ({ id, ...v.meta }))]
+    const others = [...this.seen].map(([id, v]) => ({ id, ...v.meta }))
+    const list: Member[] = this.meta ? [{ id: this.id, ...this.meta }, ...others] : others
     this.h?.onMembers(list)
   }
 
@@ -71,7 +77,7 @@ export class LocalTransport implements Transport {
     this.bc?.postMessage({ t: 'pray', id: this.id, text } satisfies Msg)
   }
   close() {
-    this.bc?.postMessage({ t: 'bye', id: this.id } satisfies Msg)
+    if (this.meta) this.bc?.postMessage({ t: 'bye', id: this.id } satisfies Msg)
     clearInterval(this.timer)
     this.bc?.close()
     this.bc = null

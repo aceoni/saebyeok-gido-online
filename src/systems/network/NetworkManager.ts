@@ -17,7 +17,6 @@ let transport: Transport | null = null
 let lastSent: NetState | null = null
 let lastSentAt = 0
 let forceSend = false
-let named = false
 
 function pickTransport(): Transport | null {
   const url = import.meta.env.VITE_SUPABASE_URL as string | undefined
@@ -57,55 +56,70 @@ function autoName(members: Member[], myId: string) {
   return `${DEFAULT_NAME_PREFIX} ${k}`
 }
 
-function onMembers(members: Member[]) {
-  const { id, nickname, avatarId } = useSession.getState()
-  if (!named) {
-    named = true
-    const name = nickname || autoName(members, id)
-    useSession.getState().setDisplayName(name)
-    transport?.updateMeta({ name, avatarId })
-  }
+let members: Member[] = []
+let joined = false
+let firstMembers: () => void = () => {}
+const membersReady = new Promise<void>((r) => (firstMembers = r))
+
+function onMembers(list: Member[]) {
+  members = list
+  firstMembers()
+  const { id } = useSession.getState()
   const prev = useRemote.getState().players
   const players: typeof prev = {}
-  for (const m of members) {
+  for (const m of list) {
     if (m.id === id) continue
     players[m.id] = prev[m.id]
       ? { ...prev[m.id], name: m.name, avatarId: m.avatarId }
       : { id: m.id, name: m.name, avatarId: m.avatarId, state: null, updatedAt: Date.now() }
-    if (!prev[m.id]) forceSend = true // 새로 온 사람에게 내 위치를 바로 알림
+    if (!prev[m.id] && joined) forceSend = true // 새로 온 사람에게 내 위치를 바로 알림
   }
   useRemote.setState({ players })
 }
 
-export async function startNetwork() {
+/** 첫 화면에서: 기도실에 연결해 지금 몇 명이 있는지만 본다 (나는 아직 안 보임) */
+export async function watchRoom() {
   if (transport) return
   transport = pickTransport()
-  const { id, nickname, avatarId } = useSession.getState()
   if (!transport) {
-    useSession.getState().setDisplayName(nickname || DEFAULT_NAME_PREFIX)
     useRemote.setState({ status: 'solo' })
     return
   }
   try {
-    await transport.connect(
-      id,
-      { name: nickname || DEFAULT_NAME_PREFIX, avatarId },
-      {
-        onMembers,
-        onState: (pid, s) => {
-          const p = useRemote.getState().players[pid]
-          if (!p) return
-          useRemote.setState({ players: { ...useRemote.getState().players, [pid]: { ...p, state: s, updatedAt: Date.now() } } })
-        },
-        onPray: (pid, text) => showBubble(pid, text),
-        onStatus: (status) => useRemote.setState({ status }),
+    await transport.connect(useSession.getState().id, {
+      onMembers,
+      onState: (pid, s) => {
+        const p = useRemote.getState().players[pid]
+        if (!p) return
+        useRemote.setState({ players: { ...useRemote.getState().players, [pid]: { ...p, state: s, updatedAt: Date.now() } } })
       },
-    )
+      onPray: (pid, text) => showBubble(pid, text),
+      onStatus: (status) => useRemote.setState({ status }),
+    })
   } catch (e) {
     console.error('기도실 연결 실패', e)
     useRemote.setState({ status: 'error' })
+    transport = null
     return
   }
+  window.addEventListener('pagehide', () => transport?.close())
+}
+
+/** 입장하기: 이름(비우면 비어 있는 '익명의 성도 N')·아바타로 기도실에 들어가 내 상태를 보내기 시작 */
+export async function startNetwork() {
+  const { id, nickname, avatarId } = useSession.getState()
+  if (!transport) {
+    useSession.getState().setDisplayName(nickname || DEFAULT_NAME_PREFIX)
+    return
+  }
+  if (joined) return
+  joined = true
+  // 번호를 겹치지 않게 매기려면 지금 있는 사람 목록이 필요 (최대 3초 기다림)
+  await Promise.race([membersReady, new Promise((r) => setTimeout(r, 3000))])
+  const name = nickname || autoName(members, id)
+  useSession.getState().setDisplayName(name)
+  transport.join({ name, avatarId })
+  forceSend = true
   // 내 상태 보내기: 바뀌었을 때만 + 이따금 한 번씩
   window.setInterval(() => {
     const s = myState()
@@ -117,7 +131,6 @@ export async function startNetwork() {
       forceSend = false
     }
   }, SEND_INTERVAL)
-  window.addEventListener('pagehide', () => transport?.close())
 }
 
 function showBubble(id: string, text: string) {

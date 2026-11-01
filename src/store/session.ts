@@ -24,6 +24,7 @@ type SessionState = {
   avatarId: Avatar['id']
   setNickname: (n: string) => void
   setDisplayName: (n: string) => void
+  setAvatarId: (a: Avatar['id']) => void
 }
 
 export const useSession = create<SessionState>((set) => ({
@@ -41,4 +42,5 @@ export const useSession = create<SessionState>((set) => ({
     }
   },
   setDisplayName: (displayName) => set({ displayName }),
+  setAvatarId: (avatarId) => set({ avatarId }),
 }))
