@@ -50,7 +50,7 @@ export function EnterScreen() {
         {status === 'online' && (
           <p className="enter-live">
             <span className="presence-dot" />
-            {others > 0 ? `지금 ${others}명이 기도하고 있어요` : '지금은 기도실이 조용해요'}
+            {others > 0 ? `지금 ${others}명이 기도하고 있어요` : '지금은 예배당이 조용해요'}
           </p>
         )}
         <div className="enter-me">
@@ -77,6 +77,7 @@ export function EnterScreen() {
         </button>
         <p className="enter-note">잔잔한 찬양 반주가 흘러나옵니다.</p>
       </form>
+      <p className="enter-copyright">© 2026 Sieon Lee</p>
     </div>
   )
 }

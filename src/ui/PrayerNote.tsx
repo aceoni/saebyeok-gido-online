@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { PRAY_MAX, prayAloud } from '../systems/network/NetworkManager'
 import { useRemote } from '../store/remote'
+import { useUi } from '../store/ui'
 import { usePlayer } from '../store/player'
 import { downloadText, formatDate, todayId, useNotes } from '../store/notes'
 
@@ -85,9 +86,14 @@ export function PrayerNote() {
         <>
           <header>
             <h2>{formatDate(current.id)}</h2>
-            <button className="link" onClick={() => setView('list')}>
-              지난 기록
-            </button>
+            <span className="note-head-actions">
+              <button className="link" onClick={() => setView('list')}>
+                지난 기록
+              </button>
+              <button className="note-close" onClick={() => useUi.getState().setNoteOpen(false)} aria-label="기도노트 닫기">
+                ×
+              </button>
+            </span>
           </header>
           <textarea
             ref={textRef}

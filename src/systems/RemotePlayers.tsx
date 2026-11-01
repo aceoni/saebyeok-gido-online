@@ -3,6 +3,7 @@ import { Html } from '@react-three/drei'
 import { avatarById } from '../data/avatars'
 import { CHARACTER_TOP, Character, type CharacterState } from '../models/Character'
 import { useRemote } from '../store/remote'
+import { useUi } from '../store/ui'
 
 // 같은 기도실의 다른 사람들: 캐릭터 + 이름표 + '소리내어 기도하기' 말풍선.
 // 네트워크 값은 초당 몇 번만 오므로, 그 사이를 부드럽게 따라가며(보간) 그린다.
@@ -15,7 +16,8 @@ function lerpAngle(a: number, b: number, t: number) {
 
 /** 머리 위 이름표 (나 포함) */
 export function NameTag({ name }: { name: string }) {
-  if (!name) return null
+  const show = useUi((s) => s.showNames)
+  if (!name || !show) return null
   return (
     <Html position={[0, CHARACTER_TOP + 0.14, 0]} center distanceFactor={5} zIndexRange={[14, 0]} style={{ pointerEvents: 'none' }}>
       <div className="name-tag">{name}</div>
