@@ -130,6 +130,8 @@ export function Character({
   const legR = useRef<THREE.Group>(null)
   const armL = useRef<THREE.Group>(null)
   const armR = useRef<THREE.Group>(null)
+  const eyeL = useRef<THREE.Mesh>(null)
+  const eyeR = useRef<THREE.Mesh>(null)
   const phase = useRef(0)
   const amp = useRef(0)
 
@@ -167,6 +169,9 @@ export function Character({
     head.current!.position.y = HEAD_Y + breathe
     head.current!.rotation.z = Math.sin(phase.current) * amp.current * 0.06
     head.current!.rotation.x += ((praying ? 0.42 : 0) - head.current!.rotation.x) * Math.min(1, dt * 3)
+    // 눈: 기도할 때 감음 (세로로 납작한 선)
+    const eyeY = praying ? 0.16 : 1.15
+    for (const e of [eyeL.current, eyeR.current]) if (e) e.scale.y += (eyeY - e.scale.y) * Math.min(1, dt * 6)
   })
 
   const skirtH = avatar.skirt === 'long' ? 0.36 : 0.22
@@ -220,7 +225,7 @@ export function Character({
             {/* 눈 + 볼 */}
             {[-1, 1].map((s) => (
               <group key={s}>
-                <mesh position={[s * 0.085, -0.02, HEAD_R * 0.9]} scale={[0.8, 1.15, 0.5]}>
+                <mesh ref={s < 0 ? eyeL : eyeR} position={[s * 0.085, -0.02, HEAD_R * 0.9]} scale={[0.8, 1.15, 0.5]}>
                   <sphereGeometry args={[0.028, 8, 6]} />
                   <meshStandardMaterial color={C.eyes} roughness={0.4} />
                 </mesh>
@@ -230,13 +235,6 @@ export function Character({
                 </mesh>
               </group>
             ))}
-            {avatar.glasses &&
-              [-1, 1].map((s) => (
-                <mesh key={s} position={[s * 0.085, -0.02, HEAD_R * 0.97]}>
-                  <torusGeometry args={[0.04, 0.0045, 6, 16]} />
-                  <meshStandardMaterial color="#2a2422" roughness={0.5} />
-                </mesh>
-              ))}
           </group>
         </group>
       </group>

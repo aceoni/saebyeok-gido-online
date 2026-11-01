@@ -19,7 +19,7 @@
     { "m": 4, "rh": "Ab4+Eb4/1 G4+Eb4/2", "lh": "C4+Eb3/1 Bb3+Eb3/2", "end": true },
     { "m": 5, "rh": "C5+Eb4/1 D5+Eb4/1 C5+Eb4/1", "lh": "Ab3/1 Bb3+Ab3/1 Ab3/1" },
     { "m": 6, "rh": "Bb4+Eb4/1.5 Ab4+D4/.5 G4+Eb4/1", "lh": "Bb3+G3/1.5 Bb3+F3/.5 Bb3+Eb3/1" },
-    { "m": 7, "rh": "F4/1 G4+E4/1 Ab4+Eb4/1", "lh": "A3+C3/1 Bb3+C3/1 C4+F3/1" },
+    { "m": 7, "rh": "F4/1 G4+E4/1 A4+Eb4/1", "lh": "A3+C3/1 Bb3+C3/1 C4+F3/1" },
     { "m": 8, "rh": "Bb4+D4/3", "lh": "Bb3+Bb2/3", "end": true },
     { "m": 9, "rh": "Bb4+Ab4/1 C5+Ab4/1 D5+Ab4/1", "lh": "D4+Bb3/1 D4+Bb3/1 Bb3/1", "dyn": "p" },
     { "m": 10, "rh": "Eb5+G4/1.5 D5+Bb4/.5 C5+Ab4/1", "lh": "Bb3+Eb3/1.5 C4+Eb3/.5 D4+Eb3/1" },

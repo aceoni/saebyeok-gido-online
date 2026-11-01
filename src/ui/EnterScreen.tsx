@@ -36,7 +36,7 @@ export function EnterScreen() {
           <input
             value={name}
             maxLength={NAME_MAX}
-            placeholder={`비워 두면 '${DEFAULT_NAME_PREFIX} 1'처럼`}
+            placeholder={DEFAULT_NAME_PREFIX}
             onChange={(e) => setName(e.target.value)}
             autoComplete="nickname"
             enterKeyHint="go"

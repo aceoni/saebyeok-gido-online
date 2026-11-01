@@ -13,6 +13,16 @@ function lerpAngle(a: number, b: number, t: number) {
   return a + d * t
 }
 
+/** 머리 위 이름표 (나 포함) */
+export function NameTag({ name }: { name: string }) {
+  if (!name) return null
+  return (
+    <Html position={[0, CHARACTER_TOP + 0.14, 0]} center distanceFactor={5} zIndexRange={[14, 0]} style={{ pointerEvents: 'none' }}>
+      <div className="name-tag">{name}</div>
+    </Html>
+  )
+}
+
 /** 머리 위 말풍선 (나 포함). 정해진 시간이 지나면 사라짐 */
 export function PrayBubble({ id, lift = 0 }: { id: string; lift?: number }) {
   const bubble = useRemote((s) => s.bubbles[id])
@@ -65,9 +75,7 @@ function RemoteAvatar({ id }: { id: string }) {
   if (!hasState || !avatarId) return null
   return (
     <Character avatar={avatarById(avatarId)} read={read}>
-      <Html position={[0, CHARACTER_TOP + 0.14, 0]} center distanceFactor={5} zIndexRange={[14, 0]} style={{ pointerEvents: 'none' }}>
-        <div className="name-tag">{name}</div>
-      </Html>
+      <NameTag name={name} />
       <PrayBubble id={id} lift={0.12} />
     </Character>
   )

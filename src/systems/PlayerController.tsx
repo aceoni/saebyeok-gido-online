@@ -5,7 +5,7 @@ import { BALCONY, PLAYER } from '../config'
 import { Character } from '../models/Character'
 import { avatarById } from '../data/avatars'
 import { useSession } from '../store/session'
-import { PrayBubble } from './RemotePlayers'
+import { NameTag, PrayBubble } from './RemotePlayers'
 import { usePlayer } from '../store/player'
 import { cameraState } from './cameraState'
 import { NAV } from './navGrid'
@@ -50,6 +50,8 @@ const readMe = () => usePlayer.getState()
 export function PlayerController({ clickToMove = true }: { clickToMove?: boolean }) {
   const avatarId = useSession((s) => s.avatarId)
   const myId = useSession((s) => s.id)
+  const myName = useSession((s) => s.displayName)
+  const praying = usePlayer((s) => s.pose === 'praying')
   const keys = useRef({ f: false, b: false, l: false, r: false })
   const marker = useRef<THREE.Mesh>(null)
   const { camera, scene, gl } = useThree()
@@ -200,7 +202,8 @@ export function PlayerController({ clickToMove = true }: { clickToMove?: boolean
   return (
     <>
       <Character avatar={avatarById(avatarId)} read={readMe} hideWhenPraying>
-        <PrayBubble id={myId} />
+        {!praying && <NameTag name={myName} />}
+        <PrayBubble id={myId} lift={0.12} />
       </Character>
       <mesh ref={marker} rotation-x={-Math.PI / 2} visible={false} userData={{ noPick: true }}>
         <ringGeometry args={[0.18, 0.24, 24]} />

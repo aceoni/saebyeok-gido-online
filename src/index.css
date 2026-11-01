@@ -605,3 +605,65 @@ kbd {
     transform: translateY(30px);
   }
 }
+
+/* 찬양 플레이어 접기/펼치기 */
+.music-player {
+  transition: width 0.2s ease;
+}
+.mp-fold {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  display: flex;
+  padding: 4px;
+  border: none;
+  border-radius: 8px;
+  background: none;
+  color: rgba(240, 228, 208, 0.6);
+}
+.mp-fold:hover {
+  background: rgba(255, 236, 205, 0.12);
+  color: #f1e7d6;
+}
+.music-player .mp-title {
+  padding-right: 26px;
+}
+.music-player.folded {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  width: auto;
+  max-width: min(300px, calc(100vw - 32px));
+  padding: 4px 6px 4px 10px;
+  border-radius: 999px;
+}
+.music-player.folded button {
+  display: flex;
+  align-items: center;
+  flex: none;
+  padding: 6px;
+  border: none;
+  border-radius: 999px;
+  background: none;
+  color: #f1e7d6;
+}
+.music-player.folded button:disabled {
+  opacity: 0.4;
+}
+.music-player.folded .mp-unfold {
+  flex: 1 1 auto;
+  gap: 6px;
+  min-width: 0;
+}
+.music-player.folded .mp-unfold .mp-ko {
+  overflow: hidden;
+  font-size: 13px;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+@media (max-width: 640px) {
+  .music-player.folded {
+    width: auto;
+    max-width: calc(100vw - 110px);
+  }
+}
