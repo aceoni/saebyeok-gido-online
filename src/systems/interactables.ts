@@ -32,6 +32,8 @@ function pewSeat(level: Level, slot: PewSlot, px: number, py: number, pz: number
   const nav = NAV[level]
   const [fx, fz] = localToWorld(slot.x, slot.z, rot, sx, -SEAT.standOffset)
   const stand = nav.walkable(fx, fz) ? [fx, fz] : (nav.nearestWalkable(fx, fz, 1.5) ?? [px, pz])
+  // 앞 테이블: 앞줄 등받이 뒤 테이블 / 맨 앞줄 테이블 / 성가대 칸막이 위
+  const [tx, tz] = localToWorld(slot.x, slot.z, rot, sx, -slot.table.dist)
   return {
     dist,
     seat: {
@@ -39,6 +41,7 @@ function pewSeat(level: Level, slot: PewSlot, px: number, py: number, pz: number
       position: [x, floorY + SEAT.hipLift, z],
       rotY: rot + Math.PI, // 장의자는 로컬 -z 를 바라봄
       standAt: [stand[0], nav.height(stand[0], stand[1]), stand[1]],
+      table: { position: [tx, slot.table.y, tz], rotY: rot },
     },
   }
 }

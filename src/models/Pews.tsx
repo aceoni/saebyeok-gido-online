@@ -17,6 +17,26 @@ const parts: Part[] = [
   { size: [L, 0.05, 0.1], offsets: [[0, PEWS.backHeight + 0.02, D / 2 - 0.06]], color: COLORS.wood },
   // 좌판 아래 원목 앞판
   { size: [L, 0.3, 0.03], offsets: [[0, 0.24, -D / 2 + 0.06]], color: COLORS.wood },
+  // 등받이 뒤 작은 테이블(뒷줄 사람의 성경·찬송 받침): 판 + 앞 턱 + 받침대 3개
+  {
+    size: [L - 0.14, 0.025, PEWS.shelfDepth],
+    offsets: [[0, PEWS.shelfY - 0.0125, PEWS.shelfBack]],
+    color: COLORS.wood,
+  },
+  {
+    size: [L - 0.14, 0.035, 0.015],
+    offsets: [[0, PEWS.shelfY + 0.012, PEWS.shelfBack + PEWS.shelfDepth / 2]],
+    color: COLORS.wood,
+  },
+  {
+    size: [0.03, 0.12, PEWS.shelfDepth - 0.04],
+    offsets: [
+      [-L / 2 + 0.4, PEWS.shelfY - 0.085, PEWS.shelfBack - 0.02],
+      [0, PEWS.shelfY - 0.085, PEWS.shelfBack - 0.02],
+      [L / 2 - 0.4, PEWS.shelfY - 0.085, PEWS.shelfBack - 0.02],
+    ],
+    color: COLORS.woodDark,
+  },
   // 양쪽 원목 옆판
   {
     size: [0.07, PEWS.backHeight, D + 0.14],

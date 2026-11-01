@@ -21,6 +21,7 @@ import {
   balconySlots,
   choirSlots,
   pewSlots,
+  frontDesks,
   pillarX,
   pillarZs,
   type PewSlot,
@@ -81,11 +82,15 @@ function rectBuilder() {
   const addPews = (slots: PewSlot[]) => {
     for (const slot of slots) addLocal([slot.x, 0, slot.z], slot.rotY ?? 0, 0, 0.03, slot.length ?? PEWS.length, 0.6)
   }
-  return { R, add, addLocal, addPews }
+  // 맨 앞줄 앞 테이블 (앞판 + 테이블)
+  const addDesks = (level: 1 | 2) => {
+    for (const d of frontDesks) if ((d.y > 1) === (level === 2)) addLocal([d.x, 0, d.z], d.rotY, 0, 0.02, d.length + 0.07, 0.1)
+  }
+  return { R, add, addLocal, addPews, addDesks }
 }
 
 function level1Obstacles(): Rect[] {
-  const { R, add, addLocal, addPews } = rectBuilder()
+  const { R, add, addLocal, addPews, addDesks } = rectBuilder()
 
   // 측벽 기둥, 정면 좌/우 돌출 벽, 발코니 받침 기둥
   for (const z of pillarZs) for (const s of [-1, 1]) add(s * pillarX, z, 0.7, 0.7)
@@ -94,6 +99,7 @@ function level1Obstacles(): Rect[] {
   for (const s of [-1, 1]) add(s * 10.1, BALCONY.frontZ + 0.35, 0.45, 0.45)
 
   addPews([...pewSlots, ...choirSlots])
+  addDesks(1)
 
   // 성가대석과 단상 사이 칸막이 (출입구만 비워 둠)
   const px = CHOIR.frontX + 0.55
@@ -128,9 +134,10 @@ function level1Obstacles(): Rect[] {
 }
 
 function level2Obstacles(): Rect[] {
-  const { R, add, addPews } = rectBuilder()
+  const { R, add, addPews, addDesks } = rectBuilder()
   for (const z of pillarZs) if (z > BALCONY.frontZ) for (const s of [-1, 1]) add(s * pillarX, z, 0.7, 0.7)
   addPews(balconySlots)
+  addDesks(2)
   return R
 }
 

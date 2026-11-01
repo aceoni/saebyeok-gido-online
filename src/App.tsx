@@ -6,6 +6,7 @@ import { PlayerController } from './systems/PlayerController'
 import { CameraRig } from './systems/CameraRig'
 import { Hud } from './ui/Hud'
 import { InteractionSystem } from './systems/InteractionSystem'
+import { SeatBible } from './systems/SeatBible'
 import { SeatControls } from './ui/SeatControls'
 import { EnterScreen } from './ui/EnterScreen'
 import { MusicPlayer } from './ui/MusicPlayer'
@@ -27,6 +28,7 @@ export default function App() {
         <SanctuaryScene />
         <PlayerController clickToMove={!devCam} />
         <InteractionSystem />
+        <SeatBible />
         {devCam ? (
           <OrbitControls
             target={camParam!.slice(3, 6) as [number, number, number]}

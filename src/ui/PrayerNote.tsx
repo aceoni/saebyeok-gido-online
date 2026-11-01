@@ -48,7 +48,7 @@ export function PrayerNote() {
           <textarea
             ref={textRef}
             value={current.text}
-            placeholder="주님께 드리고 싶은 마음을 조용히 적어 보세요."
+            placeholder="오늘의 기도제목을 적어 보세요."
             onChange={(e) => update(current.id, e.target.value)}
           />
           <div className="note-actions">

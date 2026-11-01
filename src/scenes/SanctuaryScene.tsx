@@ -15,6 +15,8 @@ import { MonitorWedge, StageChair } from '../models/StageFurniture'
 import { DrumKit } from '../models/DrumKit'
 import { GuitarOnStand, MusicStand, OrchestraChair, Stool } from '../models/Instruments'
 import { WallLamp } from '../models/WallLamp'
+import { FrontDesk } from '../models/FrontDesk'
+import { frontDesks } from './sanctuaryLayout'
 import { CONDUCTOR_POS, CROSS_POS, GRAND_PIANO_POS, GRAND_PIANO_ROT_Y, GRAND_PIANO_SCALE, INSTRUMENT_SCALE, ORCHESTRA_CHAIRS, ORCHESTRA_STANDS, DRUM_POS, DRUM_SCALE, MUSIC_STANDS, FLOWERS, GUITARS, MONITORS, PIANO_POS, STAGE_CHAIRS, PULPIT_POS, SCREENS, SPEAKER_ARRAYS, STOOLS, WALL_LAMPS } from './sanctuaryLayout'
 
 function Lights() {
@@ -53,6 +55,9 @@ export function SanctuaryScene() {
       <Stage />
       <Pulpit position={PULPIT_POS} />
       <Pews />
+      {frontDesks.map((d, i) => (
+        <FrontDesk key={i} desk={d} />
+      ))}
       <ChoirLoft />
       <Balcony />
       <group position={PIANO_POS} scale={INSTRUMENT_SCALE}>

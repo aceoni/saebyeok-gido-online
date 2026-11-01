@@ -52,7 +52,12 @@ export const PEWS = {
   seatHeight: 0.45,
   seatDepth: 0.45,
   backHeight: 0.95, // 등받이 꼭대기 높이
-  frontSkipRows: 4, // 앞 몇 줄은 좌우 모두 비움 (왼쪽: 그랜드피아노·관현악, 오른쪽: 키보드·밴드)
+  frontSkipRows: 4, // 왼쪽: 앞 몇 줄을 비움 (그랜드피아노·관현악 자리)
+  frontSkipRowsRight: 2, // 오른쪽: 앞 몇 줄을 비움 (키보드·밴드 자리)
+  // 앞 의자 등받이 뒤에 달린 작은 테이블(성경·찬송 받침)
+  shelfY: 0.72, // 테이블 윗면 높이 (그 줄 바닥 기준)
+  shelfDepth: 0.2,
+  shelfBack: 0.315, // 장의자 중심에서 뒤쪽(뒷줄 쪽)으로 테이블 중심까지 거리
 }
 
 // 밝은 원목 + 크림색 벽 + 회색 쿠션의 현대적인 예배당 톤

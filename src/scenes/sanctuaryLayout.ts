@@ -11,27 +11,42 @@ export type PewSlot = {
   y?: number // 바닥 높이 (성가대 단)
   rotY?: number // 회전 (기본 0 = 단상(-z)을 바라봄)
   length?: number // 장의자 길이 (기본 PEWS.length)
+  // 앉았을 때 앞에 있는 테이블: 앞줄 장의자 등받이 뒤 테이블 / 맨 앞줄은 따로 둔 테이블(성가대는 칸막이 위)
+  table: { dist: number; y: number } // dist = 좌석 중심에서 앞쪽으로 테이블 중심까지, y = 테이블 윗면 높이
 }
 
+// 맨 앞줄 앞에 따로 두는 테이블(앞판 + 테이블). 장의자처럼 rotY 기본 0 = 앉는 사람이 -z 를 바라봄
+export type FrontDesk = { x: number; z: number; y: number; rotY: number; length: number }
+const DESK_SHELF = 0.11 // 앞판에서 테이블 중심까지
+const tableDist = (spacing: number) => spacing - PEWS.shelfBack
+
+const PEW_CX = PEWS.aisleHalf + PEWS.length / 2
+const T1 = tableDist(PEWS.spacing)
 export const pewSlots: PewSlot[] = Array.from({ length: PEWS.rows }, (_, row) => {
   const z = PEWS.firstZ + row * PEWS.spacing
-  const cx = PEWS.aisleHalf + PEWS.length / 2
-  // 앞 몇 줄은 좌우 모두 비움 (악기·연주자 자리)
-  if (row < PEWS.frontSkipRows) return []
-  return [
-    { id: `L${row}`, x: -cx, z, side: 'left' as const, row },
-    { id: `R${row}`, x: cx, z, side: 'right' as const, row },
-  ]
+  const table = { dist: T1, y: PEWS.shelfY }
+  // 앞 몇 줄은 비움 (왼쪽: 그랜드피아노·관현악, 오른쪽: 키보드·밴드)
+  const out: PewSlot[] = []
+  if (row >= PEWS.frontSkipRows) out.push({ id: `L${row}`, x: -PEW_CX, z, side: 'left', row, table })
+  if (row >= PEWS.frontSkipRowsRight) out.push({ id: `R${row}`, x: PEW_CX, z, side: 'right', row, table })
+  return out
 }).flat()
+
+// 2층 맨 앞줄 테이블은 난간과 겹치지 않게 조금 가깝게
+const BALCONY_FRONT_T = 0.85
 
 // 2층(발코니) 장의자: 1층과 같은 좌우 배치, 뒤로 갈수록 한 단씩 높아짐
 export const balconySlots: PewSlot[] = Array.from({ length: BALCONY.rows }, (_, row) => {
   const z = BALCONY.firstRowZ + row * BALCONY.rowSpacing
   const y = BALCONY.floorY + row * BALCONY.tierHeight
-  const cx = PEWS.aisleHalf + PEWS.length / 2
+  // 앞줄은 한 단 낮으므로 그 줄 등받이 테이블도 그만큼 낮음
+  const table =
+    row === 0
+      ? { dist: BALCONY_FRONT_T, y: y + PEWS.shelfY }
+      : { dist: tableDist(BALCONY.rowSpacing), y: y - BALCONY.tierHeight + PEWS.shelfY }
   return [
-    { id: `BL${row}`, x: -cx, z, y, side: 'left' as const, row },
-    { id: `BR${row}`, x: cx, z, y, side: 'right' as const, row },
+    { id: `BL${row}`, x: -PEW_CX, z, y, side: 'left' as const, row, table },
+    { id: `BR${row}`, x: PEW_CX, z, y, side: 'right' as const, row, table },
   ]
 }).flat()
 
@@ -65,6 +80,8 @@ export const DOOR_LINKS = {
 // 장의자는 정면 벽 쪽 통로만큼 짧게
 const CHOIR_PEW_Z0 = CHOIR.zFrom + CHOIR.frontAisle
 export const CHOIR_LENGTH = CHOIR.zTo - CHOIR_PEW_Z0
+export const CHOIR_PARTITION_GAP = 0.55 // 맨 앞줄 중심 → 칸막이
+export const CHOIR_PARTITION_TOP = 0.76 // 칸막이 윗면 (단상 기준)
 export const choirSlots: PewSlot[] = Array.from({ length: CHOIR.rows }, (_, row) => ({
   id: `C${row}`,
   x: CHOIR.frontX - row * CHOIR.rowSpacing,
@@ -74,7 +91,20 @@ export const choirSlots: PewSlot[] = Array.from({ length: CHOIR.rows }, (_, row)
   y: STAGE.height + row * CHOIR.tierHeight,
   rotY: -Math.PI / 2,
   length: CHOIR_LENGTH,
+  // 맨 앞줄은 단상 쪽 낮은 칸막이 윗면을 테이블로
+  table:
+    row === 0
+      ? { dist: CHOIR_PARTITION_GAP, y: STAGE.height + CHOIR_PARTITION_TOP }
+      : { dist: tableDist(CHOIR.rowSpacing), y: STAGE.height + (row - 1) * CHOIR.tierHeight + PEWS.shelfY },
 }))
+
+// 맨 앞줄 앞 테이블: 1층 좌/우 맨 앞줄, 2층 좌/우 맨 앞줄
+const firstRow = (slots: PewSlot[]) => slots.filter((s) => s.row === Math.min(...slots.map((t) => t.row)))
+export const frontDesks: FrontDesk[] = [
+  ...firstRow(pewSlots.filter((s) => s.side === 'left')),
+  ...firstRow(pewSlots.filter((s) => s.side === 'right')),
+  ...balconySlots.filter((s) => s.row === 0),
+].map((s) => ({ x: s.x, z: s.z - s.table.dist - DESK_SHELF, y: s.y ?? 0, rotY: 0, length: PEWS.length }))
 
 // 지휘자 자리: 성가대 앞, 단상 왼쪽 끝. 성가대와 그랜드피아노 연주자가 모두 이곳을 바라본다.
 export const CONDUCTOR_POS: [number, number, number] = [-6.2, STAGE.height, (CHOIR_PEW_Z0 + CHOIR.zTo) / 2]

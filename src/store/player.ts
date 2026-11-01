@@ -10,6 +10,7 @@ export type Seat = {
   position: [number, number, number]
   rotY: number
   standAt: [number, number, number]
+  table?: { position: [number, number, number]; rotY: number } // 앞 테이블(성경이 놓이는 곳). 일반 의자는 없음
 }
 
 // 플레이어 상태: 렌더링과 분리. 추후 멀티플레이어에서는 이 값(층·위치·방향·자세)만 서버로 동기화한다.

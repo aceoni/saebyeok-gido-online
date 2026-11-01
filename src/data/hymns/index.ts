@@ -4,4 +4,4 @@ import nearer from './nearer-my-god.json'
 import faithfulness from './great-is-thy-faithfulness.json'
 
 /** 배경 찬양 재생 순서 */
-export const HYMNS = [goCarry, nearer, faithfulness] as Hymn[]
+export const HYMNS = [goCarry, faithfulness, nearer] as Hymn[]
