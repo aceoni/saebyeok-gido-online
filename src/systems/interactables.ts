@@ -90,7 +90,7 @@ function chairSeat(chair: ChairSeat, px: number, py: number, pz: number, taken: 
 }
 
 /** 기도 골방: 앉은뱅이 책상 앞 방석에서 무릎 꿇기, 문으로 나가기 (시작 화면) */
-const KNEEL_DROP = 0.3 // 무릎 꿇으면 엉덩이(캐릭터 기준점)가 이만큼 내려감 (다리는 뒤로 접힘)
+const KNEEL_DROP = 0.22 // 정좌: 엉덩이가 발뒤꿈치 위(바닥에서 약 0.2m)에 오도록 캐릭터 기준점을 내림
 function closetInteractable(px: number, pz: number): Interactable | null {
   const [cx, , cz] = CLOSET_KNEEL.pos
   const dSpot = Math.hypot(px - cx, pz - cz)

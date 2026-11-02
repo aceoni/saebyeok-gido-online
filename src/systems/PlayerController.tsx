@@ -35,8 +35,10 @@ function lerpAngle(a: number, b: number, t: number) {
   return a + d * t
 }
 
+// 클릭 대상에서 뺄 것: 캐릭터·표시물(noPick), 그리고 숨겨진 것(골방 줌아웃 때 투명해진 벽 등).
+// three.js 의 Raycaster 는 visible=false 인 물체도 맞히므로 직접 걸러야 한다
 function hasNoPickAncestor(o: THREE.Object3D | null) {
-  for (; o; o = o.parent) if (o.userData.noPick) return true
+  for (; o; o = o.parent) if (o.userData.noPick || !o.visible) return true
   return false
 }
 

@@ -4,6 +4,7 @@
 import { usePlayer } from '../../store/player'
 import { useRemote, type NetState } from '../../store/remote'
 import { DEFAULT_NAME_PREFIX, useSession } from '../../store/session'
+import { useUi } from '../../store/ui'
 import { LocalTransport } from './localTransport'
 import { SupabaseTransport } from './supabaseTransport'
 import type { Member, Transport } from './transport'
@@ -11,6 +12,8 @@ import type { Member, Transport } from './transport'
 const SEND_INTERVAL = 100 // ms: 움직일 때 최대 초당 10번
 const HEARTBEAT = 2500 // ms: 가만히 있어도 이따금 보냄 (늦게 들어온 사람도 볼 수 있게)
 const BUBBLE_MS = 15000 // 소리내어 기도한 문장이 머리 위에 떠 있는 시간
+const AMEN = '아멘'
+const AMEN_MS = 4000 // 기도를 마칠 때 '아멘'은 잠깐만
 export const PRAY_MAX = 80
 
 let transport: Transport | null = null
@@ -136,7 +139,14 @@ export async function startNetwork() {
 function showBubble(id: string, text: string) {
   const t = text.trim().slice(0, PRAY_MAX)
   if (!t) return
-  useRemote.setState({ bubbles: { ...useRemote.getState().bubbles, [id]: { text: t, until: Date.now() + BUBBLE_MS } } })
+  const ms = t === AMEN ? AMEN_MS : BUBBLE_MS
+  useRemote.setState({ bubbles: { ...useRemote.getState().bubbles, [id]: { text: t, until: Date.now() + ms } } })
+}
+
+/** 기도를 마칠 때: 내 머리 위에 '아멘'. 예배당에 들어와 있으면 함께 있는 사람들에게도 */
+export function sayAmen() {
+  showBubble(useSession.getState().id, AMEN)
+  if (joined && useUi.getState().place === 'sanctuary') transport?.sendPray(AMEN)
 }
 
 /** '소리내어 기도하기': 이 문장만 함께 있는 사람들에게 보낸다 (기도 메모 전체는 보내지 않음) */

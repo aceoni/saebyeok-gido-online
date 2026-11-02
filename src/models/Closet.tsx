@@ -15,6 +15,7 @@ import {
   CLOSET_WINDOW,
 } from '../scenes/closetLayout'
 import { Bible } from './Bible'
+import { useUi, type Weather } from '../store/ui'
 
 RectAreaLightUniformsLib.init()
 
@@ -80,6 +81,7 @@ function Cutaway({ outside, children }: { outside: (cam: THREE.Vector3) => boole
     const g = ref.current
     if (!g) return
     const target = outside(camera.position) ? 0 : 1
+    g.userData.noPick = target === 0 // 투명해지는 중에도 바닥 클릭을 가리지 않게
     if (Math.abs(op.current - target) < 0.001) return
     op.current += (target - op.current) * Math.min(1, dt * 6)
     if (Math.abs(op.current - target) < 0.01) op.current = target
@@ -97,6 +99,8 @@ function Cutaway({ outside, children }: { outside: (cam: THREE.Vector3) => boole
 }
 
 const M = 0.05 // 벽 바깥으로 이만큼 나가면 투명해짐
+// 카메라가 방 안에 있는지 (밖에서 내려다볼 때는 창밖 하늘·눈비를 숨김 — 방 위에 떠 보이지 않게)
+const camInside = (c: THREE.Vector3) => Math.abs(c.x) < W + M && Math.abs(c.z) < D + M && c.y < H + M
 
 /** 벽·바닥·천장. 앞벽에는 창문 구멍, 뒷벽에는 문 */
 function Shell() {
@@ -187,11 +191,15 @@ function Window({ weather }: { weather: Weather }) {
     lightRef.current?.lookAt(x, 0.6, 0.5)
   }, [x])
   const frame = wood(C.trim, 0.7)
+  const skyRef = useRef<THREE.Mesh>(null)
+  useFrame(({ camera }) => {
+    if (skyRef.current) skyRef.current.visible = camInside(camera.position)
+  })
   return (
     <group position={[x, y, -D]}>
       {/* 바깥 새벽빛 */}
       {/* 눈·비가 내리는 공간(창 바깥 1.4m)보다 뒤에 하늘 */}
-      <mesh position={[0, 0, -1.7]}>
+      <mesh ref={skyRef} position={[0, 0, -1.7]}>
         <planeGeometry args={[w * 5, h * 5]} />
         <meshBasicMaterial color={weather === 'rain' ? C.dawnRain : weather === 'snow' ? C.dawnSnow : C.dawn} toneMapped={false} />
       </mesh>
@@ -470,8 +478,6 @@ function Door() {
   )
 }
 
-export type Weather = 'clear' | 'snow' | 'rain'
-
 /** 창밖 날씨: 눈송이(천천히 흔들리며) 또는 빗줄기(빠르게 비스듬히). 창 바로 바깥 상자 안에서만 */
 function WeatherOutside({ kind }: { kind: 'snow' | 'rain' }) {
   const ref = useRef<THREE.InstancedMesh>(null)
@@ -494,9 +500,11 @@ function WeatherOutside({ kind }: { kind: 'snow' | 'rain' }) {
   const q = useMemo(() => new THREE.Quaternion().setFromEuler(new THREE.Euler(0, 0, kind === 'rain' ? 0.18 : 0)), [kind])
   const one = useMemo(() => new THREE.Vector3(1, 1, 1), [])
   const v = useMemo(() => new THREE.Vector3(), [])
-  useFrame(({ clock }, dt) => {
+  useFrame(({ clock, camera }, dt) => {
     const mesh = ref.current
     if (!mesh) return
+    mesh.visible = camInside(camera.position)
+    if (!mesh.visible) return
     const t = clock.elapsedTime
     for (let i = 0; i < parts.length; i++) {
       const p = parts[i]
@@ -521,12 +529,7 @@ function WeatherOutside({ kind }: { kind: 'snow' | 'rain' }) {
 }
 
 export function ClosetRoom() {
-  // 들어올 때마다 창밖 날씨를 1/3씩: 맑음 / 눈 / 비 (개발용 ?weather=snow|rain|clear 로 고정)
-  const weather = useMemo<Weather>(() => {
-    const forced = new URLSearchParams(location.search).get('weather')
-    if (forced === 'snow' || forced === 'rain' || forced === 'clear') return forced
-    return (['clear', 'snow', 'rain'] as const)[Math.floor(Math.random() * 3)]
-  }, [])
+  const weather = useUi((s) => s.weather) // 들어올 때 places.enterPlace 가 정함
   return (
     <group>
       <Shell />

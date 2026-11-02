@@ -21,6 +21,7 @@ type Voice = { play: (ev: NoteEvent, time: number) => void; silence: () => void 
 
 let Tone: ToneLib | null = null
 let bgmGain: ToneNS.Gain | null = null
+let master: ToneNS.Gain | null = null
 const voices: Partial<Record<Instrument, Voice>> = {}
 let current: Voice | null = null
 const ducks = new Map<string, number>() // 이유별 볼륨 배율 (기도 중, 연주 중 …)
@@ -89,7 +90,7 @@ export async function enter(withSound: boolean) {
   try {
     Tone = await import('tone')
     await Tone.start() // 사용자 클릭 안에서 호출되어야 함
-    const master = new Tone.Gain(1.8).toDestination()
+    master = new Tone.Gain(1.8).toDestination()
     bgmGain = new Tone.Gain(0).connect(master)
     current = await getVoice(useAudio.getState().instrument)
     useAudio.setState({ phase: 'ready' })
@@ -97,6 +98,7 @@ export async function enter(withSound: boolean) {
     watchState()
     applyVolume(0.1)
     playTrack(useAudio.getState().track)
+    applyRain()
   } catch (e) {
     console.error('오디오를 시작하지 못했습니다', e)
     useAudio.setState({ phase: 'error' })
@@ -184,7 +186,57 @@ export function setDuck(reason: string, amount: number | null) {
   applyVolume(AUDIO.fadeSeconds)
 }
 
+// ── 빗소리 (골방에 비 오는 날) ─────────────────────────
+// 음원 없이 노이즈를 걸러 만든다: 낮게 깔리는 분홍 노이즈(빗줄기) + 아주 약한 높은 쉬익 소리(창에 부딪는 비), 천천히 일렁임
+const RAIN_LEVEL = 0.5
+let rainWanted = false
+let rain: { gain: ToneNS.Gain; nodes: ToneNS.ToneAudioNode[]; sources: (ToneNS.Noise | ToneNS.LFO)[] } | null = null
+
+if (import.meta.env.DEV) Object.assign(window, { __rainOn: () => !!rain })
+
+export function setRain(on: boolean) {
+  rainWanted = on
+  applyRain()
+}
+
+const rainVolume = () => {
+  const { volume, muted } = useAudio.getState()
+  return muted ? 0 : RAIN_LEVEL * volume * volume
+}
+
+function applyRain() {
+  if (!Tone || !master) return
+  if (rainWanted && !rain) {
+    const T = Tone
+    const gain = new T.Gain(0).connect(master)
+    const sway = new T.Gain(1).connect(gain)
+    const lfo = new T.LFO({ frequency: 0.13, min: 0.7, max: 1 }).connect(sway.gain).start()
+    const body = new T.Noise('pink')
+    const hp = new T.Filter(280, 'highpass')
+    const lp = new T.Filter(2400, 'lowpass')
+    body.chain(hp, lp, sway)
+    const hiss = new T.Noise('white')
+    const bp = new T.Filter({ frequency: 5200, type: 'bandpass', Q: 0.8 })
+    const hissGain = new T.Gain(0.12)
+    hiss.chain(bp, hissGain, sway)
+    body.start()
+    hiss.start()
+    gain.gain.rampTo(rainVolume(), 2.5)
+    rain = { gain, nodes: [sway, hp, lp, bp, hissGain], sources: [body, hiss, lfo] }
+  } else if (!rainWanted && rain) {
+    const r = rain
+    rain = null
+    r.gain.gain.rampTo(0, 1.5)
+    setTimeout(() => {
+      for (const s of r.sources) s.stop().dispose()
+      for (const n of r.nodes) n.dispose()
+      r.gain.dispose()
+    }, 1700)
+  }
+}
+
 function applyVolume(fade: number) {
+  rain?.gain.gain.rampTo(rainVolume(), fade)
   if (!bgmGain) return
   const { volume, muted } = useAudio.getState()
   let g = muted ? 0 : volume * volume // 귀에 자연스러운 곡선

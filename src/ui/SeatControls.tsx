@@ -1,4 +1,5 @@
-import { useEffect } from 'react'
+import { useEffect, useRef } from 'react'
+import { sayAmen } from '../systems/network/NetworkManager'
 import { usePlayer } from '../store/player'
 import { useUi } from '../store/ui'
 import { PrayerNote } from './PrayerNote'
@@ -12,8 +13,11 @@ export function SeatControls() {
   const firstPerson = useUi((s) => s.firstPerson)
   const setFirstPerson = useUi((s) => s.setFirstPerson)
 
-  // 기도를 마치면 노트도 닫히고 시점은 다시 3인칭
+  // 기도를 마치면 '아멘' 말풍선, 노트도 닫히고 시점은 다시 3인칭
+  const prevPose = useRef(pose)
   useEffect(() => {
+    if (prevPose.current === 'praying' && pose !== 'praying') sayAmen()
+    prevPose.current = pose
     if (pose !== 'praying') {
       setNoteOpen(false)
       setFirstPerson(false)

@@ -3,8 +3,8 @@ import { CAMERA, PLAYER } from '../config'
 import { CLOSET_SPAWN, CLOSET_SPAWN_ROT } from '../scenes/closetLayout'
 import { useAudio, type Place } from '../store/audio'
 import { usePlayer } from '../store/player'
-import { useUi } from '../store/ui'
-import { enter, setAudioPlace } from './AudioManager'
+import { useUi, type Weather } from '../store/ui'
+import { enter, setAudioPlace, setRain } from './AudioManager'
 import { cameraState } from './cameraState'
 import { startNetwork } from './network/NetworkManager'
 
@@ -18,8 +18,18 @@ function resetCamera(place: Place) {
   cameraState.distance = place === 'closet' ? CLOSET_CAMERA.distance : CAMERA.distance
 }
 
+/** 골방에 들어올 때마다 창밖 날씨를 1/3씩: 맑음 / 눈 / 비 (개발용 ?weather=snow|rain|clear 로 고정) */
+function pickWeather(): Weather {
+  const forced = new URLSearchParams(location.search).get('weather')
+  if (forced === 'snow' || forced === 'rain' || forced === 'clear') return forced
+  return (['clear', 'snow', 'rain'] as const)[Math.floor(Math.random() * 3)]
+}
+
 /** 시작 화면에서 장소 고르기. withSound = false 면 소리 없이 */
 export function enterPlace(place: Place, withSound: boolean) {
+  const weather = place === 'closet' ? pickWeather() : 'clear'
+  useUi.getState().setWeather(weather)
+  setRain(weather === 'rain') // 비 오는 날 골방엔 빗소리 (소리가 아직 준비 중이면 준비되는 대로)
   if (place === 'closet') usePlayer.getState().moveToLevel(3, CLOSET_SPAWN, CLOSET_SPAWN_ROT)
   else usePlayer.getState().moveToLevel(1, PLAYER.spawn, PLAYER.spawnRotY)
   resetCamera(place)
@@ -40,5 +50,6 @@ export function enterPlace(place: Place, withSound: boolean) {
 export function exitToStart() {
   usePlayer.getState().moveToLevel(1, PLAYER.spawn, PLAYER.spawnRotY)
   resetCamera('sanctuary')
+  setRain(false)
   useUi.getState().setPlace(null)
 }

@@ -1,6 +1,8 @@
 import { create } from 'zustand'
 import type { Place } from './audio'
 
+export type Weather = 'clear' | 'snow' | 'rain' // 골방 창밖 날씨
+
 // 화면(UI) 상태. 이름표 표시 여부는 이 브라우저에 기억한다.
 const NAMES_KEY = 'saebyeok-gido.show-names.v1'
 
@@ -14,6 +16,8 @@ function loadShowNames() {
 
 type UiState = {
   place: Place | null // 지금 있는 곳 (null = 시작 화면)
+  weather: Weather
+  setWeather: (w: Weather) => void
   setPlace: (p: Place | null) => void
   noteOpen: boolean // 기도 중 기도노트가 열려 있는지
   firstPerson: boolean // 기도 중 1인칭 시점 (기본은 3인칭)
@@ -25,6 +29,8 @@ type UiState = {
 
 export const useUi = create<UiState>((set) => ({
   place: null,
+  weather: (['snow', 'rain'].includes(new URLSearchParams(location.search).get('weather') ?? '') ? new URLSearchParams(location.search).get('weather') : 'clear') as Weather,
+  setWeather: (weather) => set({ weather }),
   setPlace: (place) => set({ place }),
   noteOpen: false,
   firstPerson: false,
