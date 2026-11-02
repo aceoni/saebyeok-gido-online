@@ -4,7 +4,7 @@
 import type * as ToneNS from 'tone'
 import { AUDIO } from '../config'
 import { HYMNS } from '../data/hymns'
-import { useAudio, type Instrument } from '../store/audio'
+import { useAudio, type Instrument, type Place } from '../store/audio'
 import { usePlayer, type Pose } from '../store/player'
 import { buildTimeline, noteToMidi, type NoteEvent } from './hymn'
 
@@ -148,10 +148,21 @@ export const prevTrack = () => playTrack(useAudio.getState().track - 1)
 
 /** 악기 바꾸기: 지금 곡을 새 악기로 처음부터 */
 export async function setInstrument(kind: Instrument) {
+  useAudio.getState().setInstrument(kind)
+  await applyInstrument()
+}
+
+/** 장소 바꾸기(예배당 ↔ 골방): 그 장소의 악기로 */
+export async function setAudioPlace(place: Place) {
+  useAudio.getState().setPlace(place)
+  await applyInstrument()
+}
+
+/** 지금 설정된 악기와 연주 중인 악기가 다르면 바꿔서 지금 곡을 처음부터 */
+async function applyInstrument() {
   const s = useAudio.getState()
-  if (s.instrument === kind && current) return
-  s.setInstrument(kind)
-  if (!Tone || s.phase !== 'ready') return
+  const kind = s.instrument
+  if (!Tone || s.phase !== 'ready' || current === voices[kind]) return
   transport().stop()
   current?.silence()
   const needsLoad = !voices[kind]

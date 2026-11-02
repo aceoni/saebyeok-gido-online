@@ -2,7 +2,7 @@ import { create } from 'zustand'
 import { PLAYER } from '../config'
 
 export type Pose = 'idle' | 'walking' | 'sitting' | 'praying' | 'playing'
-export type Level = 1 | 2
+export type Level = 1 | 2 | 3 // 1층, 2층 발코니, 3 = 기도 골방
 
 /** 앉은 자리: 앉았을 때 기준점과 바라보는 방향, 일어날 때 설 자리 */
 export type Seat = {

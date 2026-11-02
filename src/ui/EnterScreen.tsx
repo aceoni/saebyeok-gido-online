@@ -1,20 +1,23 @@
 import { useEffect, useState } from 'react'
 import { AVATARS } from '../data/avatars'
-import { enter } from '../systems/AudioManager'
-import { startNetwork, watchRoom } from '../systems/network/NetworkManager'
-import { useAudio } from '../store/audio'
+import { enterPlace } from '../systems/places'
+import { watchRoom } from '../systems/network/NetworkManager'
+import type { Place } from '../store/audio'
 import { useRemote } from '../store/remote'
+import { useUi } from '../store/ui'
 import { DEFAULT_NAME_PREFIX, NAME_MAX, useSession } from '../store/session'
 import { AvatarPreview } from './AvatarPreview'
 
-/** 첫 화면: 지금 기도 중인 사람 수, 오늘의 내 모습, 이름, "입장하기". 이 클릭으로 오디오와 기도실 입장을 시작한다 */
+/** 첫 화면: 지금 기도 중인 사람 수, 오늘의 내 모습, 이름, 예배당(함께) / 골방(혼자) 입장.
+ *  이 클릭으로 오디오를 시작한다 (브라우저 정책). 골방 문으로 나오면 다시 이 화면 */
 export function EnterScreen() {
-  const entered = useAudio((s) => s.entered)
+  const place = useUi((s) => s.place)
   const savedName = useSession((s) => s.nickname)
   const avatarId = useSession((s) => s.avatarId)
   const status = useRemote((s) => s.status)
   const others = useRemote((s) => Object.keys(s.players).length)
   const [name, setName] = useState(savedName)
+  const [quiet, setQuiet] = useState(false)
   const [leaving, setLeaving] = useState(false)
 
   // 첫 화면부터 기도실에 연결해 인원만 확인 (입장 전에는 다른 사람에게 보이지 않음)
@@ -22,13 +25,12 @@ export function EnterScreen() {
     void watchRoom()
   }, [])
 
-  if (entered && !leaving) return null
+  if (place && !leaving) return null
 
-  const go = (withSound: boolean) => {
+  const go = (p: Place) => {
     useSession.getState().setNickname(name)
     setLeaving(true)
-    void startNetwork()
-    void enter(withSound)
+    enterPlace(p, !quiet)
     setTimeout(() => setLeaving(false), 1600) // 페이드아웃이 끝나면 화면에서 제거
   }
   const nextAvatar = () => {
@@ -42,7 +44,7 @@ export function EnterScreen() {
         className="enter-card"
         onSubmit={(e) => {
           e.preventDefault()
-          go(true)
+          go('sanctuary')
         }}
       >
         <h1>새벽기도 온라인</h1>
@@ -69,15 +71,23 @@ export function EnterScreen() {
           autoComplete="nickname"
           enterKeyHint="go"
         />
-        <button className="enter-btn" type="submit" disabled={leaving}>
-          입장하기
-        </button>
-        <button className="enter-quiet" type="button" onClick={() => go(false)} disabled={leaving}>
-          소리 없이 입장
-        </button>
+        <div className="enter-places">
+          <button className="enter-btn" type="submit" disabled={leaving}>
+            예배당 입장
+            <small>함께 기도해요</small>
+          </button>
+          <button className="enter-btn closet" type="button" onClick={() => go('closet')} disabled={leaving}>
+            골방 입장
+            <small>혼자 조용히</small>
+          </button>
+        </div>
+        <label className="enter-quiet-toggle">
+          <input type="checkbox" checked={quiet} onChange={(e) => setQuiet(e.target.checked)} />
+          소리 없이 들어가기
+        </label>
         <p className="enter-note">잔잔한 찬양 반주가 흘러나옵니다.</p>
+        <p className="enter-copyright">© 2026 Sieon Lee</p>
       </form>
-      <p className="enter-copyright">© 2026 Sieon Lee</p>
     </div>
   )
 }

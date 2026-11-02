@@ -12,14 +12,17 @@ import { SeatControls } from './ui/SeatControls'
 import { EnterScreen } from './ui/EnterScreen'
 import { MusicPlayer } from './ui/MusicPlayer'
 import { Presence } from './ui/Presence'
-import { useAudio } from './store/audio'
+import { useUi } from './store/ui'
+import { ClosetScene } from './scenes/ClosetScene'
 
 // 개발용: ?cam=x,y,z,tx,ty,tz 로 자유 시점 (OrbitControls: 좌클릭 이동, 우클릭 회전)
 const camParam = new URLSearchParams(location.search).get('cam')?.split(',').map(Number)
 const devCam = !!camParam
+const devPlace = new URLSearchParams(location.search).get('place')
 
 export default function App() {
-  const entered = useAudio((s) => s.entered)
+  const place = useUi((s) => s.place) // null = 시작 화면 (뒤에는 예배당이 비침)
+  // 개발용 ?place=closet: 시작 화면 없이 골방 보기
   return (
     <>
       <Canvas
@@ -27,11 +30,11 @@ export default function App() {
         camera={{ position: (camParam?.slice(0, 3) as [number, number, number]) ?? [0, 3, 16], fov: 55, near: 0.1, far: 100 }}
         gl={{ antialias: true, toneMapping: THREE.ACESFilmicToneMapping, toneMappingExposure: 1.2 }}
       >
-        <SanctuaryScene />
+        {place === 'closet' || devPlace === 'closet' ? <ClosetScene /> : <SanctuaryScene />}
         <PlayerController clickToMove={!devCam} />
         <InteractionSystem />
         <SeatBible />
-        <RemotePlayers />
+        {place === 'sanctuary' && <RemotePlayers />}
         {devCam ? (
           <OrbitControls
             target={camParam!.slice(3, 6) as [number, number, number]}
@@ -45,10 +48,10 @@ export default function App() {
           <CameraRig />
         )}
       </Canvas>
-      {!devCam && entered && <Hud />}
+      {!devCam && place && <Hud key={place} />}
       <SeatControls />
-      <MusicPlayer />
-      <Presence />
+      {place && <MusicPlayer />}
+      {place === 'sanctuary' && <Presence />}
       {!devCam && <EnterScreen />}
     </>
   )

@@ -2,6 +2,8 @@ import { PEWS, SEAT } from '../config'
 import { DOOR_LINKS, SEATABLE_CHAIRS, balconySlots, choirSlots, pewSlots, type ChairSeat, type PewSlot } from '../scenes/sanctuaryLayout'
 import { usePlayer, type Level, type Seat } from '../store/player'
 import { occupiedSeats } from '../store/remote'
+import { CLOSET, CLOSET_CHAIR, CLOSET_DOOR } from '../scenes/closetLayout'
+import { exitToStart } from './places'
 import { NAV, localToWorld, worldToLocal } from './navGrid'
 
 /** 상호작용 공통 인터페이스: 위치(말풍선 기준점), 반경, 라벨, 실행 */
@@ -13,7 +15,7 @@ export type Interactable = {
   onInteract: () => void
 }
 
-const SLOTS: Record<Level, PewSlot[]> = { 1: [...pewSlots, ...choirSlots], 2: balconySlots }
+const SLOTS: Record<Level, PewSlot[]> = { 1: [...pewSlots, ...choirSlots], 2: balconySlots, 3: [] }
 
 /** 장의자 한 개의 자리들 (로컬 x 좌표). 좌판 길이를 SEAT.seatWidth 간격의 칸으로 나눔 */
 export function pewSeatXs(length: number): number[] {
@@ -87,12 +89,43 @@ function chairSeat(chair: ChairSeat, px: number, py: number, pz: number, taken: 
   }
 }
 
+/** 기도 골방: 책상 앞 의자에 앉기, 문으로 나가기 (시작 화면) */
+function closetInteractable(px: number, pz: number): Interactable | null {
+  const [cx, , cz] = CLOSET_CHAIR.pos
+  const dChair = Math.hypot(px - cx, pz - cz)
+  const dDoor = Math.hypot(px - CLOSET_DOOR.x, pz - CLOSET.halfD)
+  if (dChair < SEAT.reach + 0.1 && dChair < dDoor) {
+    const fx = Math.sin(CLOSET_CHAIR.rotY)
+    const fz = Math.cos(CLOSET_CHAIR.rotY)
+    const nav = NAV[3]
+    // 일어설 자리: 의자 뒤(문 쪽) → 옆
+    const tries: [number, number][] = [
+      [cx - fx * 0.6, cz - fz * 0.6],
+      [cx + 0.6, cz],
+      [cx - 0.6, cz],
+    ]
+    const stand = tries.find(([x, z]) => nav.walkable(x, z)) ?? [px, pz]
+    const seat: Seat = {
+      id: 'closet-chair',
+      position: [cx - fx * 0.04, CLOSET_CHAIR.seatTop - 0.45 + SEAT.hipLift, cz - fz * 0.04],
+      rotY: CLOSET_CHAIR.rotY,
+      standAt: [stand[0], 0, stand[1]],
+    }
+    return { id: seat.id, label: '앉기', anchor: [cx, 1.5, cz], radius: SEAT.reach, onInteract: () => usePlayer.getState().sit(seat) }
+  }
+  if (dDoor < 1.1) {
+    return { id: 'closet-door', label: '골방에서 나가기', anchor: [CLOSET_DOOR.x, 2.0, CLOSET.halfD - 0.2], radius: 1.1, onInteract: exitToStart }
+  }
+  return null
+}
+
 /** 지금 플레이어 근처에서 실행할 수 있는 가장 가까운 상호작용 */
 export function findInteractable(): Interactable | null {
   const { level, position } = usePlayer.getState()
   const [px, py, pz] = position
   let best: Interactable | null = null
   let bestD = Infinity
+  if (level === 3) return closetInteractable(px, pz)
   const taken = occupiedSeats() // 다른 사람이 앉은 자리
 
   for (const slot of SLOTS[level]) {

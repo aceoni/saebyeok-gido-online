@@ -103,6 +103,32 @@ export const COLORS = {
     shoes: '#5a4636',
   },
   door: '#dcb684', // 정문 밝은 원목
+  // 기도 골방 (어두운 나무 오두막)
+  closet: {
+    wall: '#4a3322',
+    seam: '#2b1d13',
+    floor: '#3f2c1e',
+    floorDark: '#35251a',
+    floorLight: '#4a3424',
+    ceiling: '#33241a',
+    beam: '#2a1c12',
+    trim: '#5a3e28',
+    shutter: '#6b4a2e',
+    oak: '#8a6440',
+    oakDark: '#6e4e32',
+    cross: '#8a603a',
+    door: '#5c4029',
+    rug: '#4d2420',
+    cushion: '#4a4a3a',
+    glass: '#b9c8e6',
+    dawn: '#5d6f9a', // 창 밖 새벽 하늘
+    dawnLight: '#a9bde6',
+    dawnIntensity: 3.2,
+    candle: '#ffae5c',
+    candleIntensity: 2.4,
+    ambient: '#3a3550',
+    ambientIntensity: 0.32,
+  },
 }
 
 export const LIGHTS = {

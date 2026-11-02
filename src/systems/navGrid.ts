@@ -1,4 +1,5 @@
 import { BALCONY, CHOIR, HALL, PEWS, PLAYER, STAGE } from '../config'
+import { CLOSET, CLOSET_CABINET, CLOSET_CHAIR, CLOSET_DESK } from '../scenes/closetLayout'
 import {
   CONDUCTOR_POS,
   DRUM_POS,
@@ -31,7 +32,7 @@ import {
 // 각 칸의 "막힘 여부"와 "바닥 높이"를 미리 계산해 두고, 이동 충돌·클릭 길찾기에 함께 쓴다.
 // 장애물은 모두 sanctuaryLayout 의 배치 값에서 만들어지므로 가구를 옮기면 충돌도 따라 바뀐다.
 
-export type Level = 1 | 2
+export type Level = 1 | 2 | 3 // 1층, 2층 발코니, 3 = 기도 골방
 
 const CELL = 0.2
 
@@ -379,8 +380,19 @@ export class NavLayer {
   }
 }
 
+// 기도 골방: 방 안 가구만 막음 (벽은 바깥 경계)
+function closetObstacles(): Rect[] {
+  const { R, add } = rectBuilder()
+  add(CLOSET_DESK.pos[0], CLOSET_DESK.pos[2], CLOSET_DESK.w, CLOSET_DESK.d)
+  add(CLOSET_CHAIR.pos[0], CLOSET_CHAIR.pos[2], 0.5, 0.5)
+  add(CLOSET_CABINET.pos[0], CLOSET_CABINET.pos[2], CLOSET_CABINET.w, CLOSET_CABINET.d)
+  return R
+}
+
 export const NAV: Record<Level, NavLayer> = {
   1: new NavLayer(-HALL.width / 2, HALL.frontZ, HALL.width / 2, HALL.backZ, floorHeight, level1Obstacles()),
   // 2층: 난간 안쪽부터 뒷벽까지
   2: new NavLayer(-HALL.width / 2, BALCONY.frontZ + 0.16, HALL.width / 2, HALL.backZ, balconyFloorHeight, level2Obstacles()),
+  // 3: 기도 골방 (예배당과 떨어진 혼자 쓰는 방)
+  3: new NavLayer(-CLOSET.halfW, -CLOSET.halfD, CLOSET.halfW, CLOSET.halfD, () => 0, closetObstacles()),
 }

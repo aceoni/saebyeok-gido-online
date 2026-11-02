@@ -714,11 +714,7 @@ kbd {
 
 /* 입장 화면 맨 아래 저작권 표시 */
 .enter-copyright {
-  position: absolute;
-  bottom: calc(14px + env(safe-area-inset-bottom));
-  left: 0;
-  right: 0;
-  margin: 0;
+  margin: 10px 0 0;
   color: rgba(240, 228, 208, 0.32);
   font-size: 12px;
   letter-spacing: 0.05em;
@@ -766,4 +762,51 @@ kbd {
 }
 .name-toggle.on .name-toggle-knob {
   transform: translateX(11px);
+}
+
+/* 입장 화면: 예배당 / 골방 고르기 */
+.enter-places {
+  display: flex;
+  gap: 10px;
+  margin-top: 4px;
+}
+.enter-places .enter-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  min-width: 132px;
+  padding: 11px 22px 9px;
+  letter-spacing: 0.08em;
+}
+.enter-places .enter-btn small {
+  color: rgba(255, 243, 224, 0.6);
+  font-size: 12px;
+  letter-spacing: 0.02em;
+}
+.enter-btn.closet {
+  border-color: rgba(255, 196, 130, 0.45);
+  background: rgba(120, 80, 40, 0.22);
+}
+.enter-btn.closet:hover {
+  background: rgba(140, 95, 50, 0.34);
+}
+.enter-quiet-toggle {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: rgba(240, 228, 208, 0.6);
+  font-size: 13px;
+  cursor: pointer;
+}
+.enter-quiet-toggle input {
+  accent-color: #c9a46a;
+}
+
+/* 화면이 낮으면 입장 화면을 스크롤 (위가 잘리지 않게) */
+.enter-screen {
+  overflow-y: auto;
+}
+.enter-card {
+  margin: auto;
 }

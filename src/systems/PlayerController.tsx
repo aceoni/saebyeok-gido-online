@@ -100,7 +100,7 @@ export function PlayerController({ clickToMove = true }: { clickToMove?: boolean
       const { level, position, pose } = usePlayer.getState()
       if (pose === 'sitting' || pose === 'praying') return
       // 지금 있는 층의 바닥만: 1층은 낮은 곳, 2층은 발코니 바닥 위
-      if (!hit || (level === 1 ? hit.point.y > 2.5 : hit.point.y < BALCONY.floorY - 0.1)) return
+      if (!hit || (level === 1 ? hit.point.y > 2.5 : level === 2 ? hit.point.y < BALCONY.floorY - 0.1 : hit.point.y > 0.3)) return
       const nav = NAV[level]
       const goal = nav.nearestWalkable(hit.point.x, hit.point.z)
       if (!goal) return

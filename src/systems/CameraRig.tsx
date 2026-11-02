@@ -4,6 +4,8 @@ import * as THREE from 'three'
 import { BALCONY, CAMERA, HALL, SEAT } from '../config'
 import { usePlayer } from '../store/player'
 import { cameraState } from './cameraState'
+import { CLOSET } from '../scenes/closetLayout'
+import { CLOSET_CAMERA } from './places'
 
 const clamp = (v: number, lo: number, hi: number) => Math.min(hi, Math.max(lo, v))
 
@@ -16,6 +18,7 @@ export function CameraRig() {
   const look = useRef(new THREE.Vector3())
   const desired = useRef(new THREE.Vector3())
   const first = useRef(true)
+  const lastLevel = useRef(0)
 
   useEffect(() => {
     const el = gl.domElement
@@ -107,6 +110,9 @@ export function CameraRig() {
   useFrame((_, dt) => {
     const { position, level, pose, rotY } = usePlayer.getState()
     const [px, py, pz] = position
+    // 골방 ↔ 예배당처럼 다른 곳으로 옮기면 카메라도 바로 그 자리로
+    if ((level === 3) !== (lastLevel.current === 3)) first.current = true
+    lastLevel.current = level
 
     if (pose === 'praying') {
       // 1인칭: 눈높이에서 앉은 방향으로, 살짝 내려다봄
@@ -121,19 +127,28 @@ export function CameraRig() {
       return
     }
 
-    const { yaw, pitch, distance } = cameraState
-    const target = new THREE.Vector3(px, py + CAMERA.lookHeight, pz)
+    const closet = level === 3
+    const { yaw, pitch } = cameraState
+    const distance = closet ? Math.min(cameraState.distance, CLOSET_CAMERA.maxDistance) : cameraState.distance
+    const target = new THREE.Vector3(px, py + (closet ? CLOSET_CAMERA.lookHeight : CAMERA.lookHeight), pz)
     const d = desired.current.set(
       px + Math.sin(yaw) * Math.cos(pitch) * distance,
       target.y + Math.sin(pitch) * distance,
       pz + Math.cos(yaw) * Math.cos(pitch) * distance,
     )
+    if (closet) {
+      // 작은 골방: 벽·천장 안쪽에 머물게
+      d.x = clamp(d.x, -CLOSET.halfW + 0.15, CLOSET.halfW - 0.15)
+      d.z = clamp(d.z, -CLOSET.halfD + 0.15, CLOSET.halfD - 0.15)
+      d.y = clamp(d.y, 0.4, CLOSET.height - 0.15)
+    } else {
     // 벽·천장 밖으로 나가지 않게. 1층에서 발코니 아래면 발코니 밑면 아래로, 2층이면 발코니 바닥 위로
     d.x = clamp(d.x, -HALL.width / 2 + 0.3, HALL.width / 2 - 0.3)
     d.z = clamp(d.z, HALL.frontZ + 0.3, HALL.backZ - 0.3)
     const underBalcony = level === 1 && d.z > BALCONY.frontZ - 0.3
     const ceil = underBalcony ? BALCONY.floorY - BALCONY.slabThickness - 0.15 : HALL.height - 0.4
     d.y = clamp(d.y, level === 2 ? py + 0.4 : 0.4, ceil)
+    }
 
     const t = first.current ? 1 : 1 - Math.exp(-dt * CAMERA.follow)
     first.current = false

@@ -106,10 +106,16 @@
    - 장의자 자리는 0.55m 간격의 정해진 칸(SEAT.seatWidth) → 다른 사람이 앉은 칸은 건너뛰고 가장 가까운 빈 칸에 앉음. 일반 의자도 앉은 사람 있으면 불가
    - 오른쪽 위에 함께 있는 사람 수 + 내 이름 + 이름표 보이기 토글(머리 위 이름표 전부 켜기/끄기, localStorage 기억, 혼자 모드에서도 토글만 표시)
    - 입장 화면: 제목 + 부제 '함께 드리는 새벽기도' + '● 지금 N명이 기도하고 있어요'(아무도 없으면 '지금은 예배당이 조용해요')(첫 화면부터 기도실에 보기만 연결 — 입장 전에는 나는 안 보임, NetworkManager.watchRoom → startNetwork) + 오늘의 내 모습 미리보기(작은 3D, '다른 모습'으로 4종 순서대로 바꾸기) + 이름 칸 + 입장하기/소리 없이 입장 + 맨 아래 작게 '© 2026 Sieon Lee'
+9. **기도 골방 (혼자 쓰는 공간)** — scenes/ClosetScene.tsx, models/Closet.tsx, scenes/closetLayout.ts
+   - 입장 화면에서 [예배당 입장](함께, 온라인) / [골방 입장](혼자, 온라인 연결 안 함) 중 선택 + '소리 없이 들어가기' 체크
+   - 어두운 나무 오두막 방(약 3.6×4.2m, 천장 2.6m): 판자 벽·바닥, 천장 들보, 격자 창 + 열린 덧문(바깥 새벽빛, RectAreaLight + 빛줄기), 작은 나무 책상 위 펼친 성경·촛불(일렁이는 빛), 등받이 높은 나무 의자, 왼쪽 벽 작은 장, 벽의 나무 십자가 + 무릎 방석, 러그, 뒷벽 나무 문
+   - 이동 지도 = NAV[3] (Level 3). 의자에 앉기 → 기도하기/기도노트는 예배당과 같음. 문 앞 [E] '골방에서 나가기' → 시작 화면
+   - 배경 찬양은 같은 곡, 장소별 악기 기억(예배당 기본 오르간, 골방 기본 피아노 — store/audio instruments)
+   - 개발용 `?place=closet&cam=...`: 시작 화면 없이 골방 자유 시점
 8. **모바일 기도 메모장**: 화면 아래 전체 폭 시트, 화면 키보드 위로 올라옴(visualViewport), 터치 화면에선 자동 포커스 안 함
 
 ## 설계 원칙 (확장 대비)
-- 공간 = 하나의 Scene 컴포넌트 (SanctuaryScene). 추후 CafeScene, ChoirRoomScene 추가 예정
+- 공간 = 하나의 Scene 컴포넌트 (SanctuaryScene, ClosetScene). 장소 오가기는 systems/places.ts (enterPlace / exitToStart), 지금 장소는 store/ui `place` (null = 시작 화면). 추후 CafeScene, ChoirRoomScene 추가 예정
 - 상호작용 오브젝트는 공통 인터페이스(Interactable: 위치, 반경, 라벨, onInteract)로 구현
 - 플레이어 상태(위치, 방향, 자세: walking/sitting/praying/playing)는 렌더링과 분리된 store에서 관리
   → 추후 멀티플레이어에서 이 상태만 서버로 동기화
