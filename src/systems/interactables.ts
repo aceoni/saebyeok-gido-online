@@ -2,7 +2,7 @@ import { PEWS, SEAT } from '../config'
 import { DOOR_LINKS, SEATABLE_CHAIRS, balconySlots, choirSlots, pewSlots, type ChairSeat, type PewSlot } from '../scenes/sanctuaryLayout'
 import { usePlayer, type Level, type Seat } from '../store/player'
 import { occupiedSeats } from '../store/remote'
-import { CLOSET, CLOSET_CHAIR, CLOSET_DOOR } from '../scenes/closetLayout'
+import { CLOSET, CLOSET_DOOR, CLOSET_KNEEL } from '../scenes/closetLayout'
 import { exitToStart } from './places'
 import { NAV, localToWorld, worldToLocal } from './navGrid'
 
@@ -89,29 +89,29 @@ function chairSeat(chair: ChairSeat, px: number, py: number, pz: number, taken: 
   }
 }
 
-/** 기도 골방: 책상 앞 의자에 앉기, 문으로 나가기 (시작 화면) */
+/** 기도 골방: 앉은뱅이 책상 앞 방석에서 무릎 꿇기, 문으로 나가기 (시작 화면) */
+const KNEEL_DROP = 0.3 // 무릎 꿇으면 엉덩이(캐릭터 기준점)가 이만큼 내려감 (다리는 뒤로 접힘)
 function closetInteractable(px: number, pz: number): Interactable | null {
-  const [cx, , cz] = CLOSET_CHAIR.pos
-  const dChair = Math.hypot(px - cx, pz - cz)
+  const [cx, , cz] = CLOSET_KNEEL.pos
+  const dSpot = Math.hypot(px - cx, pz - cz)
   const dDoor = Math.hypot(px - CLOSET_DOOR.x, pz - CLOSET.halfD)
-  if (dChair < SEAT.reach + 0.1 && dChair < dDoor) {
-    const fx = Math.sin(CLOSET_CHAIR.rotY)
-    const fz = Math.cos(CLOSET_CHAIR.rotY)
+  if (dSpot < SEAT.reach && dSpot < dDoor) {
     const nav = NAV[3]
-    // 일어설 자리: 의자 뒤(문 쪽) → 옆
+    // 일어설 자리: 방석 뒤(문 쪽) → 옆
     const tries: [number, number][] = [
-      [cx - fx * 0.6, cz - fz * 0.6],
-      [cx + 0.6, cz],
-      [cx - 0.6, cz],
+      [cx, cz + 0.55],
+      [cx + 0.55, cz],
+      [cx - 0.55, cz],
     ]
     const stand = tries.find(([x, z]) => nav.walkable(x, z)) ?? [px, pz]
     const seat: Seat = {
-      id: 'closet-chair',
-      position: [cx - fx * 0.04, CLOSET_CHAIR.seatTop - 0.45 + SEAT.hipLift, cz - fz * 0.04],
-      rotY: CLOSET_CHAIR.rotY,
+      id: 'closet-kneel',
+      position: [cx, 0.06 - KNEEL_DROP, cz + 0.06],
+      rotY: CLOSET_KNEEL.rotY,
       standAt: [stand[0], 0, stand[1]],
+      kneel: true,
     }
-    return { id: seat.id, label: '앉기', anchor: [cx, 1.5, cz], radius: SEAT.reach, onInteract: () => usePlayer.getState().sit(seat) }
+    return { id: seat.id, label: '무릎 꿇기', anchor: [cx, 1.3, cz], radius: SEAT.reach, onInteract: () => usePlayer.getState().sit(seat) }
   }
   if (dDoor < 1.1) {
     return { id: 'closet-door', label: '골방에서 나가기', anchor: [CLOSET_DOOR.x, 2.0, CLOSET.halfD - 0.2], radius: 1.1, onInteract: exitToStart }

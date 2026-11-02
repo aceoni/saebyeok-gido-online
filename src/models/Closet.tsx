@@ -8,7 +8,7 @@ import {
   CLOSET_BIBLE,
   CLOSET_CABINET,
   CLOSET_CANDLE,
-  CLOSET_CHAIR,
+  CLOSET_KNEEL,
   CLOSET_CROSS,
   CLOSET_DESK,
   CLOSET_DOOR,
@@ -18,7 +18,7 @@ import { Bible } from './Bible'
 
 RectAreaLightUniformsLib.init()
 
-// 기도 골방: 어두운 나무 오두막 방. 창문으로 새벽빛, 책상 위 촛불과 펼친 성경, 벽의 나무 십자가.
+// 기도 골방: 어두운 나무 오두막 방. 창문으로 새벽빛(맑음·눈·비 중 하나), 앉은뱅이 책상 위 촛불과 펼친 성경, 방석, 벽의 나무 십자가.
 const C = COLORS.closet
 const { halfW: W, halfD: D, height: H } = CLOSET
 const wood = (color: string, rough = 0.8) => <meshStandardMaterial color={color} roughness={rough} flatShading />
@@ -180,7 +180,7 @@ function Shell() {
 }
 
 /** 창문: 격자 유리 + 나무 덧문(열림) + 창턱. 바깥은 새벽 하늘빛 */
-function Window() {
+function Window({ weather }: { weather: Weather }) {
   const { x, y, w, h } = CLOSET_WINDOW
   const lightRef = useRef<THREE.RectAreaLight>(null)
   useEffect(() => {
@@ -190,14 +190,15 @@ function Window() {
   return (
     <group position={[x, y, -D]}>
       {/* 바깥 새벽빛 */}
-      <mesh position={[0, 0, -0.3]}>
-        <planeGeometry args={[w * 1.6, h * 1.6]} />
-        <meshBasicMaterial color={C.dawn} toneMapped={false} />
+      {/* 눈·비가 내리는 공간(창 바깥 1.4m)보다 뒤에 하늘 */}
+      <mesh position={[0, 0, -1.7]}>
+        <planeGeometry args={[w * 5, h * 5]} />
+        <meshBasicMaterial color={weather === 'rain' ? C.dawnRain : weather === 'snow' ? C.dawnSnow : C.dawn} toneMapped={false} />
       </mesh>
       {/* 유리 (살짝 빛남) */}
       <mesh position={[0, 0, -0.04]}>
         <planeGeometry args={[w, h]} />
-        <meshStandardMaterial color={C.glass} emissive={C.glass} emissiveIntensity={0.55} transparent opacity={0.55} roughness={0.2} />
+        <meshStandardMaterial color={C.glass} emissive={C.glass} emissiveIntensity={weather === 'clear' ? 0.55 : 0.12} transparent opacity={weather === 'clear' ? 0.55 : 0.28} roughness={0.2} />
       </mesh>
       {/* 창틀 + 격자 */}
       {[-1, 1].map((s) => (
@@ -237,7 +238,14 @@ function Window() {
         </group>
       ))}
       {/* 창으로 들어오는 은은한 빛 */}
-      <rectAreaLight ref={lightRef} position={[0, 0, 0.05]} width={w} height={h} color={C.dawnLight} intensity={C.dawnIntensity} />
+      <rectAreaLight
+        ref={lightRef}
+        position={[0, 0, 0.05]}
+        width={w}
+        height={h}
+        color={C.dawnLight}
+        intensity={C.dawnIntensity * (weather === 'rain' ? 0.7 : weather === 'snow' ? 1.15 : 1)}
+      />
     </group>
   )
 }
@@ -306,45 +314,10 @@ function Desk() {
           </mesh>
         </group>
       ))}
-      <mesh position={[0, 0.22, 0]}>
+      <mesh position={[0, h * 0.35, 0]}>
         <boxGeometry args={[w - 0.4, 0.06, 0.05]} />
         {oak}
       </mesh>
-    </group>
-  )
-}
-
-/** 등받이 높은 나무 의자 (옆판 막힘). 로컬 앞 = +z */
-function HighChair() {
-  const { pos, rotY, seatTop } = CLOSET_CHAIR
-  const oak = wood(C.oakDark, 0.7)
-  return (
-    <group position={pos} rotation-y={rotY}>
-      <mesh position={[0, seatTop - 0.025, 0.02]} castShadow>
-        <boxGeometry args={[0.52, 0.05, 0.46]} />
-        {oak}
-      </mesh>
-      <mesh position={[0, seatTop + 0.42, -0.22]} castShadow>
-        <boxGeometry args={[0.52, 0.86, 0.05]} />
-        {oak}
-      </mesh>
-      {[-1, 1].map((s) => (
-        <group key={s}>
-          <mesh position={[s * 0.27, seatTop / 2 + 0.06, 0]} castShadow>
-            <boxGeometry args={[0.04, seatTop + 0.12, 0.5]} />
-            {oak}
-          </mesh>
-          {/* 팔걸이 */}
-          <mesh position={[s * 0.27, seatTop + 0.2, 0.02]}>
-            <boxGeometry args={[0.06, 0.04, 0.5]} />
-            {oak}
-          </mesh>
-          <mesh position={[s * 0.27, seatTop + 0.1, 0.22]}>
-            <boxGeometry args={[0.04, 0.2, 0.04]} />
-            {oak}
-          </mesh>
-        </group>
-      ))}
     </group>
   )
 }
@@ -497,23 +470,79 @@ function Door() {
   )
 }
 
+export type Weather = 'clear' | 'snow' | 'rain'
+
+/** 창밖 날씨: 눈송이(천천히 흔들리며) 또는 빗줄기(빠르게 비스듬히). 창 바로 바깥 상자 안에서만 */
+function WeatherOutside({ kind }: { kind: 'snow' | 'rain' }) {
+  const ref = useRef<THREE.InstancedMesh>(null)
+  const { x, y, w, h } = CLOSET_WINDOW
+  const box = { x0: x - w, x1: x + w, y0: y - h, y1: y + h, z0: -D - 1.4, z1: -D - 0.12 }
+  const n = kind === 'snow' ? 320 : 420
+  const parts = useMemo(
+    () =>
+      Array.from({ length: n }, () => ({
+        x: box.x0 + Math.random() * (box.x1 - box.x0),
+        y: box.y0 + Math.random() * (box.y1 - box.y0),
+        z: box.z0 + Math.random() * (box.z1 - box.z0),
+        sp: kind === 'snow' ? 0.18 + Math.random() * 0.16 : 3.2 + Math.random() * 1.6,
+        ph: Math.random() * Math.PI * 2,
+      })),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [kind],
+  )
+  const m = useMemo(() => new THREE.Matrix4(), [])
+  const q = useMemo(() => new THREE.Quaternion().setFromEuler(new THREE.Euler(0, 0, kind === 'rain' ? 0.18 : 0)), [kind])
+  const one = useMemo(() => new THREE.Vector3(1, 1, 1), [])
+  const v = useMemo(() => new THREE.Vector3(), [])
+  useFrame(({ clock }, dt) => {
+    const mesh = ref.current
+    if (!mesh) return
+    const t = clock.elapsedTime
+    for (let i = 0; i < parts.length; i++) {
+      const p = parts[i]
+      p.y -= p.sp * Math.min(dt, 0.1)
+      if (kind === 'rain') p.x -= p.sp * 0.18 * Math.min(dt, 0.1)
+      if (p.y < box.y0) {
+        p.y = box.y1
+        p.x = box.x0 + Math.random() * (box.x1 - box.x0)
+      }
+      if (p.x < box.x0) p.x = box.x1
+      const sway = kind === 'snow' ? Math.sin(t * 0.9 + p.ph) * 0.06 : 0
+      mesh.setMatrixAt(i, m.compose(v.set(p.x + sway, p.y, p.z), q, one))
+    }
+    mesh.instanceMatrix.needsUpdate = true
+  })
+  return (
+    <instancedMesh ref={ref} args={[undefined, undefined, n]} frustumCulled={false} userData={{ noPick: true }}>
+      {kind === 'snow' ? <sphereGeometry args={[0.018, 5, 4]} /> : <boxGeometry args={[0.005, 0.17, 0.005]} />}
+      <meshBasicMaterial color={kind === 'snow' ? '#ffffff' : '#d3dcf2'} transparent opacity={kind === 'snow' ? 0.95 : 0.6} toneMapped={false} />
+    </instancedMesh>
+  )
+}
+
 export function ClosetRoom() {
+  // 들어올 때마다 창밖 날씨를 1/3씩: 맑음 / 눈 / 비 (개발용 ?weather=snow|rain|clear 로 고정)
+  const weather = useMemo<Weather>(() => {
+    const forced = new URLSearchParams(location.search).get('weather')
+    if (forced === 'snow' || forced === 'rain' || forced === 'clear') return forced
+    return (['clear', 'snow', 'rain'] as const)[Math.floor(Math.random() * 3)]
+  }, [])
   return (
     <group>
       <Shell />
-      <Window />
+      <Window weather={weather} />
+      {weather !== 'clear' && <WeatherOutside kind={weather} />}
       <LightShaft />
-      {/* 책상·의자 아래 러그, 십자가 아래 무릎 방석 */}
+      {/* 책상 아래 러그, 책상 앞 무릎 꿇는 방석 */}
       <mesh position={[CLOSET_DESK.pos[0], 0.012, -0.9]} receiveShadow>
         <boxGeometry args={[1.7, 0.012, 1.5]} />
         <meshStandardMaterial color={C.rug} roughness={1} />
       </mesh>
-      <mesh position={[CLOSET_CROSS[0], 0.05, -D + 0.5]}>
-        <boxGeometry args={[0.46, 0.08, 0.36]} />
+      <mesh position={[CLOSET_KNEEL.pos[0], 0.035, CLOSET_KNEEL.pos[2] + 0.05]}>
+        <boxGeometry args={[0.5, 0.06, 0.46]} />
         <meshStandardMaterial color={C.cushion} roughness={1} flatShading />
       </mesh>
       <Desk />
-      <HighChair />
       <Cabinet />
       <Cross />
       <Candle />

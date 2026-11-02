@@ -16,7 +16,7 @@ const HEAD_SCALE = 0.8 // 머리 크기 비율 (1 = 처음의 아주 큰 SD 머�
 const HEAD_Y = 0.86 + HEAD_R * 0.9 * HEAD_SCALE // 목 위에 얹히도록
 export const CHARACTER_TOP = HEAD_Y + HEAD_R * HEAD_SCALE // 머리 꼭대기 높이 (이름표·말풍선 위치)
 
-export type CharacterState = { position: [number, number, number]; rotY: number; pose: Pose }
+export type CharacterState = { position: [number, number, number]; rotY: number; pose: Pose; kneel?: boolean }
 
 const mat = (color: string) => <meshStandardMaterial color={color} roughness={0.85} flatShading />
 // 피부(얼굴·귀·손)는 각지지 않게 매끈한 구
@@ -149,8 +149,9 @@ export function Character({
     phase.current += dt * (walking ? 12 : 1.5)
     const sw = Math.sin(phase.current) * amp.current
 
-    // 다리: 걷기 흔들림 / 앉으면 앞으로 90°
-    const legBase = seated ? -1.45 : 0
+    // 다리: 걷기 흔들림 / 앉으면 앞으로 90° / 무릎 꿇으면 뒤로
+    // 무릎 꿇기: 다리를 뒤로 접어 바닥에 (정강이가 바닥을 따라 뒤로)
+    const legBase = seated ? (s.kneel ? 1.5 : -1.45) : 0
     legL.current!.rotation.x += (legBase + sw - legL.current!.rotation.x) * k
     legR.current!.rotation.x += (legBase - sw - legR.current!.rotation.x) * k
     // 팔: 걷기 흔들림 / 앉으면 무릎 위 / 기도하면 가슴 앞에서 모음

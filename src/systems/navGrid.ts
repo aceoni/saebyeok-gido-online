@@ -1,5 +1,5 @@
 import { BALCONY, CHOIR, HALL, PEWS, PLAYER, STAGE } from '../config'
-import { CLOSET, CLOSET_CABINET, CLOSET_CHAIR, CLOSET_DESK } from '../scenes/closetLayout'
+import { CLOSET, CLOSET_CABINET, CLOSET_DESK } from '../scenes/closetLayout'
 import {
   CONDUCTOR_POS,
   DRUM_POS,
@@ -384,7 +384,6 @@ export class NavLayer {
 function closetObstacles(): Rect[] {
   const { R, add } = rectBuilder()
   add(CLOSET_DESK.pos[0], CLOSET_DESK.pos[2], CLOSET_DESK.w, CLOSET_DESK.d)
-  add(CLOSET_CHAIR.pos[0], CLOSET_CHAIR.pos[2], 0.5, 0.5)
   add(CLOSET_CABINET.pos[0], CLOSET_CABINET.pos[2], CLOSET_CABINET.w, CLOSET_CABINET.d)
   return R
 }

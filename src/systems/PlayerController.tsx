@@ -45,7 +45,10 @@ if (import.meta.env.DEV) {
   Object.assign(window, { __player: usePlayer, __nav: NAV })
 }
 
-const readMe = () => usePlayer.getState()
+const readMe = () => {
+  const s = usePlayer.getState()
+  return { position: s.position, rotY: s.rotY, pose: s.pose, kneel: !!s.seat?.kneel }
+}
 
 /** 키보드(WASD/방향키) + 바닥 클릭 이동, 충돌/높이 처리, 캐릭터·목적지 표시 */
 export function PlayerController({ clickToMove = true }: { clickToMove?: boolean }) {

@@ -122,6 +122,8 @@ export const COLORS = {
     cushion: '#4a4a3a',
     glass: '#b9c8e6',
     dawn: '#5d6f9a', // 창 밖 새벽 하늘
+    dawnRain: '#323b52', // 비 오는 새벽
+    dawnSnow: '#4a5675', // 눈 오는 새벽 (눈송이가 잘 보이게 하늘은 어둡게)
     dawnLight: '#a9bde6',
     dawnIntensity: 3.2,
     candle: '#ffae5c',
