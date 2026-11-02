@@ -6,6 +6,7 @@ import { usePlayer } from '../store/player'
 import { cameraState } from './cameraState'
 import { CLOSET } from '../scenes/closetLayout'
 import { CLOSET_CAMERA } from './places'
+import { useUi } from '../store/ui'
 
 const clamp = (v: number, lo: number, hi: number) => Math.min(hi, Math.max(lo, v))
 
@@ -33,7 +34,12 @@ export function CameraRig() {
       cameraState.pitch = clamp(cameraState.pitch + dy * CAMERA.rotateSpeed, CAMERA.minPitch, CAMERA.maxPitch)
     }
     const zoom = (factor: number) => {
-      cameraState.distance = clamp(cameraState.distance * factor, CAMERA.minDistance, CAMERA.maxDistance)
+      const closet = usePlayer.getState().level === 3
+      cameraState.distance = clamp(
+        cameraState.distance * factor,
+        closet ? CLOSET_CAMERA.minDistance : CAMERA.minDistance,
+        closet ? CLOSET_CAMERA.maxDistance : CAMERA.maxDistance,
+      )
     }
     const twoFingerDist = () => {
       const [a, b] = [...touches.values()]
@@ -114,8 +120,8 @@ export function CameraRig() {
     if ((level === 3) !== (lastLevel.current === 3)) first.current = true
     lastLevel.current = level
 
-    if (pose === 'praying') {
-      // 1인칭: 눈높이에서 앉은 방향으로, 살짝 내려다봄
+    if (pose === 'praying' && useUi.getState().firstPerson) {
+      // 1인칭(버튼으로 켰을 때): 눈높이에서 앉은 방향으로, 살짝 내려다봄
       const fx = Math.sin(rotY)
       const fz = Math.cos(rotY)
       const eye = desired.current.set(px + fx * 0.12, py + SEAT.eyeHeight, pz + fz * 0.12)
@@ -129,14 +135,17 @@ export function CameraRig() {
 
     const closet = level === 3
     const { yaw, pitch } = cameraState
-    const distance = closet ? Math.min(cameraState.distance, CLOSET_CAMERA.maxDistance) : cameraState.distance
+    const distance = cameraState.distance
     const target = new THREE.Vector3(px, py + (closet ? CLOSET_CAMERA.lookHeight : CAMERA.lookHeight), pz)
     const d = desired.current.set(
       px + Math.sin(yaw) * Math.cos(pitch) * distance,
       target.y + Math.sin(pitch) * distance,
       pz + Math.cos(yaw) * Math.cos(pitch) * distance,
     )
-    if (closet) {
+    if (closet && distance > CLOSET_CAMERA.insideMax) {
+      // 멀리 줌아웃: 방 밖에서 내려다봄 (카메라 쪽 벽·천장은 ClosetRoom 이 투명하게)
+      d.y = Math.max(d.y, 0.4)
+    } else if (closet) {
       // 작은 골방: 벽·천장 안쪽에 머물게
       d.x = clamp(d.x, -CLOSET.halfW + 0.15, CLOSET.halfW - 0.15)
       d.z = clamp(d.z, -CLOSET.halfD + 0.15, CLOSET.halfD - 0.15)

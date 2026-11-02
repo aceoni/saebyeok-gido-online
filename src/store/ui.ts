@@ -16,6 +16,8 @@ type UiState = {
   place: Place | null // 지금 있는 곳 (null = 시작 화면)
   setPlace: (p: Place | null) => void
   noteOpen: boolean // 기도 중 기도노트가 열려 있는지
+  firstPerson: boolean // 기도 중 1인칭 시점 (기본은 3인칭)
+  setFirstPerson: (v: boolean) => void
   showNames: boolean // 머리 위 이름표 보이기
   setNoteOpen: (v: boolean) => void
   setShowNames: (v: boolean) => void
@@ -25,6 +27,8 @@ export const useUi = create<UiState>((set) => ({
   place: null,
   setPlace: (place) => set({ place }),
   noteOpen: false,
+  firstPerson: false,
+  setFirstPerson: (firstPerson) => set({ firstPerson }),
   showNames: loadShowNames(),
   setNoteOpen: (noteOpen) => set({ noteOpen }),
   setShowNames: (showNames) => {

@@ -72,6 +72,32 @@ function FloorPlanks() {
   )
 }
 
+/** 카메라가 이 벽 바깥으로 나가면(멀리 줌아웃) 서서히 투명해져 방 안이 보이게 하는 묶음 */
+function Cutaway({ outside, children }: { outside: (cam: THREE.Vector3) => boolean; children: React.ReactNode }) {
+  const ref = useRef<THREE.Group>(null)
+  const op = useRef(1)
+  useFrame(({ camera }, dt) => {
+    const g = ref.current
+    if (!g) return
+    const target = outside(camera.position) ? 0 : 1
+    if (Math.abs(op.current - target) < 0.001) return
+    op.current += (target - op.current) * Math.min(1, dt * 6)
+    if (Math.abs(op.current - target) < 0.01) op.current = target
+    const o = op.current
+    g.visible = o > 0.02
+    g.traverse((obj) => {
+      const m = (obj as THREE.Mesh).material as THREE.Material | undefined
+      if (!m) return
+      m.transparent = o < 1
+      m.depthWrite = o >= 1
+      m.opacity = o
+    })
+  })
+  return <group ref={ref}>{children}</group>
+}
+
+const M = 0.05 // 벽 바깥으로 이만큼 나가면 투명해짐
+
 /** 벽·바닥·천장. 앞벽에는 창문 구멍, 뒷벽에는 문 */
 function Shell() {
   const t = 0.12
@@ -88,6 +114,7 @@ function Shell() {
       </mesh>
       <FloorPlanks />
       {/* 천장 + 들보 */}
+      <Cutaway outside={(c) => c.y > H + M}>
       <mesh position={[0, H, 0]} rotation-x={Math.PI / 2}>
         <planeGeometry args={[W * 2, D * 2]} />
         {wood(C.ceiling)}
@@ -98,17 +125,19 @@ function Shell() {
           {wood(C.beam)}
         </mesh>
       ))}
+      </Cutaway>
       {/* 좌우 벽 */}
       {[-1, 1].map((s) => (
-        <group key={s}>
+        <Cutaway key={s} outside={(c) => c.x * s > W + M}>
           <mesh position={[s * (W + t / 2), H / 2, 0]}>
             <boxGeometry args={[t, H, D * 2]} />
             {wall}
           </mesh>
           <PlankSeams along="z" length={D * 2} fixed={s * (W - 0.002)} axis={s} />
-        </group>
+        </Cutaway>
       ))}
-      {/* 앞벽(창문 쪽) */}
+      {/* 앞벽(창문 쪽) — 투명해져도 창문(Window)은 남음 */}
+      <Cutaway outside={(c) => c.z < -D - M}>
       <group position={[0, 0, -D - t / 2]}>
         <mesh position={[-W + leftW / 2, H / 2, 0]}>
           <boxGeometry args={[leftW, H, t]} />
@@ -128,22 +157,24 @@ function Shell() {
         </mesh>
       </group>
       <PlankSeams along="x" length={W * 2} fixed={-D + 0.002} axis={0} />
+      <mesh position={[0, 0.07, -D + 0.02]}>
+        <boxGeometry args={[W * 2, 0.14, 0.03]} />
+        {wood(C.beam)}
+      </mesh>
+      </Cutaway>
       {/* 뒷벽(문 쪽) */}
+      <Cutaway outside={(c) => c.z > D + M}>
       <mesh position={[0, H / 2, D + t / 2]}>
         <boxGeometry args={[W * 2 + t * 2, H, t]} />
         {wall}
       </mesh>
       <PlankSeams along="x" length={W * 2} fixed={D - 0.002} axis={1} />
-      {/* 벽 아래 걸레받이 */}
-      {[
-        [0, -D + 0.02, W * 2, 0.03],
-        [0, D - 0.02, W * 2, 0.03],
-      ].map(([x, z, w, d], i) => (
-        <mesh key={i} position={[x, 0.07, z]}>
-          <boxGeometry args={[w, 0.14, d]} />
-          {wood(C.beam)}
-        </mesh>
-      ))}
+      <mesh position={[0, 0.07, D - 0.02]}>
+        <boxGeometry args={[W * 2, 0.14, 0.03]} />
+        {wood(C.beam)}
+      </mesh>
+      <Door />
+      </Cutaway>
     </group>
   )
 }
@@ -489,7 +520,6 @@ export function ClosetRoom() {
       <group position={CLOSET_BIBLE.pos} rotation-y={CLOSET_BIBLE.rotY} scale={1.15}>
         <Bible />
       </group>
-      <Door />
     </group>
   )
 }

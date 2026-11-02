@@ -9,7 +9,8 @@ import { cameraState } from './cameraState'
 import { startNetwork } from './network/NetworkManager'
 
 // 작은 방이라 뒤쪽 모서리 위에서 어깨 너머로 내려다보는 시점으로 시작
-export const CLOSET_CAMERA = { distance: 2.1, maxDistance: 2.5, lookHeight: 1.0, yaw: 0.45, pitch: 0.5 }
+// insideMax 까지는 방 안에 머물고, 그보다 멀리 줌아웃하면 방 밖으로 나가며 카메라 쪽 벽이 투명해짐
+export const CLOSET_CAMERA = { distance: 2.1, minDistance: 1.0, maxDistance: 6, insideMax: 2.6, lookHeight: 1.0, yaw: 0.45, pitch: 0.5 }
 
 function resetCamera(place: Place) {
   cameraState.yaw = place === 'closet' ? CLOSET_CAMERA.yaw : 0

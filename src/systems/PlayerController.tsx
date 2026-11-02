@@ -5,6 +5,7 @@ import { BALCONY, PLAYER } from '../config'
 import { Character } from '../models/Character'
 import { avatarById } from '../data/avatars'
 import { useSession } from '../store/session'
+import { useUi } from '../store/ui'
 import { NameTag, PrayBubble } from './RemotePlayers'
 import { usePlayer } from '../store/player'
 import { cameraState } from './cameraState'
@@ -51,7 +52,10 @@ export function PlayerController({ clickToMove = true }: { clickToMove?: boolean
   const avatarId = useSession((s) => s.avatarId)
   const myId = useSession((s) => s.id)
   const myName = useSession((s) => s.displayName)
+  // 기도 중 1인칭으로 볼 때만 내 캐릭터·이름표를 숨김
   const praying = usePlayer((s) => s.pose === 'praying')
+  const firstPerson = useUi((s) => s.firstPerson)
+  const firstPersonPraying = praying && firstPerson
   const keys = useRef({ f: false, b: false, l: false, r: false })
   const marker = useRef<THREE.Mesh>(null)
   const { camera, scene, gl } = useThree()
@@ -201,8 +205,8 @@ export function PlayerController({ clickToMove = true }: { clickToMove?: boolean
 
   return (
     <>
-      <Character avatar={avatarById(avatarId)} read={readMe} hideWhenPraying>
-        {!praying && <NameTag name={myName} />}
+      <Character avatar={avatarById(avatarId)} read={readMe} hideWhenPraying={firstPersonPraying}>
+        {!firstPersonPraying && <NameTag name={myName} />}
         <PrayBubble id={myId} lift={0.12} />
       </Character>
       <mesh ref={marker} rotation-x={-Math.PI / 2} visible={false} userData={{ noPick: true }}>
