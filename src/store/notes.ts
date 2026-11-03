@@ -68,13 +68,3 @@ export const useNotes = create<NotesState>((set, get) => ({
     set({ notes, currentId: get().currentId === id ? null : get().currentId })
   },
 }))
-
-/** .txt 파일로 내려받기 (브라우저 안에서만 처리) */
-export function downloadText(filename: string, text: string) {
-  const url = URL.createObjectURL(new Blob([text], { type: 'text/plain;charset=utf-8' }))
-  const a = document.createElement('a')
-  a.href = url
-  a.download = filename
-  a.click()
-  setTimeout(() => URL.revokeObjectURL(url), 1000)
-}

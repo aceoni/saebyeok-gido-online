@@ -11,7 +11,7 @@
 - 오디오: Tone.js + 피아노 샘플(Salamander Grand Piano, 축약본)
   - 샘플 파일은 외부 CDN이 아닌 /public/samples 에 포함
   - 3도 간격 정도로 축약해 총 3MB 이하
-- 저장: localStorage만 사용. **기도 메모는 절대 서버로 전송하지 않는다.** 예외는 사용자가 '소리내어 기도하기'에서 확인하고 나눈 한 문장(최대 80자)뿐
+- 저장: localStorage만 사용. **기도 메모는 절대 서버로 전송하지 않는다.** (이미지 저장도 브라우저 안 캔버스에서 그림) 예외는 사용자가 '소리내어 기도하기'에서 확인하고 나눈 한 문장(최대 80자)뿐
 - 실시간(여러 명): Supabase Realtime (Presence + Broadcast, DB 안 씀). 환경 변수 VITE_SUPABASE_URL / VITE_SUPABASE_ANON_KEY 가 있을 때만 연결, 없으면 혼자 모드. 개발 시험은 `?mp=local`(같은 브라우저 탭끼리 BroadcastChannel)
 - 배포: Vercel (Hobby). 정적 빌드(`npm run build` → dist)
 
@@ -72,7 +72,7 @@
    - Esc: 노트 열려 있으면 닫기 → 기도 마치기 → 일어나기 순서로 한 단계씩
 3. **기도 메모장**
    - 반투명 종이 느낌 텍스트 영역, 자동 저장(localStorage)
-   - 날짜별 목록, 삭제, .txt 내보내기
+   - 날짜별 목록, 삭제, **이미지로 저장**(ui/noteImage.ts: 제본 띠·줄 공책 모양 PNG, 미리보기 → 저장하기. 휴대폰은 공유 시트로 사진 저장, 길게 눌러 저장도 가능)
    - "이 기록은 이 브라우저에만 저장됩니다" 안내 문구 상시 표시
 4. **배경 찬양 (오르간 / 피아노)**
    - 악보를 코드 데이터(/src/data/hymns/*.json: 음높이, 길이, 셈여림)로 저장, Tone.js 피아노 샘플로 재생
@@ -116,6 +116,7 @@
    - 배경 찬양은 같은 곡, 장소별 악기 기억(예배당 기본 오르간, 골방 기본 피아노 — store/audio instruments)
    - 개발용 `?place=closet&cam=...`: 시작 화면 없이 골방 자유 시점
 8. **모바일 기도 메모장**: 화면 아래 전체 폭 시트, 화면 키보드 위로 올라옴(visualViewport), 터치 화면에선 자동 포커스 안 함
+   - 모바일 배치: 앉기/기도 버튼은 아래 가운데 가로(좁으면 주 버튼이 윗줄, 나머지 아랫줄), 버튼 높이 44px 이상, 터치 화면은 [E]/[Esc] 표시 숨김, 노치 안전 영역(safe-area) 반영. 가로 휴대폰(높이 500px 이하)은 플레이어 왼쪽 위·메모장 오른쪽
 
 ## 설계 원칙 (확장 대비)
 - 공간 = 하나의 Scene 컴포넌트 (SanctuaryScene, ClosetScene). 장소 오가기는 systems/places.ts (enterPlace / exitToStart), 지금 장소는 store/ui `place` (null = 시작 화면). 추후 CafeScene, ChoirRoomScene 추가 예정

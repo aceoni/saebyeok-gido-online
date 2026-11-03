@@ -20,7 +20,7 @@ const ICONS = {
   unfold: 'M7.4 8.6 12 13.2l4.6-4.6L18 10l-6 6-6-6z',
 }
 
-// 접힘 상태는 이 브라우저에 기억. 처음엔 휴대폰 화면이면 접힌 채로 시작
+// 접힘 상태는 이 브라우저에 기억. 처음엔 휴대폰 화면(세로·가로)이면 접힌 채로 시작
 const FOLD_KEY = 'saebyeok-gido.player-folded.v1'
 function initialFolded() {
   try {
@@ -29,7 +29,7 @@ function initialFolded() {
   } catch {
     // 무시
   }
-  return window.innerWidth <= 640
+  return window.innerWidth <= 640 || window.innerHeight <= 500
 }
 
 /** 화면 왼쪽 아래 배경 찬양 플레이어: 곡 제목·출처, 이전/일시정지/다음, 음소거, 볼륨, 오르간/피아노 */

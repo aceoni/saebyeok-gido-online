@@ -810,3 +810,177 @@ kbd {
 .enter-card {
   margin: auto;
 }
+
+/* 기도노트 이미지 미리보기 */
+.note-shot {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  background: rgba(4, 5, 9, 0.72);
+  backdrop-filter: blur(3px);
+  animation: bubble-in 0.3s ease;
+}
+.note-shot-card {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-width: min(420px, 100%);
+  max-height: 100%;
+  padding: 14px;
+  border-radius: 12px;
+  background: rgba(250, 244, 232, 0.96);
+  color: #3a2f25;
+  box-sizing: border-box;
+}
+.note-shot-card img {
+  display: block;
+  min-height: 0;
+  max-width: 100%;
+  max-height: calc(100dvh - 150px);
+  object-fit: contain;
+  border-radius: 6px;
+  /* 길게 눌러 저장이 되도록 (iOS) */
+  -webkit-touch-callout: default;
+  user-select: auto;
+}
+.note-shot-card p {
+  margin: 0;
+  color: #7a6652;
+  font-size: 13px;
+  text-align: center;
+}
+.note-shot-card .aloud-actions button {
+  padding: 8px 18px;
+  font-size: 15px;
+}
+
+/* ── 모바일 배치 ───────────────────────────── */
+/* 버튼 글자가 세로로 쪼개지지 않게, 화면 아래 가운데에 가로로 (좁으면 두 줄) */
+.seat-controls {
+  left: 12px;
+  right: 12px;
+  bottom: calc(24px + env(safe-area-inset-bottom));
+  transform: none;
+  flex-wrap: wrap;
+  justify-content: center;
+  pointer-events: none;
+}
+.seat-controls button {
+  white-space: nowrap;
+  pointer-events: auto;
+}
+.prayer-note .note-actions button,
+.aloud-actions button,
+.interact-bubble {
+  white-space: nowrap;
+}
+/* 터치 화면엔 키보드 단축키 표시가 필요 없음 */
+@media (pointer: coarse) {
+  kbd {
+    display: none;
+  }
+  .interact-bubble {
+    padding: 10px 18px;
+    font-size: 15px;
+  }
+}
+@media (max-width: 640px) {
+  .seat-controls {
+    gap: 8px;
+    bottom: calc(18px + env(safe-area-inset-bottom));
+  }
+  .seat-controls button {
+    min-height: 44px;
+    padding: 10px 16px;
+    font-size: 15px;
+  }
+  .seat-controls button.primary {
+    flex-basis: 100%;
+    max-width: 320px;
+  }
+  /* 플레이어(왼쪽 위)·인원(오른쪽 위)이 겹치지 않게 */
+  .music-player {
+    top: calc(10px + env(safe-area-inset-top));
+    left: 10px;
+    width: min(230px, calc(100vw - 150px));
+  }
+  .music-player.folded {
+    max-width: calc(100vw - 160px);
+  }
+  .presence {
+    top: calc(10px + env(safe-area-inset-top));
+    right: 10px;
+  }
+  .mp-controls button,
+  .music-player.folded button {
+    padding: 8px;
+  }
+  /* 안내 문구는 위 막대 바로 아래, 두세 줄로 */
+  .hud-guide {
+    top: calc(66px + env(safe-area-inset-top));
+    width: max-content;
+    max-width: calc(100vw - 40px);
+    padding: 8px 14px;
+    border-radius: 14px;
+    font-size: 13px;
+    line-height: 1.5;
+    box-sizing: border-box;
+  }
+  .prayer-note .note-actions button {
+    min-height: 40px;
+  }
+  .prayer-note .note-close {
+    padding: 4px 8px;
+    font-size: 26px;
+  }
+  .prayer-note button.link {
+    padding: 6px 4px;
+  }
+}
+/* 가로로 눕힌 휴대폰(화면이 낮음): 메모장은 오른쪽 절반, 버튼은 작게 */
+@media (max-height: 500px) and (min-width: 641px) {
+  .prayer-note {
+    top: 52px;
+    bottom: 8px;
+    right: 12px;
+    transform: none;
+    max-height: none;
+    padding: 12px 14px 10px;
+    gap: 6px;
+    animation: none;
+  }
+  .prayer-note textarea {
+    min-height: 60px;
+  }
+  .seat-controls {
+    bottom: calc(10px + env(safe-area-inset-bottom));
+  }
+  .seat-controls.note-open {
+    right: 400px;
+  }
+  /* 플레이어는 왼쪽 위로 (아래 버튼과 겹치지 않게) */
+  .music-player {
+    top: calc(10px + env(safe-area-inset-top));
+    bottom: auto;
+    left: 12px;
+  }
+  .music-player:not(.folded) {
+    width: 230px;
+  }
+  .presence {
+    top: calc(10px + env(safe-area-inset-top));
+  }
+  .hud-guide {
+    top: 58px;
+  }
+}
+
+/* 기도노트·앉기 버튼은 머리 위 이름표/말풍선(z 14~20)보다 위에 */
+.prayer-note,
+.seat-controls {
+  z-index: 25;
+}
