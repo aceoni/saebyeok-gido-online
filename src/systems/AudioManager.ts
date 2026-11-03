@@ -188,7 +188,7 @@ export function setDuck(reason: string, amount: number | null) {
 
 // ── 빗소리 (골방에 비 오는 날) ─────────────────────────
 // 음원 없이 노이즈를 걸러 만든다: 낮게 깔리는 분홍 노이즈(빗줄기) + 아주 약한 높은 쉬익 소리(창에 부딪는 비), 천천히 일렁임
-const RAIN_LEVEL = 0.18 // 빗소리 크기 (배경 찬양 볼륨 곡선을 따름). 처음 0.5는 너무 커서 약 1/3로
+const RAIN_LEVEL = 0.09 // 빗소리 크기 (배경 찬양 볼륨 곡선을 따름). 멀리서 들리는 정도로 작게
 let rainWanted = false
 let rain: { gain: ToneNS.Gain; nodes: ToneNS.ToneAudioNode[]; sources: (ToneNS.Noise | ToneNS.LFO)[] } | null = null
 

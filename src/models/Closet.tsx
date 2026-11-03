@@ -483,22 +483,26 @@ function WeatherOutside({ kind }: { kind: 'snow' | 'rain' }) {
   const ref = useRef<THREE.InstancedMesh>(null)
   const { x, y, w, h } = CLOSET_WINDOW
   const box = { x0: x - w, x1: x + w, y0: y - h, y1: y + h, z0: -D - 1.4, z1: -D - 0.12 }
-  const n = kind === 'snow' ? 320 : 420
+  // 비: 성기게 (가는 빗줄기 몇 가닥이 보이는 정도), 줄기마다 길이·빠르기 조금씩 다르게
+  const n = kind === 'snow' ? 320 : 110
   const parts = useMemo(
     () =>
       Array.from({ length: n }, () => ({
         x: box.x0 + Math.random() * (box.x1 - box.x0),
         y: box.y0 + Math.random() * (box.y1 - box.y0),
         z: box.z0 + Math.random() * (box.z1 - box.z0),
-        sp: kind === 'snow' ? 0.18 + Math.random() * 0.16 : 3.2 + Math.random() * 1.6,
+        sp: kind === 'snow' ? 0.18 + Math.random() * 0.16 : 3.6 + Math.random() * 1.8,
+        len: 0.55 + Math.random() * 0.6, // 빗줄기 길이 배율
         ph: Math.random() * Math.PI * 2,
       })),
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [kind],
   )
   const m = useMemo(() => new THREE.Matrix4(), [])
-  const q = useMemo(() => new THREE.Quaternion().setFromEuler(new THREE.Euler(0, 0, kind === 'rain' ? 0.18 : 0)), [kind])
-  const one = useMemo(() => new THREE.Vector3(1, 1, 1), [])
+  // 바람에 살짝 비스듬히: 빗줄기 기울기와 흘러가는 방향을 맞춤 (아래로 내려가며 -x 로 조금)
+  const SLANT = 0.07
+  const q = useMemo(() => new THREE.Quaternion().setFromEuler(new THREE.Euler(0, 0, kind === 'rain' ? -SLANT : 0)), [kind])
+  const sc = useMemo(() => new THREE.Vector3(1, 1, 1), [])
   const v = useMemo(() => new THREE.Vector3(), [])
   useFrame(({ clock, camera }, dt) => {
     const mesh = ref.current
@@ -509,21 +513,22 @@ function WeatherOutside({ kind }: { kind: 'snow' | 'rain' }) {
     for (let i = 0; i < parts.length; i++) {
       const p = parts[i]
       p.y -= p.sp * Math.min(dt, 0.1)
-      if (kind === 'rain') p.x -= p.sp * 0.18 * Math.min(dt, 0.1)
+      if (kind === 'rain') p.x -= p.sp * SLANT * Math.min(dt, 0.1)
       if (p.y < box.y0) {
         p.y = box.y1
         p.x = box.x0 + Math.random() * (box.x1 - box.x0)
       }
       if (p.x < box.x0) p.x = box.x1
       const sway = kind === 'snow' ? Math.sin(t * 0.9 + p.ph) * 0.06 : 0
-      mesh.setMatrixAt(i, m.compose(v.set(p.x + sway, p.y, p.z), q, one))
+      sc.set(1, kind === 'rain' ? p.len : 1, 1)
+      mesh.setMatrixAt(i, m.compose(v.set(p.x + sway, p.y, p.z), q, sc))
     }
     mesh.instanceMatrix.needsUpdate = true
   })
   return (
     <instancedMesh ref={ref} args={[undefined, undefined, n]} frustumCulled={false} userData={{ noPick: true }}>
-      {kind === 'snow' ? <sphereGeometry args={[0.018, 5, 4]} /> : <boxGeometry args={[0.005, 0.17, 0.005]} />}
-      <meshBasicMaterial color={kind === 'snow' ? '#ffffff' : '#d3dcf2'} transparent opacity={kind === 'snow' ? 0.95 : 0.6} toneMapped={false} />
+      {kind === 'snow' ? <sphereGeometry args={[0.018, 5, 4]} /> : <boxGeometry args={[0.004, 0.16, 0.004]} />}
+      <meshBasicMaterial color={kind === 'snow' ? '#ffffff' : '#d3dcf2'} transparent opacity={kind === 'snow' ? 0.95 : 0.32} toneMapped={false} />
     </instancedMesh>
   )
 }

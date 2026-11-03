@@ -127,9 +127,9 @@ export const COLORS = {
     dawnLight: '#a9bde6',
     dawnIntensity: 3.2,
     candle: '#ffae5c',
-    candleIntensity: 2.4,
-    ambient: '#3a3550',
-    ambientIntensity: 0.7,
+    candleIntensity: 3.0,
+    ambient: '#4c4662',
+    ambientIntensity: 1.3,
   },
 }
 
