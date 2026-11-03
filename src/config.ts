@@ -129,7 +129,7 @@ export const COLORS = {
     candle: '#ffae5c',
     candleIntensity: 2.4,
     ambient: '#3a3550',
-    ambientIntensity: 0.32,
+    ambientIntensity: 0.7,
   },
 }
 

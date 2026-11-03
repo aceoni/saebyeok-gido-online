@@ -8,9 +8,9 @@ export function ClosetScene() {
     <>
       <color attach="background" args={['#07070a']} />
       <ambientLight color={C.ambient} intensity={C.ambientIntensity} />
-      <hemisphereLight args={['#6d7aa0', '#2a1d14', 0.18]} />
+      <hemisphereLight args={['#6d7aa0', '#2a1d14', 0.42]} />
       {/* 방 뒤쪽 위의 아주 약한 보조광: 촛불을 등진 내 캐릭터가 실루엣만 남지 않게 */}
-      <pointLight position={[0.5, 2.3, 1.5]} color="#9a8aa6" intensity={0.9} distance={4.5} decay={1.5} />
+      <pointLight position={[0.5, 2.3, 1.5]} color="#9a8aa6" intensity={2.0} distance={4.5} decay={1.5} />
       <ClosetRoom />
     </>
   )
