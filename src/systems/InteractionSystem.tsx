@@ -41,9 +41,16 @@ export function InteractionSystem() {
   if (!focus) return null
   return (
     <Html position={focus.anchor} center zIndexRange={[20, 0]}>
-      <button className="interact-bubble" onClick={() => focusRef.current?.onInteract()}>
-        <kbd>E</kbd> {focus.label}
-      </button>
+      <div className="interact-group">
+        <button className="interact-bubble" onClick={() => focusRef.current?.onInteract()}>
+          <kbd>E</kbd> {focus.label}
+        </button>
+        {focus.more?.map((m) => (
+          <button key={m.label} className="interact-bubble secondary" onClick={m.onInteract}>
+            {m.label}
+          </button>
+        ))}
+      </div>
     </Html>
   )
 }

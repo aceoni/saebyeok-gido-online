@@ -25,17 +25,26 @@ const skinMat = <meshStandardMaterial color={C.skin} roughness={0.75} />
 const THIGH = 0.19 // 허벅지 길이 (엉덩이 관절 → 무릎)
 const SHIN = 0.16
 
-/** 다리: 엉덩이 관절(legRef) + 무릎 관절(kneeRef). 무릎은 + 방향으로 굽음 (정강이가 뒤로) */
+type GroupRef = React.RefObject<THREE.Group | null>
+
+/** 다리: 엉덩이 관절(legRef) + 무릎 관절(kneeRef) + 발목(ankleRef). 무릎은 + 방향으로 굽음 (정강이가 뒤로).
+ *  lap/shinLap: 치마 입고 무릎 꿇을 때 두 다리를 하나로 덮는 치마 (왼다리에만 붙임) */
 function Leg({
   x,
   legRef,
   kneeRef,
+  ankleRef,
   color,
+  lap,
+  shinLap,
 }: {
   x: number
-  legRef: React.RefObject<THREE.Group | null>
-  kneeRef: React.RefObject<THREE.Group | null>
+  legRef: GroupRef
+  kneeRef: GroupRef
+  ankleRef: GroupRef
   color: string
+  lap?: ReactNode
+  shinLap?: ReactNode
 }) {
   return (
     <group ref={legRef} position={[x, HIP_Y, 0]}>
@@ -43,15 +52,25 @@ function Leg({
         <cylinderGeometry args={[0.075, 0.071, THIGH + 0.02, 7]} />
         {mat(color)}
       </mesh>
+      {lap}
       <group ref={kneeRef} position={[0, -THIGH, 0]}>
+        {/* 무릎: 굽혔을 때 잘려 보이지 않게 둥근 무릎뼈 */}
+        <mesh position={[0, 0, 0.012]} scale={[1, 1, 1.05]}>
+          <sphereGeometry args={[0.074, 12, 9]} />
+          {mat(color)}
+        </mesh>
         <mesh position={[0, -SHIN / 2, 0]} castShadow>
           <cylinderGeometry args={[0.071, 0.066, SHIN + 0.02, 7]} />
           {mat(color)}
         </mesh>
-        <mesh position={[0, -SHIN - 0.02, 0.035]} scale={[1, 0.7, 1.35]}>
-          <icosahedronGeometry args={[0.085, 0]} />
-          {mat(C.shoes)}
-        </mesh>
+        {shinLap}
+        {/* 발목: 무릎 꿇으면 발등을 펴서 정강이와 일자로 */}
+        <group ref={ankleRef} position={[0, -SHIN, 0]}>
+          <mesh position={[0, -0.02, 0.035]} scale={[1, 0.7, 1.35]}>
+            <icosahedronGeometry args={[0.085, 0]} />
+            {mat(C.shoes)}
+          </mesh>
+        </group>
       </group>
     </group>
   )
@@ -150,6 +169,12 @@ export function Character({
   const legR = useRef<THREE.Group>(null)
   const kneeL = useRef<THREE.Group>(null)
   const kneeR = useRef<THREE.Group>(null)
+  const ankleL = useRef<THREE.Group>(null)
+  const ankleR = useRef<THREE.Group>(null)
+  const skirt = useRef<THREE.Mesh>(null) // 서 있을 때 치마
+  const kneelSkirt = useRef<THREE.Group>(null) // 무릎 꿇을 때 치마 (허리)
+  const lap = useRef<THREE.Group>(null) // 무릎 꿇을 때 치마 (허벅지·정강이 덮개)
+  const shinLap = useRef<THREE.Group>(null)
   const armL = useRef<THREE.Group>(null)
   const armR = useRef<THREE.Group>(null)
   const eyeL = useRef<THREE.Mesh>(null)
@@ -172,18 +197,27 @@ export function Character({
     const sw = Math.sin(phase.current) * amp.current
 
     // 다리: 걷기 흔들림 / 앉으면 앞으로 90° / 무릎 꿇으면 뒤로
-    // 의자: 허벅지 앞으로 + 정강이는 아래로 / 무릎 꿇기(정좌): 허벅지 앞으로 눕히고 정강이를 허벅지 밑으로 완전히 접음
-    const legBase = seated ? (s.kneel ? -1.52 : -1.45) : 0
-    const kneeBase = seated ? (s.kneel ? 3.02 : 1.3) : 0
+    // 의자: 허벅지 앞으로 + 정강이는 아래로
+    // 무릎 꿇기(정좌): 엉덩이(바닥 위 약 0.2m)에서 허벅지가 앞아래로 내려가 무릎이 바닥에 닿고,
+    //   정강이는 바닥에 눕혀 뒤로(발목이 엉덩이 바로 밑), 발등은 펴서 정강이와 일자 → 바닥에 붙어 앉은 모양
+    const kneeling = seated && !!s.kneel
+    const legBase = seated ? (kneeling ? -0.89 : -1.45) : 0
+    const kneeBase = seated ? (kneeling ? 2.4 : 1.3) : 0
+    const ankleBase = kneeling ? Math.PI / 2 : 0
+    ankleL.current!.rotation.x += (ankleBase - ankleL.current!.rotation.x) * k
+    ankleR.current!.rotation.x += (ankleBase - ankleR.current!.rotation.x) * k
+    // 치마: 무릎 꿇으면 통치마 대신 두 다리를 하나로 덮는 모양
+    if (skirt.current) skirt.current.visible = !kneeling
+    for (const g of [kneelSkirt.current, lap.current, shinLap.current]) if (g) g.visible = kneeling
     legL.current!.rotation.x += (legBase + sw - legL.current!.rotation.x) * k
     legR.current!.rotation.x += (legBase - sw - legR.current!.rotation.x) * k
     // 걸을 때는 뒤로 보내는 다리의 무릎이 살짝 굽음
     kneeL.current!.rotation.x += (kneeBase + Math.max(0, sw) * 0.7 - kneeL.current!.rotation.x) * k
     kneeR.current!.rotation.x += (kneeBase + Math.max(0, -sw) * 0.7 - kneeR.current!.rotation.x) * k
-    // 팔: 걷기 흔들림 / 앉으면 무릎 위 / 기도하면 가슴 앞에서 모음
+    // 팔: 걷기 흔들림 / 앉으면 무릎 위 / 기도하면 가슴 앞에서 두 손이 맞닿게 (팔이 몸통과 조금 겹쳐도 됨)
     const praying = s.pose === 'praying'
-    const armX = praying ? -1.15 : seated ? -0.45 : 0
-    const armZ = praying ? 0.42 : 0
+    const armX = praying ? -0.89 : seated ? -0.45 : 0
+    const armZ = praying ? 0.69 : 0
     armL.current!.rotation.x += (armX - sw * 0.9 - armL.current!.rotation.x) * k
     armR.current!.rotation.x += (armX + sw * 0.9 - armR.current!.rotation.x) * k
     // (왼팔은 +z 회전, 오른팔은 -z 회전이 몸 안쪽)
@@ -202,18 +236,51 @@ export function Character({
   })
 
   const skirtH = avatar.skirt === 'long' ? 0.36 : 0.22
+  // 무릎 꿇은 치마: 두 다리(x = ±0.085)를 한 덩어리로 덮음. 왼다리 관절에 붙이므로 x 를 +0.085 옮김
+  const legColor = avatar.skirt ? '#4a4044' : avatar.bottom
+  const lapMat = mat(avatar.bottom)
+  const lapNode = avatar.skirt && (
+    <group ref={lap} visible={false}>
+      <mesh position={[0.085, -THIGH / 2, 0]} scale={[2.15, 1, 1.02]}>
+        <cylinderGeometry args={[0.081, 0.08, THIGH + 0.03, 10]} />
+        {lapMat}
+      </mesh>
+      {/* 무릎 (치마 너머로 둥글게) */}
+      <mesh position={[0.085, -THIGH, 0.014]} scale={[2.15, 1, 1.08]}>
+        <sphereGeometry args={[0.08, 14, 10]} />
+        {lapMat}
+      </mesh>
+    </group>
+  )
+  const shinLapNode = avatar.skirt === 'long' && (
+    <group ref={shinLap} visible={false}>
+      <mesh position={[0.085, -SHIN / 2 + 0.01, 0]} scale={[2.2, 1, 1.02]}>
+        <cylinderGeometry args={[0.078, 0.074, SHIN, 10]} />
+        {lapMat}
+      </mesh>
+    </group>
+  )
   return (
     <group ref={root} userData={{ noPick: true }}>
       <group ref={model}>
         <group ref={body}>
-          <Leg x={-0.085} legRef={legL} kneeRef={kneeL} color={avatar.skirt ? '#4a4044' : avatar.bottom} />
-          <Leg x={0.085} legRef={legR} kneeRef={kneeR} color={avatar.skirt ? '#4a4044' : avatar.bottom} />
+          <Leg x={-0.085} legRef={legL} kneeRef={kneeL} ankleRef={ankleL} color={legColor} lap={lapNode} shinLap={shinLapNode} />
+          <Leg x={0.085} legRef={legR} kneeRef={kneeR} ankleRef={ankleR} color={legColor} />
           {/* 엉덩이(바지) 또는 치마 + 몸통(카디건) + 셔츠 깃 */}
           {avatar.skirt ? (
-            <mesh position={[0, 0.5 - skirtH / 2, 0]} scale={[1, 1, 0.85]} castShadow>
-              <cylinderGeometry args={[0.17, avatar.skirt === 'long' ? 0.25 : 0.23, skirtH + 0.08, 10]} />
-              {mat(avatar.bottom)}
-            </mesh>
+            <>
+              <mesh ref={skirt} position={[0, 0.5 - skirtH / 2, 0]} scale={[1, 1, 0.85]} castShadow>
+                <cylinderGeometry args={[0.17, avatar.skirt === 'long' ? 0.25 : 0.23, skirtH + 0.08, 10]} />
+                {mat(avatar.bottom)}
+              </mesh>
+              {/* 무릎 꿇을 때: 바지와 같은 허리 + 엉덩이 (치마 색) */}
+              <group ref={kneelSkirt} visible={false}>
+                <mesh position={[0, 0.45, 0]} scale={[1, 1, 0.82]}>
+                  <cylinderGeometry args={[0.18, 0.18, 0.14, 10]} />
+                  {mat(avatar.bottom)}
+                </mesh>
+              </group>
+            </>
           ) : (
             <mesh position={[0, 0.46, 0]} scale={[1, 1, 0.8]}>
               <cylinderGeometry args={[0.18, 0.17, 0.12, 8]} />

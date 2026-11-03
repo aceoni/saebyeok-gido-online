@@ -6,7 +6,7 @@ import { usePlayer } from '../store/player'
 import { useUi, type Weather } from '../store/ui'
 import { enter, setAudioPlace, setRain } from './AudioManager'
 import { cameraState } from './cameraState'
-import { startNetwork } from './network/NetworkManager'
+import { startNetwork, stopNetwork } from './network/NetworkManager'
 
 // 작은 방이라 뒤쪽 모서리 위에서 어깨 너머로 내려다보는 시점으로 시작
 // insideMax 까지는 방 안에 머물고, 그보다 멀리 줌아웃하면 방 밖으로 나가며 카메라 쪽 벽이 투명해짐
@@ -46,8 +46,9 @@ export function enterPlace(place: Place, withSound: boolean) {
   if (place === 'sanctuary') void startNetwork()
 }
 
-/** 골방 문: 시작 화면으로 (배경 찬양은 계속) */
+/** 골방 문 / 예배당 문: 시작 화면으로 (배경 찬양은 계속). 예배당에서 나가면 기도실에서도 빠짐 */
 export function exitToStart() {
+  stopNetwork()
   usePlayer.getState().moveToLevel(1, PLAYER.spawn, PLAYER.spawnRotY)
   resetCamera('sanctuary')
   setRain(false)

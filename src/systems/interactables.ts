@@ -13,6 +13,8 @@ export type Interactable = {
   anchor: [number, number, number] // 말풍선이 뜨는 곳
   radius: number
   onInteract: () => void
+  /** 같은 자리의 다른 선택지 (말풍선 옆 버튼). [E] 는 위의 onInteract */
+  more?: { label: string; onInteract: () => void }[]
 }
 
 const SLOTS: Record<Level, PewSlot[]> = { 1: [...pewSlots, ...choirSlots], 2: balconySlots, 3: [] }
@@ -170,6 +172,7 @@ export function findInteractable(): Interactable | null {
       anchor: [link.pos[0], link.pos[1] + 2.0, link.pos[2]],
       radius: 1.4,
       onInteract: () => usePlayer.getState().moveToLevel(level === 1 ? 2 : 1, link.to, Math.PI),
+      more: [{ label: '예배당 나가기', onInteract: exitToStart }],
     }
   }
   return best

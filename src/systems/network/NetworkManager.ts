@@ -61,6 +61,7 @@ function autoName(members: Member[], myId: string) {
 
 let members: Member[] = []
 let joined = false
+let sendTimer = 0
 let firstMembers: () => void = () => {}
 const membersReady = new Promise<void>((r) => (firstMembers = r))
 
@@ -124,7 +125,7 @@ export async function startNetwork() {
   transport.join({ name, avatarId })
   forceSend = true
   // 내 상태 보내기: 바뀌었을 때만 + 이따금 한 번씩
-  window.setInterval(() => {
+  sendTimer = window.setInterval(() => {
     const s = myState()
     const now = Date.now()
     if (forceSend || changed(s, lastSent) || now - lastSentAt > HEARTBEAT) {
@@ -134,6 +135,15 @@ export async function startNetwork() {
       forceSend = false
     }
   }, SEND_INTERVAL)
+}
+
+/** 예배당 나가기: 기도실에서 빠짐 (인원 수 보기는 계속). 다시 입장하면 startNetwork 로 */
+export function stopNetwork() {
+  if (!joined) return
+  joined = false
+  clearInterval(sendTimer)
+  lastSent = null
+  transport?.leave()
 }
 
 function showBubble(id: string, text: string) {

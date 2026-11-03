@@ -70,6 +70,11 @@ export class LocalTransport implements Transport {
     this.hello()
     this.emitMembers()
   }
+  leave() {
+    if (this.meta) this.bc?.postMessage({ t: 'bye', id: this.id } satisfies Msg)
+    this.meta = null
+    this.emitMembers()
+  }
   sendState(s: NetState) {
     this.bc?.postMessage({ t: 'state', id: this.id, s } satisfies Msg)
   }

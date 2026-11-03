@@ -19,6 +19,8 @@ export interface Transport {
   /** 입장: 이제 다른 사람에게 나(이름·아바타)를 알림 */
   join(meta: Meta): void
   updateMeta(meta: Meta): void
+  /** 나가기: 다시 보기만 하는 상태로 (다른 사람 화면에서 나는 사라짐) */
+  leave(): void
   sendState(state: NetState): void
   sendPray(text: string): void
   close(): void

@@ -47,6 +47,11 @@ export class SupabaseTransport implements Transport {
     if (this.subscribed) void this.channel?.track(meta)
   }
 
+  leave() {
+    this.meta = null
+    if (this.subscribed) void this.channel?.untrack()
+  }
+
   private send(event: string, payload: object) {
     void this.channel?.send({ type: 'broadcast', event, payload: { id: this.id, ...payload } })
   }

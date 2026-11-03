@@ -984,3 +984,13 @@ kbd {
 .seat-controls {
   z-index: 25;
 }
+
+/* 문 앞처럼 선택지가 여러 개일 때 */
+.interact-group {
+  display: flex;
+  gap: 8px;
+}
+.interact-bubble.secondary {
+  background: rgba(20, 18, 24, 0.5);
+  color: rgba(246, 236, 220, 0.85);
+}
